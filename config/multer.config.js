@@ -7,9 +7,9 @@ const storage = awsStorage({
     bucket: process.env.AWS_S3_BUCKET,
     contentType: awsStorage.AUTO_CONTENT_TYPE,
     key: (req, file, cb) => {
-        const userId = req.user._id
+        const userName = req.user.username
         const safeFileName = file.originalname.replace(/[^a-zA-Z0-9.]/g, '_')
-        const s3Key = `${userId}/${Date.now()}_${safeFileName}`
+        const s3Key = `${userName}/${Date.now()}_${safeFileName}`
         cb(null, s3Key); 
     }
 

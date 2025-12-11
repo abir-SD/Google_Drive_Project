@@ -8,7 +8,7 @@ const { s3 } = require('../config/s3-config.js')
 // For uploading data ...
 
 const uploadFileToS3 = async (fileBuffer, originalName, MimeType, userId) => {
-    const fileKey = `${userId}/${Date.now()}-${originalName}`
+    const fileKey = `${userName}/${Date.now()}-${originalName}`
     const command = new PutObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET,
         Key: fileKey,

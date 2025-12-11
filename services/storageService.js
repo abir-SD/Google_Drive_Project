@@ -44,6 +44,17 @@ const getSignedDownloadUrl = async (s3Key, filename) => {
 }
 
 
+const getSignedViewUrl = async (s3Key, filename) => {
+    const command = new GetObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: s3Key,
+        ResponseContentDisposition: `inline; filename="${filename}"`
+    })
+    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 })
+    return signedUrl
+}
+
+
 // For deleting data ...
 
 const deleteFileFromS3 = async (s3Key) => {
@@ -66,4 +77,4 @@ const deleteFileFromS3 = async (s3Key) => {
 
 
 
-module.exports = { uploadFileToS3, getSignedDownloadUrl, deleteFileFromS3 };
+module.exports = { uploadFileToS3, getSignedDownloadUrl, deleteFileFromS3, getSignedViewUrl };

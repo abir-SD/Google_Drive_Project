@@ -1,7 +1,7 @@
 const express = require('express')
 const https = require('https');
 const authMiddleware = require('../middlewares/authe')
-const { uploadFileToS3, getSignedDownloadUrl } = require('../services/storageService')
+const { uploadFileToS3, getSignedDownloadUrl, getSignedViewUrl } = require('../services/storageService')
 
 const router = express.Router()
 const upload = require('../config/multer.config')
@@ -109,8 +109,27 @@ router.get('/download/:username/:filename', authMiddleware, async (req, res) => 
 });
 
 
+router.get('/view/:username/:filename', authMiddleware, async (req, res) => {
+    try {
+        const s3Key = `${req.params.username}/${req.params.filename}`;
+        const file = await fileModel.findOne({ s3Key: s3Key });
 
+        if (!file) {
+            return res.status(404).send('File not found.');
+        }
 
+        if (!file.owner.equals(req.user._id)) {
+            return res.status(403).send('You do not have permission to access this file.');
+        }
+
+        const viewUrl = await getSignedViewUrl(s3Key, file.originalName);
+        return res.redirect(viewUrl);
+
+    } catch (error) {
+        console.error('View error:', error);
+        res.status(500).send('Error viewing file.');
+    }
+});
 
 
 module.exports = router

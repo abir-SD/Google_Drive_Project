@@ -38,7 +38,7 @@ const getSignedDownloadUrl = async (s3Key, filename) => {
         Key: s3Key,
         ResponseContentDisposition: `attachment; filename="${filename}"`
     })
-    const signedUrl = await getSignedUrl(s3, command)
+    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 })
     return signedUrl
 
 }

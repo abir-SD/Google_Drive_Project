@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Status</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); text-align: center; max-width: 400px; width: 100%; }
+        h1 { font-size: 24px; color: #333; margin-bottom: 20px; }
+        p { color: #555; margin: 10px 0; }
+        strong { color: #333; }
+        a { color: #007bff; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+        form { margin-top: 20px; }
+        input[type="file"] { margin-bottom: 20px; }
+        button { background-color: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <%#
+            This is the main logic of the page.
+            We check if a 'file' object was sent from the server.
+            The server only sends this object after a file has been successfully uploaded.
+        %>
+        <% if (typeof file !== 'undefined' && file) { %>
+            
+            <%# --- DISPLAY UPLOADED FILE INFO --- %>
+            <%# If the 'file' object exists, it means an upload was successful. %>
+            <%# So, we'll show the details of the uploaded file. %>
+            
+            <h1>File Uploaded Successfully!</h1>
+            <p><strong>File Name:</strong> <%= file.originalname %></p>
+            <p><strong>File Type:</strong> <%= file.mimetype %></p>
+            <p><strong>File Size:</strong> <%= (file.size / 1024).toFixed(2) %> KB</p>
+            <br>
+            <a href="/home">Upload Another File</a>
+
+        <% } else { %>
+
+            <%# --- SHOW UPLOAD FORM --- %>
+            <%# If the 'file' object does NOT exist, it means we need to show the form %>
+            <%# so the user can upload a new file. %>
+            
+            <h2>You haven't selected a File yet</h2>
+            <form action="/home" method="get" enctype="multipart/form-data">
+                <br>
+                <button type="submit">Go Back...</button>
+            </form>
+
+        <% } %>
+    </div>
+
+</body>
+</html>

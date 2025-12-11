@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Drive - Secure Cloud Storage</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans for a modern feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Modern Gradient Background */
+        .animated-bg {
+            background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh; /* Ensure it covers full height */
+            width: 100%;
+            position: relative;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Card Effect */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        /* Floating Animation for 3D elements */
+        .float-slow {
+            animation: float 6s ease-in-out infinite;
+        }
+        .float-medium {
+            animation: float 5s ease-in-out infinite;
+            animation-delay: 1s;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Cloud shapes */
+        .cloud {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            position: absolute;
+            z-index: 0;
+            filter: blur(2px);
+        }
+        .cloud::after, .cloud::before {
+            content: '';
+            background: inherit;
+            border-radius: 50%;
+            position: absolute;
+        }
+    </style>
+</head>
+<body class="animated-bg text-white flex flex-col">
+
+    <!-- Navbar: Just the Name -->
+    <header class="absolute top-0 left-0 w-full p-6 z-50">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+                <i class="ph-fill ph-cloud-arrow-up text-3xl text-cyan-300"></i>
+                Your Drive
+            </h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <!-- Added pt-24 (padding-top) to ensure content sits below the navbar visually -->
+    <main class="flex-grow flex flex-col justify-center px-4 pt-24 md:pt-32 pb-10 relative z-10 w-full">
+        
+        <!-- Background Decor elements (Clouds) -->
+        <div class="cloud w-32 h-12 top-1/4 left-5 md:left-20 opacity-30 float-slow hidden sm:block">
+            <style>.cloud:nth-child(1)::after { width: 40px; height: 40px; top: -20px; left: 10px; } .cloud:nth-child(1)::before { width: 50px; height: 50px; top: -30px; right: 10px; }</style>
+        </div>
+        <div class="cloud w-48 h-16 bottom-1/4 right-5 md:right-20 opacity-40 float-medium hidden sm:block">
+            <style>.cloud:nth-child(2)::after { width: 60px; height: 60px; top: -30px; left: 15px; } .cloud:nth-child(2)::before { width: 70px; height: 70px; top: -45px; right: 15px; }</style>
+        </div>
+
+        <div class="text-center max-w-4xl w-full mx-auto">
+            
+            <!-- Hero Text -->
+            <div class="mb-12 space-y-6 animate-fade-in-up">
+                <h2 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight drop-shadow-lg">
+                    Store. Share. <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-200">Access.</span>
+                </h2>
+                <p class="text-lg md:text-2xl text-blue-100 max-w-2xl mx-auto font-light leading-relaxed">
+                    Securely upload and manage your files — anytime, anywhere.
+                </p>
+            </div>
+
+            <!-- Central Visual (Glass Card) -->
+            <!-- Removed 'hover:scale' from parent container -->
+            <div class="relative w-full max-w-lg mx-auto mb-16 h-64 md:h-80 perspective-1000">
+                <!-- The Main Glass Panel -->
+                <div class="glass-panel w-full h-full rounded-2xl flex flex-col p-4 relative z-20 transition-all duration-500">
+                    <!-- Fake Browser Dots -->
+                    <div class="flex gap-2 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    
+                    <!-- Internal Content Grid -->
+                    <div class="flex-1 grid grid-cols-3 gap-4 p-2 items-center">
+                        <!-- File Card 1: Image -->
+                        <!-- Added hover scaling to INDIVIDUAL cards -->
+                        <div class="bg-white/10 rounded-lg p-3 flex flex-col items-center justify-center gap-2 transition-transform duration-300 hover:scale-110 hover:bg-white/20 cursor-pointer h-32 md:h-40">
+                            <i class="ph-fill ph-image text-4xl text-purple-300"></i>
+                            <div class="h-2 w-16 bg-white/20 rounded"></div>
+                            <div class="h-2 w-10 bg-white/20 rounded"></div>
+                        </div>
+                        
+                        <!-- File Card 2: Video (Active) -->
+                        <div class="bg-white/20 rounded-lg p-3 flex flex-col items-center justify-center gap-2 shadow-lg border border-white/30 relative transition-transform duration-300 hover:scale-110 cursor-pointer h-36 md:h-44 -mt-2">
+                            <div class="absolute -top-2 -right-2 bg-blue-500 rounded-full p-1 shadow-lg">
+                                <i class="ph-bold ph-check text-xs text-white"></i>
+                            </div>
+                            <i class="ph-fill ph-play-circle text-5xl text-cyan-300"></i>
+                            <div class="h-2 w-20 bg-white/40 rounded mt-1"></div>
+                        </div>
+                        
+                        <!-- File Card 3: Doc -->
+                        <div class="bg-white/10 rounded-lg p-3 flex flex-col items-center justify-center gap-2 transition-transform duration-300 hover:scale-110 hover:bg-white/20 cursor-pointer h-32 md:h-40">
+                            <i class="ph-fill ph-file-text text-4xl text-blue-300"></i>
+                            <div class="h-2 w-16 bg-white/20 rounded"></div>
+                            <div class="h-2 w-12 bg-white/20 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Abstract Circles Behind -->
+                <div class="absolute -top-10 -left-10 w-24 h-24 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+                <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
+                <!-- Sign In: Outline -> White Bg -->
+                <a href="/user/login" class="group text-center w-44 px-8 py-3.5 rounded-full border-2 border-white/40 text-white font-semibold transition-all duration-300 hover:bg-white hover:border-white hover:text-blue-900 focus:ring-4 focus:ring-white/20">
+                    Sign In
+                </a>
+                
+                <!-- Get Started: White Bg -> Transparent Outline (Reverse) -->
+                <a href="/user/register" class="group text-center w-44 px-8 py-3.5 rounded-full bg-white text-blue-900 font-bold border-2 border-white shadow-lg shadow-blue-900/20 transition-all duration-300 hover:bg-transparent hover:text-white hover:shadow-xl focus:ring-4 focus:ring-blue-300/50">
+                    Get Started
+                </a>
+            </div>
+
+        </div>
+    </main>
+    
+    <!-- Simple Footer Copyright -->
+    <footer class="text-center py-6 text-white/40 text-sm relative z-10">
+        &copy; 2025 Your Drive. All rights reserved.
+    </footer>
+
+</body>
+</html>

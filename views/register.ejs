@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-100 h-screen w-screen flex items-center justify-center">
+
+
+    <form action="/user/register" method="post" class="w-96">
+        <div class="grid gap-6 mb-6 md:grid-cols-2">
+            <div>
+                <label for="user" class="block mb-2.5 text-sm font-medium text-heading">User name</label>
+                <input type="text" id="user"
+                    class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                    placeholder="User name" name="username" required />
+            </div>
+        </div>
+        <div class="mb-6">
+            <label for="email" class="block mb-2.5 text-sm font-medium text-heading">Email address</label>
+            <input type="email" id="email"
+                class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                placeholder="username@company.com" name="email"  required />
+        </div>
+        <div class="mb-6">
+            <label for="password" class="block mb-2.5 text-sm font-medium text-heading">Password</label>
+            <input type="password" id="password"
+                class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                placeholder="•••••••••"  name="password" required />
+        </div>
+        <div class="flex items-start mb-6">
+            <div class="flex items-center h-5">
+                <input id="remember" type="checkbox" value=""
+                    class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft"
+                    required />
+            </div>
+            <label for="remember" class="ms-2 text-sm font-medium text-heading">I agree with the <a href="#"
+                    class="text-fg-brand hover:underline">terms and conditions</a>.</label>
+        </div>
+        <button type="submit"
+            class="text-black bg-brand box-border  border  hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Submit</button>
+    </form>
+</body>
+
+</html>

@@ -48,40 +48,6 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
 })
 
 
-// router.get('/download/:path', authMiddleware, async (req, res) => {
-//     try {
-//         const s3Key = req.params.path;
-//         const file = await fileModel.findOne({ s3Key: s3Key });
-
-//         if (!file) {
-//             return res.status(404).send('File not found.');
-//         }
-
-//         if (!file.owner.equals(req.user._id)) {
-//             return res.status(403).send('You do not have permission to access this file.');
-//         }
-
-//         const downloadUrl = await getSignedDownloadUrl(s3Key, file.originalName);
-
-//         res.setHeader('Content-Disposition', `attachment; filename="${file.originalName}"`);
-
-//         https.get(downloadUrl, (s3Response) => {
-//             s3Response.pipe(res);
-//         }).on('error', (err) => {
-//             console.error('Error streaming file from S3:', err);
-//             res.status(500).send('Error downloading file.');
-//         });
-
-//     } catch (error) {
-//         console.error('Download error:', error);
-//         res.status(500).send('Error downloading file.');
-//     }
-// });
-
-// index.router.js
-
-// index.router.js
-
 router.get('/download/:username/:filename', authMiddleware, async (req, res) => {
     try {
         const s3Key = `${req.params.username}/${req.params.filename}`;

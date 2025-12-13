@@ -1,40 +1,144 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Drive - Login</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    
+    <!-- Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Modern Gradient Background matching Home Page */
+        .animated-bg {
+            background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Fix for Webkit/Chrome auto-fill background color */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            /* Use a matching background color (rgba(255, 255, 255, 0.05)) as box-shadow */
+            -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.05) inset !important;
+            -webkit-text-fill-color: #ffffff !important; /* Keep text white */
+            /* Ensure the transition doesn't interfere with the autofill color flash */
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 h-screen w-screen flex items-center justify-center">
+<body class="animated-bg flex items-center justify-center p-4">
 
-
-    <form action="/user/login" method="post" class="w-96">
-        <div class="mb-6">
-            <label for="email" class="block mb-2.5 text-sm font-medium text-heading">Email address</label>
-            <input type="email" id="email"
-                class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
-                placeholder="username@company.com" name="email" required />
-        </div>
-        <div class="mb-6">
-            <label for="password" class="block mb-2.5 text-sm font-medium text-heading">Password</label>
-            <input type="password" id="password"
-                class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
-                placeholder="•••••••••" name="password" required />
-        </div>
-        <div class="flex items-start mb-6">
-            <div class="flex items-center h-5">
-                <input id="remember" type="checkbox" value=""
-                    class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft"
-                    required />
+    <!-- Glass Container for Login Form -->
+    <div class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <i class="ri-cloud-line text-cyan-300 text-5xl"></i>
             </div>
-            <label for="remember" class="ms-2 text-sm font-medium text-heading">I agree with the <a href="#"
-                    class="text-fg-brand hover:underline">terms and conditions</a>.</label>
+            <h2 class="text-3xl font-bold text-white tracking-tight">Welcome Back</h2>
+            <p class="text-blue-200 mt-2 text-sm">Enter your credentials to access your drive</p>
         </div>
-        <button type="submit"
-            class="text-black bg-brand box-border  border  hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Submit</button>
-    </form>
-</body>
 
+        <!-- Login Form (Logic Preserved) -->
+        <form action="/user/login" method="post" class="space-y-6">
+            
+            <!-- Email Field -->
+            <div>
+                <label for="email" class="block mb-2 text-sm font-medium text-blue-100">Email address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="ri-mail-line text-blue-300"></i>
+                    </div>
+                    <!-- Updated focus styles: removed shadow, added focus:ring-1 and focus:ring-cyan-300 -->
+                    <input type="email" id="email" name="email" required
+                        class="bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-10 p-3 placeholder-white/30 transition-all shadow-sm backdrop-blur-sm 
+                                focus:outline-none focus:ring-1 focus:ring-cyan-300 focus:border-cyan-300"
+                        placeholder="username@company.com" />
+                </div>
+            </div>
+
+            <!-- Password Field -->
+            <div>
+                <label for="password" class="block mb-2 text-sm font-medium text-blue-100">Password</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="ri-lock-line text-blue-300"></i>
+                    </div>
+                    <!-- Updated focus styles: removed shadow, added focus:ring-1 and focus:ring-cyan-300 -->
+                    <input type="password" id="password" name="password" required
+                        class="bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-10 p-3 placeholder-white/30 transition-all shadow-sm backdrop-blur-sm
+                                focus:outline-none focus:ring-1 focus:ring-cyan-300 focus:border-cyan-300"
+                        placeholder="•••••••••" />
+                </div>
+            </div>
+
+            <!-- Remember Me & Terms -->
+            <div class="flex items-start">
+                <div class="flex items-center h-5">
+                    <input id="remember" type="checkbox" value="" required
+                        class="w-4 h-4 rounded border-white/30 bg-white/10 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:ring-offset-transparent" />
+                </div>
+                <label for="remember" class="ms-2 text-sm font-medium text-blue-200">
+                    I agree with the <a href="#" class="text-cyan-300 hover:text-white hover:underline transition-colors">terms and conditions</a>.
+                </label>
+            </div>
+            
+            <!-- Registration Link -->
+            <div class="text-center pt-2">
+                <p class="text-sm font-medium text-blue-200">
+                    Don't have an account yet?
+                    <a href="/user/register" class="text-cyan-300 hover:text-white hover:underline transition-colors font-semibold">
+                        Register here.
+                    </a>
+                </p>
+            </div>
+
+
+            <!-- Submit Button -->
+            <button type="submit"
+                class="w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
+                hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent
+                focus:outline-none focus:ring-4 focus:ring-blue-300/50 flex items-center justify-center gap-2 mt-6">
+                <span>Submit</span>
+                <i class="ri-arrow-right-line"></i>
+            </button>
+            
+        </form>
+    </div>
+
+</body>
 </html>

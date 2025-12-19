@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Drive - Community Members</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    
+    <!-- Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Shared Animated Background */
+        .animated-bg {
+            background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+            border-color: rgba(34, 211, 238, 0.3);
+        }
+    </style>
+</head>
+
+<body class="animated-bg text-white">
+
+    <!-- Navigation Header -->
+    <nav class="fixed top-0 w-full z-50 p-4">
+        <div class="max-w-6xl mx-auto flex items-center justify-between glass-panel px-6 py-3 rounded-2xl shadow-xl">
+            <div class="flex items-center gap-2">
+                <i class="ri-cloud-line text-cyan-300 text-2xl"></i>
+                <span class="font-bold tracking-tight text-xl">Your Drive</span>
+            </div>
+            <a href="/welcome" 
+                class="flex items-center gap-2 text-sm font-semibold text-blue-100 hover:text-cyan-300 transition-colors">
+                <i class="ri-home-4-line"></i>
+                <span style="text-decoration: underline">Back to Welcome</span>
+            </a>
+        </div>
+    </nav>
+
+    <main class="pt-28 pb-20 px-4 max-w-6xl mx-auto">
+        
+        <!-- Trust Section Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Our Trusted Community</h1>
+            <p class="text-blue-100 max-w-2xl mx-auto text-lg">
+                Join thousands of users who trust us with their digital assets. Transparency is the core of our security.
+            </p>
+        </div>
+
+        <!-- Global Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+            <!-- Total Users Card -->
+            <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="ri-team-line text-9xl"></i>
+                </div>
+                <p class="text-cyan-300 text-5xl font-extrabold mb-1"><%= count %></p>
+                <p class="uppercase tracking-widest text-blue-200 font-bold text-sm">Active Members</p>
+                <div class="mt-4 h-1 w-12 bg-cyan-400 rounded-full"></div>
+            </div>
+
+            <!-- Files Secured Card -->
+            <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="ri-shield-check-line text-9xl"></i>
+                </div>
+                <p class="text-green-400 text-5xl font-extrabold mb-1"><%= totalFiles %></p>
+                <p class="uppercase tracking-widest text-blue-200 font-bold text-sm">Files Protected</p>
+                <div class="mt-4 h-1 w-12 bg-green-400 rounded-full"></div>
+            </div>
+        </div>
+
+        <!-- Members Grid -->
+        <div class="glass-panel rounded-[2rem] shadow-2xl p-8 relative">
+            <div class="flex items-center gap-3 mb-8">
+                <i class="ri-group-line text-cyan-300 text-2xl"></i>
+                <h3 class="text-2xl font-bold">Recent Members</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <% users.forEach(user => { %>
+                    <div class="glass-card flex items-center gap-4 p-5 rounded-2xl group">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center text-cyan-300 border border-white/10 group-hover:scale-105 transition-transform">
+                            <i class="ri-user-smile-line text-3xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-white text-lg truncate">
+                                <%= user.username %>
+                            </p>
+                            <p class="text-sm text-blue-200/60 truncate flex items-center gap-1">
+                                <i class="ri-mail-check-line text-xs"></i>
+                                <%= user.email %>
+                            </p>
+                        </div>
+                        <div class="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="ri-verified-badge-line text-cyan-400"></i>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            
+            <!-- Empty State (Optional Logic) -->
+            <% if (users.length === 0) { %>
+                <div class="text-center py-20">
+                    <i class="ri-user-search-line text-5xl text-blue-300/30"></i>
+                    <p class="mt-4 text-blue-200/50">No members found yet. Be the first!</p>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Bottom Call to Action (Using Registration Button Design) -->
+        <div class="mt-16 flex flex-col items-center gap-6">
+            <p class="text-blue-100 font-medium">Ready to secure your own files?</p>
+            <a href="/user/register"
+                class="w-full max-w-xs rounded-full bg-white text-blue-900 px-8 py-4 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
+                hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent
+                focus:outline-none focus:ring-4 focus:ring-blue-300/50 flex items-center justify-center gap-2">
+                <span>Join the Community</span>
+                <i class="ri-arrow-right-line"></i>
+            </a>
+        </div>
+    </main>
+
+</body>
+
+</html>

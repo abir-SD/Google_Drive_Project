@@ -24,7 +24,29 @@ router.get('/home', authMiddleware, async (req, res) => {
         files: userFiles
     })
 })
+// index.router.js
+const userModel = require('../models/user.model'); // Import your User model
 
+router.get('/members', async (req, res) => {
+    try {
+        // Fetch all users, but only grab the fields you want to show (e.g., username, email)
+        const allUsers = await userModel.find({}, 'username email');
+        const totalFiles = await fileModel.countDocuments();
+        
+        // Count the total number of registered users
+        const userCount = await userModel.countDocuments();
+
+        res.render('members', {
+            users: allUsers,
+            count: allUsers.length,
+            totalFiles: totalFiles
+        });
+        
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).send("Server Error");
+    }
+});
 
 router.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
     if (!req.file) {

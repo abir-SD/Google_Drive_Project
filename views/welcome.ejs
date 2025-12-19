@@ -28,7 +28,7 @@
             background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
-            min-height: 100vh; /* Ensure it covers full height */
+            min-height: 100vh;
             width: 100%;
             position: relative;
         }
@@ -81,18 +81,25 @@
 </head>
 <body class="animated-bg text-white flex flex-col">
 
-    <!-- Navbar: Just the Name -->
+    <!-- Navbar: Branding & Community Link -->
     <header class="absolute top-0 left-0 w-full p-6 z-50">
-        <div class="max-w-7xl mx-auto">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <!-- Brand -->
             <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
                 <i class="ph-fill ph-cloud-arrow-up text-3xl text-cyan-300"></i>
-                Your Drive
+                <span>Your Drive</span>
             </h1>
+
+            <!-- New Community Link: Build Trust -->
+            <a href="/members" class="glass-panel px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all duration-300 hover:bg-white/20 ">
+                <i class="ph-bold ph-users-three text-cyan-300"></i>
+                <span class="hidden sm:inline">Community Members</span>
+                <span class="sm:hidden text-xs">Members</span>
+            </a>
         </div>
     </header>
 
     <!-- Main Content -->
-    <!-- Added pt-24 (padding-top) to ensure content sits below the navbar visually -->
     <main class="flex-grow flex flex-col justify-center px-4 pt-24 md:pt-32 pb-10 relative z-10 w-full">
         
         <!-- Background Decor elements (Clouds) -->
@@ -116,9 +123,7 @@
             </div>
 
             <!-- Central Visual (Glass Card) -->
-            <!-- Removed 'hover:scale' from parent container -->
             <div class="relative w-full max-w-lg mx-auto mb-16 h-64 md:h-80 perspective-1000">
-                <!-- The Main Glass Panel -->
                 <div class="glass-panel w-full h-full rounded-2xl flex flex-col p-4 relative z-20 transition-all duration-500">
                     <!-- Fake Browser Dots -->
                     <div class="flex gap-2 mb-4">
@@ -130,7 +135,6 @@
                     <!-- Internal Content Grid -->
                     <div class="flex-1 grid grid-cols-3 gap-4 p-2 items-center">
                         <!-- File Card 1: Image -->
-                        <!-- Added hover scaling to INDIVIDUAL cards -->
                         <div class="bg-white/10 rounded-lg p-3 flex flex-col items-center justify-center gap-2 transition-transform duration-300 hover:scale-110 hover:bg-white/20 cursor-pointer h-32 md:h-40">
                             <i class="ph-fill ph-image text-4xl text-purple-300"></i>
                             <div class="h-2 w-16 bg-white/20 rounded"></div>
@@ -162,12 +166,10 @@
 
             <!-- Buttons -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
-                <!-- Sign In: Outline -> White Bg -->
                 <a href="/user/login" class="group text-center w-44 px-8 py-3.5 rounded-full border-2 border-white/40 text-white font-semibold transition-all duration-300 hover:bg-white hover:border-white hover:text-blue-900 focus:ring-4 focus:ring-white/20">
                     Sign In
                 </a>
                 
-                <!-- Get Started: White Bg -> Transparent Outline (Reverse) -->
                 <a href="/user/register" class="group text-center w-44 px-8 py-3.5 rounded-full bg-white text-blue-900 font-bold border-2 border-white shadow-lg shadow-blue-900/20 transition-all duration-300 hover:bg-transparent hover:text-white hover:shadow-xl focus:ring-4 focus:ring-blue-300/50">
                     Get Started
                 </a>
@@ -178,7 +180,7 @@
     
     <!-- Simple Footer Copyright -->
     <footer class="text-center py-6 text-white/40 text-sm relative z-10">
-        &copy; 2025 Your Drive. All rights reserved.
+        &copy; 2025 Your Drive. All rights reserved by.
     </footer>
 
 </body>

@@ -5,17 +5,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Your Drive - Login</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
+
     <!-- Remix Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
-    
+
     <!-- Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <style>
         body {
@@ -32,9 +33,17 @@
         }
 
         @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* Glassmorphism Utilities */
@@ -45,14 +54,23 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        /* FIX 1: Custom Focus Border for Inputs (Simple Border Only) */
+        .glass-input:focus {
+            outline: none;
+            /* Crucial to remove default browser focus style */
+            border-color: #22d3ee;
+            /* Ensure the border itself is cyan-400 */
+        }
+
         /* Fix for Webkit/Chrome auto-fill background color */
         input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
         input:-webkit-autofill:active {
             /* Use a matching background color (rgba(255, 255, 255, 0.05)) as box-shadow */
             -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.05) inset !important;
-            -webkit-text-fill-color: #ffffff !important; /* Keep text white */
+            -webkit-text-fill-color: #ffffff !important;
+            /* Keep text white */
             /* Ensure the transition doesn't interfere with the autofill color flash */
             transition: background-color 5000s ease-in-out 0s;
         }
@@ -63,7 +81,7 @@
 
     <!-- Glass Container for Login Form -->
     <div class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl relative overflow-hidden">
-        
+
         <!-- Header -->
         <div class="text-center mb-8">
             <div class="flex justify-center mb-4">
@@ -75,7 +93,7 @@
 
         <!-- Login Form (Logic Preserved) -->
         <form action="/user/login" method="post" class="space-y-6">
-            
+
             <!-- Email Field -->
             <div>
                 <label for="email" class="block mb-2 text-sm font-medium text-blue-100">Email address</label>
@@ -84,9 +102,7 @@
                         <i class="ri-mail-line text-blue-300"></i>
                     </div>
                     <!-- Updated focus styles: removed shadow, added focus:ring-1 and focus:ring-cyan-300 -->
-                    <input type="email" id="email" name="email" required
-                        class="bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-10 p-3 placeholder-white/30 transition-all shadow-sm backdrop-blur-sm 
-                                focus:outline-none focus:ring-1 focus:ring-cyan-300 focus:border-cyan-300"
+                    <input type="email" id="email" name="email" required class="glass-input bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-10 p-3 placeholder-white/30 transition-all shadow-sm backdrop-blur-sm"
                         placeholder="username@company.com" />
                 </div>
             </div>
@@ -99,9 +115,7 @@
                         <i class="ri-lock-line text-blue-300"></i>
                     </div>
                     <!-- Updated focus styles: removed shadow, added focus:ring-1 and focus:ring-cyan-300 -->
-                    <input type="password" id="password" name="password" required
-                        class="bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-10 p-3 placeholder-white/30 transition-all shadow-sm backdrop-blur-sm
-                                focus:outline-none focus:ring-1 focus:ring-cyan-300 focus:border-cyan-300"
+                    <input type="password" id="password" name="password" required class="glass-input bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-10 p-3 placeholder-white/30 transition-all shadow-sm backdrop-blur-sm"
                         placeholder="•••••••••" />
                 </div>
             </div>
@@ -113,15 +127,18 @@
                         class="w-4 h-4 rounded border-white/30 bg-white/10 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:ring-offset-transparent" />
                 </div>
                 <label for="remember" class="ms-2 text-sm font-medium text-blue-200">
-                    I agree with the <a href="#" class="text-cyan-300 hover:text-white hover:underline transition-colors">terms and conditions</a>.
+                    I agree with the <a href="#"
+                        class="text-cyan-300 hover:text-white hover:underline transition-colors">terms and
+                        conditions</a>.
                 </label>
             </div>
-            
+
             <!-- Registration Link -->
             <div class="text-center pt-2">
                 <p class="text-sm font-medium text-blue-200">
                     Don't have an account yet?
-                    <a href="/user/register" class="text-cyan-300 hover:text-white hover:underline transition-colors font-semibold">
+                    <a href="/user/register"
+                        class="text-cyan-300 hover:text-white hover:underline transition-colors font-semibold">
                         Register here.
                     </a>
                 </p>
@@ -129,16 +146,16 @@
 
 
             <!-- Submit Button -->
-            <button type="submit"
-                class="w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
+            <button type="submit" class="w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
                 hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent
                 focus:outline-none focus:ring-4 focus:ring-blue-300/50 flex items-center justify-center gap-2 mt-6">
                 <span>Submit</span>
                 <i class="ri-arrow-right-line"></i>
             </button>
-            
+
         </form>
     </div>
 
 </body>
+
 </html>

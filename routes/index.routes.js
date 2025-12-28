@@ -13,6 +13,10 @@ router.get('/welcome', (req, res) => {
 
     res.render('welcome')
 })
+router.get('/about', (req, res) => {
+
+    res.render('about')
+})
 
 router.get('/home', authMiddleware, async (req, res) => {
 

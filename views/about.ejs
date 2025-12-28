@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Your Drive</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Modern Gradient Background matching Home Page */
+        .animated-bg {
+            background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Nav Link Underline Logic */
+        .nav-link {
+            position: relative;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #dbeafe; /* Default light blue-100 */
+            transition: color 0.3s ease;
+        }
+        
+        /* Highlight color for hover or active state */
+        .nav-link:hover, 
+        .nav-link.active {
+            color: #67e8f9; /* Cyan-300 */
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 50%;
+            background-color: #67e8f9;
+            transition: all 0.3s ease-in-out;
+            transform: translateX(-50%);
+        }
+
+        /* Underline visibility: Only when hovered OR if it has the .active class */
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Tech Stack Tags */
+        .tech-tag {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #67e8f9;
+        }
+    </style>
+</head>
+<body class="animated-bg text-white flex flex-col">
+
+    <!-- Navigation Header -->
+    <nav class="fixed top-0 w-full z-50 px-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between glass-panel px-6 py-3 rounded-b-xl shadow-xl border-t-0">
+            <!-- Brand -->
+            <a href="/welcome" class="flex items-center gap-2">
+                <i class="ph-fill ph-cloud-arrow-up text-cyan-300 text-2xl"></i>
+                <span class="font-bold tracking-tight text-xl">Your Drive</span>
+            </a>
+
+            <!-- Links Group -->
+            <div class="flex items-center gap-6 md:gap-8">
+                <a href="/personal" class="nav-link">
+                    <i class="ph ph-user text-cyan-300"></i>
+                    <span>Personal</span>
+                </a>
+
+                <a href="/global" class="nav-link">
+                    <i class="ph ph-globe text-cyan-300"></i>
+                    <span>Global</span>
+                </a>
+
+                <!-- About is marked as active for this page -->
+                <a href="/about" class="nav-link active">
+                    <i class="ph ph-info text-cyan-300"></i>
+                    <span>About</span>
+                </a>
+
+                <div class="w-px h-6 bg-white/10 mx-1 hidden md:block"></div>
+
+                <a href="/members" class="nav-link">
+                    <i class="ph-bold ph-users-three text-cyan-300"></i>
+                    <span>Community</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-32 pb-20 px-4 relative z-10 w-full">
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Hero Section -->
+            <div class="mb-12 text-center">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">About <span class="text-cyan-300">Your Drive</span></h1>
+                <p class="text-lg text-blue-100 font-light leading-relaxed">
+                    This project is a web application that functions as a personal cloud storage service, much like a simplified Google Drive.
+                </p>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid md:grid-cols-2 gap-6 mb-12">
+                <div class="glass-panel p-6 rounded-2xl">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="ph-bold ph-shield-check text-2xl text-cyan-400"></i>
+                        <h3 class="font-bold text-xl">User Authentication</h3>
+                    </div>
+                    <p class="text-blue-100/80 text-sm leading-relaxed">Users can create an account, log in, and log out. The system uses JWT (JSON Web Tokens) for secure authentication.</p>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="ph-bold ph-upload-simple text-2xl text-cyan-400"></i>
+                        <h3 class="font-bold text-xl">File Uploads</h3>
+                    </div>
+                    <p class="text-blue-100/80 text-sm leading-relaxed">Authenticated users can upload files. These files are stored securely on Amazon Web Services (AWS) S3.</p>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="ph-bold ph-folder-lock text-2xl text-cyan-400"></i>
+                        <h3 class="font-bold text-xl">Private Management</h3>
+                    </div>
+                    <p class="text-blue-100/80 text-sm leading-relaxed">Each user has their own private space where they can manage their uploaded files independently.</p>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="ph-bold ph-share-network text-2xl text-cyan-400"></i>
+                        <h3 class="font-bold text-xl">File Sharing</h3>
+                    </div>
+                    <p class="text-blue-100/80 text-sm leading-relaxed">Users can access a "global" section to view and download files shared by other users in the community.</p>
+                </div>
+            </div>
+
+            <!-- Security & Tech Stack Split -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Security Card -->
+                <div class="md:col-span-2 glass-panel p-8 rounded-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="ph ph-lock-key text-9xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i class="ph-fill ph-fingerprint text-cyan-300"></i>
+                        Security Infrastructure
+                    </h3>
+                    <ul class="space-y-4">
+                        <li class="flex gap-3">
+                            <i class="ph ph-check-circle text-cyan-400 mt-1"></i>
+                            <span class="text-sm text-blue-100 leading-relaxed"><strong>Signed URLs:</strong> Application generates temporary, signed URLs for downloading, ensuring only authorized users can access files.</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="ph ph-check-circle text-cyan-400 mt-1"></i>
+                            <span class="text-sm text-blue-100 leading-relaxed"><strong>Password Hashing:</strong> <code>bcrypt</code> is used for hashing user passwords before storing them in the database.</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <i class="ph ph-check-circle text-cyan-400 mt-1"></i>
+                            <span class="text-sm text-blue-100 leading-relaxed"><strong>Validation:</strong> <code>express-validator</code> ensures all user input is sanitized and validated during registration.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tech Stack Column -->
+                <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold mb-6">Tech Stack</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tech-tag">Node.js</span>
+                            <span class="tech-tag">Express.js</span>
+                            <span class="tech-tag">MongoDB</span>
+                            <span class="tech-tag">EJS</span>
+                            <span class="tech-tag">AWS S3</span>
+                            <span class="tech-tag">Multer</span>
+                            <span class="tech-tag">JWT</span>
+                            <span class="tech-tag">Mongoose</span>
+                        </div>
+                    </div>
+                    <div class="mt-8 pt-8 border-t border-white/10">
+                        <div class="flex items-center gap-3">
+                            <i class="ph-bold ph-users-three text-cyan-400"></i>
+                            <div>
+                                <p class="text-xs text-blue-200">User Directory</p>
+                                <p class="text-sm font-bold">Members Page active</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    
+    <footer class="text-center py-6 text-white/40 text-sm relative z-10">
+        &copy; 2025 Your Drive. All rights reserved.
+    </footer>
+
+</body>
+</html>

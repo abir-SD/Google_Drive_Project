@@ -53,7 +53,7 @@ router.post('/register',
             } catch (error) {
                 res.status(500).json({
                     message: "Something went wrong man...",
-                    error: error.array()
+                    error: error.message
                 })
             }
         }

@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const fileSchema = new mongoose.Schema({
     owner: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'users'
+        ref: 'user'
     },
     originalName: String,
     size: Number,
@@ -16,6 +16,10 @@ const fileSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
 
+    },
+    isPublic: {
+        type: Boolean,
+        default: false
     }
 })
 

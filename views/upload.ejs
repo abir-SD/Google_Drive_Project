@@ -107,7 +107,7 @@
             </div>
 
             <!-- Upload Another Button -->
-            <a href="/home" 
+            <a href="<%= (typeof type !== 'undefined' && type === 'global') ? '/global' : '/home' %>"
                 class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
                 hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent">
                 <i class="ri-upload-cloud-2-line"></i>

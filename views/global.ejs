@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Global Community Hub</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Modern Gradient Background */
+        .animated-bg {
+            background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-0.5px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Popup Transition (Preserved from home.ejs) */
+        .pop {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        /* Custom scrollbar for file list */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+
+<body class="animated-bg text-white flex flex-col items-center py-10 px-4 sm:px-6">
+
+    <div class="w-full max-w-4xl space-y-8 relative z-10">
+
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold tracking-tight flex items-center justify-center gap-2">
+                <i class="ri-cloud-line text-cyan-300 text-4xl"></i>
+                <span>Your Drive</span>
+            </h1>
+            <p class="text-blue-200 mt-2">Manage your files securely</p>
+        </div>
+
+        <div class="glass-panel rounded-2xl shadow-2xl overflow-hidden p-1">
+            <div class="max-h-[60vh] overflow-y-auto custom-scrollbar p-4 space-y-3">
+
+                <% if (files.length===0) { %>
+                    <div class="text-center py-10 text-white/50">
+                        <i class="ri-folder-open-line text-5xl mb-3 block"></i>
+                        <p>No files uploaded yet.</p>
+                    </div>
+                    <% } %>
+
+                        <% files.forEach(file=> { %>
+                            <div class="glass-card flex items-center justify-between p-4 rounded-xl shadow-sm group">
+                                <div class="flex-grow min-w-0 pr-4 flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-cyan-300">
+                                        <i class="ri-file-line text-xl"></i>
+                                    </div>
+
+                                    <div
+                                        class="text-base font-medium text-white truncate leading-snug sm:text-lg max-w-full">
+                                        <a href="/view-public/<%= file.s3Key %>" style="text-decoration: underline;"><%= file.originalName %></a>
+                                    </div>
+
+                                    <% if (file.size) { %>
+                                        <div class="text-xs text-white/50 hidden sm:block">
+                                            (<%= (file.size / 1024 / 1024).toFixed(2) %> MB)
+                                        </div>
+                                        <% } %>
+                                </div>
+                                <a href="/download-public/<%= file.s3Key %>" download="<%= file.originalName %>" class="
+                            flex-shrink-0 
+                            bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200
+                            w-10 h-10 rounded-full flex items-center justify-center
+                            shadow-lg transition duration-200 ease-in-out 
+                            focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-transparent
+                            group-hover:scale-110
+                        " title="Download <%= file.originalName %>">
+                                    <i class="ri-download-line text-xl leading-none"></i>
+                                </a>
+
+                            </div>
+                            <% }) %>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
+
+            <button onclick="showPopUp()" class="w-full sm:flex-1 rounded-full border-2 border-white/30 text-white px-8 py-3 font-bold transition-all duration-300 
+                hover:bg-white hover:text-blue-900 hover:border-transparent hover:shadow-lg hover:shadow-blue-900/20
+                focus:outline-none focus:ring-4 focus:ring-white/20 flex items-center justify-center gap-2">
+                <i class="ri-upload-cloud-2-line text-xl"></i>
+                Upload File
+            </button>
+
+            <a href="/welcome"
+                class="w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
+                hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none
+                border-2 border-transparent 
+                focus:outline-none focus:ring-4 focus:ring-blue-300/50 flex items-center justify-center gap-2 text-center">
+                <i class="ri-logout-box-r-line text-xl"></i>
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <div id="popup"
+        class="pop fixed inset-0 z-50 flex hidden items-center justify-center bg-black/60 opacity-0 backdrop-blur-sm p-4">
+
+        <button onclick="hidePopUp()"
+            class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-50">
+            <i class="ri-close-line text-4xl"></i>
+        </button>
+
+        <div
+            class="glass-panel w-full max-w-lg scale-95 transform rounded-2xl p-8 shadow-2xl transition-all relative overflow-hidden">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-white">Upload a File</h3>
+                <p class="text-blue-200 text-sm">Select a file to store securely</p>
+            </div>
+
+            <form id="upload-form" action="/upload-global" method="post" enctype="multipart/form-data">
+                <div class="flex w-full items-center justify-center">
+                    <label for="dropzone-file"
+                        class="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10 transition-all duration-300 group">
+
+                        <div id="dropzone-content"
+                            class="flex flex-col items-center justify-center pt-5 pb-6 text-white/70 group-hover:text-white transition-colors">
+                            <i
+                                class="ri-upload-cloud-line text-5xl mb-4 text-cyan-300 group-hover:scale-110 transition-transform"></i>
+                            <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to upload</span> or
+                                drag and drop</p>
+                            <p class="text-xs text-white/50">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                        </div>
+
+                        <div id="filename-display" class="hidden text-center text-white font-medium p-4">
+                            <i class="ri-file-check-line text-4xl text-green-400 mb-2 block"></i>
+                            <span id="file-name-text"></span>
+                        </div>
+
+                        <input id="dropzone-file" type="file" class="hidden" name="file" />
+                    </label>
+                </div>
+
+                <button type="submit" class="mt-6 w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
+                    hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none
+                    border-2 border-transparent 
+                    focus:outline-none focus:ring-4 focus:ring-blue-300/50">
+                    Upload File
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const popUp = document.getElementById('popup');
+
+            // --- Popup Logic ---
+            window.showPopUp = () => {
+                popUp.classList.remove('hidden');
+                setTimeout(() => {
+                    popUp.classList.remove('opacity-0');
+                    // Changed to scale-100 for better animation consistency
+                    popUp.querySelector('.transform').classList.remove('scale-95');
+                    popUp.querySelector('.transform').classList.add('scale-100');
+                }, 10);
+            };
+
+            const hidePopUp = window.hidePopUp = () => {
+                popUp.classList.add('opacity-0');
+                const content = popUp.querySelector('.transform');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+
+                setTimeout(() => {
+                    popUp.classList.add('hidden');
+                    // Reset drag and drop UI (CRUCIAL FUNCTIONALITY)
+                    resetDropzone();
+                }, 300);
+            };
+
+            // --- Drag and Drop Logic (All original event listeners preserved) ---
+            const dropzoneLabel = document.querySelector('label[for="dropzone-file"]');
+            const dropzoneInput = document.getElementById('dropzone-file');
+            const dropzoneContent = document.getElementById('dropzone-content');
+            const filenameDisplay = document.getElementById('filename-display');
+            const fileNameText = document.getElementById('file-name-text'); // Added for the new UI element
+            const uploadForm = document.getElementById('upload-form');
+
+            const resetDropzone = () => {
+                if (dropzoneInput) dropzoneInput.value = ''; // Clear file input
+                if (dropzoneContent) dropzoneContent.classList.remove('hidden'); // Show original content
+                if (filenameDisplay) filenameDisplay.classList.add('hidden'); // Hide filename
+
+                // Reset styling for the dropzone border/background
+                if (dropzoneLabel) {
+                    dropzoneLabel.classList.remove('border-green-400', 'bg-white/20');
+                    dropzoneLabel.classList.add('border-white/30', 'bg-white/5'); // Ensure base style is back
+                }
+            };
+
+            const handleFileSelect = (file) => {
+                if (file) {
+                    dropzoneContent.classList.add('hidden');
+                    filenameDisplay.classList.remove('hidden');
+                    if (fileNameText) fileNameText.textContent = file.name;
+
+                    // Add success styling
+                    dropzoneLabel.classList.remove('border-white/30', 'bg-white/5');
+                    dropzoneLabel.classList.add('border-green-400', 'bg-white/20');
+                }
+            };
+
+            if (dropzoneInput) {
+                dropzoneInput.addEventListener('change', () => handleFileSelect(dropzoneInput.files[0]));
+            }
+
+            if (dropzoneLabel) {
+                dropzoneLabel.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    // Added background highlight on dragover
+                    dropzoneLabel.classList.add('bg-white/20');
+                });
+
+                dropzoneLabel.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    dropzoneLabel.classList.remove('bg-white/20');
+                });
+
+                dropzoneLabel.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropzoneLabel.classList.remove('bg-white/20');
+
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        dropzoneInput.files = files; // Essential for drop-file submission
+                        handleFileSelect(files[0]);
+                    }
+                });
+            }
+
+            // Reset form on submit to clear the UI for the next upload (Preserved Logic)
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', () => {
+                    // Use setTimeout to allow form submission before resetting UI.
+                    setTimeout(() => {
+                        hidePopUp();
+                    }, 100);
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

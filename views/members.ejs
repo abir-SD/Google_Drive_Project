@@ -5,16 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Your Drive - Community Members</title>
-    
-    <!-- Google Fonts: Plus Jakarta Sans -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Phosphor Icons & Remix Icons -->
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
 
@@ -36,9 +34,17 @@
         }
 
         @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* Glassmorphism Utilities */
@@ -61,7 +67,30 @@
             border-color: rgba(34, 211, 238, 0.3);
         }
 
-        /* Nav Link Underline Logic (Matching About Page) */
+        /* Dynamic Navbar Transition */
+        #main-nav-container {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-scrolled {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border-radius: 0 0 0.75rem 0.75rem;
+        }
+
+        /* Remove nav background/blur when menu is open */
+        .nav-hide-bg {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-bottom-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* Nav Link Underline Logic */
         .nav-link {
             position: relative;
             padding: 4px 0;
@@ -73,8 +102,8 @@
             color: #dbeafe;
             transition: color 0.3s ease;
         }
-        
-        .nav-link:hover, 
+
+        .nav-link:hover,
         .nav-link.active {
             color: #67e8f9;
         }
@@ -95,22 +124,58 @@
         .nav-link.active::after {
             width: 100%;
         }
+
+
+        /* Mobile Menu Drawer Logic */
+        #mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        /* --- RESTORED ORIGINAL COLORS --- */
+        .btn-signin-style {
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            background: transparent;
+        }
+
+        .btn-signin-style:hover {
+            background-color: white;
+            color: #1e3a8a;
+            border-color: white;
+        }
+
+        .btn-getstarted-style {
+            background-color: white;
+            color: #1e3a8a;
+            border: 2px solid white;
+        }
+
+        .btn-getstarted-style:hover {
+            background-color: transparent;
+            color: white;
+            border-color: white;
+        }
     </style>
 </head>
 
 <body class="animated-bg text-white">
 
-    <!-- Navigation Header (Matches About Page) -->
     <nav class="fixed top-0 w-full z-50 px-4">
-        <div class="max-w-7xl mx-auto flex items-center justify-between glass-panel px-6 py-3 rounded-b-xl shadow-xl border-t-0">
+        <div id="main-nav-container"
+            class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent">
             <!-- Brand -->
-            <a href="/" class="flex items-center gap-2">
+            <a href="/welcome" class="flex items-center gap-2 relative z-[60]">
                 <i class="ph-fill ph-cloud-arrow-up text-cyan-300 text-2xl"></i>
                 <span class="font-bold tracking-tight text-xl">Your Drive</span>
             </a>
 
-            <!-- Links Group -->
-            <div class="flex items-center gap-6 md:gap-8">
+            <!-- Desktop Links Group (Hidden on small) -->
+            <div class="hidden md:flex items-center gap-6 md:gap-8">
                 <a href="/home" class="nav-link">
                     <i class="ph ph-user text-cyan-300"></i>
                     <span>Personal</span>
@@ -126,92 +191,128 @@
                     <span>About</span>
                 </a>
 
-                <div class="w-px h-6 bg-white/10 mx-1 hidden md:block"></div>
+                <div class="w-px h-6 bg-white/10 mx-1"></div>
 
-                <!-- Active state for Community/Members Page -->
-                <a href="/members" class="nav-link active">
+                <a href="/members" class="nav-link">
                     <i class="ph-bold ph-users-three text-cyan-300"></i>
                     <span>Community</span>
                 </a>
             </div>
+
+            <!-- Hamburger Button (Mobile Only) -->
+            <button id="menu-btn" class="md:hidden relative z-[60] p-2 text-cyan-300 focus:outline-none" aria-label="Open menu" aria-expanded="false">
+                <i id="menu-icon" class="ph-bold ph-list text-3xl"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Side Menu Overlay -->
+        <div id="mobile-menu"
+            class="fixed inset-y-0 right-0 w-[280px] glass-panel z-50 md:hidden flex flex-col p-8 pt-28 shadow-2xl space-y-8">
+            <a href="/home" class="nav-link text-lg">
+                <i class="ph ph-user text-cyan-300 text-xl"></i>
+                <span>Personal</span>
+            </a>
+            <a href="/global" class="nav-link text-lg">
+                <i class="ph ph-globe text-cyan-300 text-xl"></i>
+                <span>Global</span>
+            </a>
+            <a href="/about" class="nav-link text-lg">
+                <i class="ph ph-info text-cyan-300 text-xl"></i>
+                <span>About</span>
+            </a>
+            <div class="w-full h-px bg-white/10"></div>
+            <a href="/members" class="nav-link text-lg">
+                <i class="ph-bold ph-users-three text-cyan-300 text-xl"></i>
+                <span>Community</span>
+            </a>
+
+            <!-- Mobile Auth Buttons -->
+            <div class="pt-10 flex flex-col gap-4">
+                <a href="/user/login"
+                    class="btn-signin-style text-center w-full px-4 py-3 rounded-full font-semibold">Sign
+                    In</a>
+                <a href="/user/register"
+                    class="btn-getstarted-style text-center w-full px-4 py-3 rounded-full font-bold">Get
+                    Started</a>
+            </div>
         </div>
     </nav>
 
+
     <main class="pt-32 pb-20 px-4 max-w-6xl mx-auto relative z-10">
-        
-        <!-- Trust Section Header -->
+
         <div class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Our Trusted <span class="text-cyan-300">Community</span></h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Our Trusted <span
+                    class="text-cyan-300">Community</span></h1>
             <p class="text-blue-100 max-w-2xl mx-auto text-lg font-light leading-relaxed">
-                Join thousands of users who trust us with their digital assets. Transparency is the core of our security.
+                Join thousands of users who trust us with their digital assets. Transparency is the core of our
+                security.
             </p>
         </div>
 
-        <!-- Global Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
-            <!-- Total Users Card -->
             <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
                 <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:opacity-20 transition-opacity">
                     <i class="ri-team-line text-9xl"></i>
                 </div>
-                <p class="text-cyan-300 text-5xl font-extrabold mb-1"><%= count %></p>
+                <p class="text-cyan-300 text-5xl font-extrabold mb-1">
+                    <%= count %>
+                </p>
                 <p class="uppercase tracking-widest text-blue-200 font-bold text-sm">Active Members</p>
                 <div class="mt-4 h-1 w-12 bg-cyan-400 rounded-full"></div>
             </div>
 
-            <!-- Files Secured Card -->
             <div class="glass-panel p-8 rounded-3xl relative overflow-hidden group">
                 <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:opacity-20 transition-opacity">
                     <i class="ri-shield-check-line text-9xl"></i>
                 </div>
-                <p class="text-green-400 text-5xl font-extrabold mb-1"><%= totalFiles %></p>
+                <p class="text-green-400 text-5xl font-extrabold mb-1">
+                    <%= totalFiles %>
+                </p>
                 <p class="uppercase tracking-widest text-blue-200 font-bold text-sm">Files Protected</p>
                 <div class="mt-4 h-1 w-12 bg-green-400 rounded-full"></div>
             </div>
         </div>
 
-        <!-- Members Grid -->
         <div class="glass-panel rounded-[2rem] shadow-2xl p-8 relative">
             <div class="flex items-center gap-3 mb-8">
                 <i class="ri-group-line text-cyan-300 text-2xl"></i>
                 <h3 class="text-2xl font-bold">Recent Members</h3>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                <% users.forEach(user => { %>
-                    <div class="glass-card flex items-center gap-4 p-5 rounded-2xl group">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center text-cyan-300 border border-white/10 group-hover:scale-105 transition-transform">
-                            <i class="ri-user-smile-line text-3xl"></i>
+            <div id="members-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <% if (users && users.length> 0) { %>
+                    <% users.forEach(user=> { %>
+                        <div class="glass-card flex items-center gap-4 p-5 rounded-2xl group">
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center text-cyan-300 border border-white/10 group-hover:scale-105 transition-transform">
+                                <i class="ri-user-smile-line text-3xl"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-bold text-white text-lg truncate">
+                                    <%= user.username %>
+                                </p>
+                                <p class="text-sm text-blue-200/60 truncate flex items-center gap-1">
+                                    <i class="ri-mail-check-line text-xs"></i>
+                                    <%= user.email %>
+                                </p>
+                            </div>
+                            <div class="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i class="ri-verified-badge-line text-cyan-400"></i>
+                            </div>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-bold text-white text-lg truncate">
-                                <%= user.username %>
-                            </p>
-                            <p class="text-sm text-blue-200/60 truncate flex items-center gap-1">
-                                <i class="ri-mail-check-line text-xs"></i>
-                                <%= user.email %>
-                            </p>
-                        </div>
-                        <div class="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity">
-                            <i class="ri-verified-badge-line text-cyan-400"></i>
-                        </div>
-                    </div>
-                <% }) %>
+                        <% }) %>
+                            <% } else { %>
+                                <div class="col-span-full py-10 text-center text-blue-200/50">
+                                    No community members found.
+                                </div>
+                                <% } %>
             </div>
-            
-            <% if (users.length === 0) { %>
-                <div class="text-center py-20">
-                    <i class="ri-user-search-line text-5xl text-blue-300/30"></i>
-                    <p class="mt-4 text-blue-200/50">No members found yet. Be the first!</p>
-                </div>
-            <% } %>
         </div>
 
-        <!-- Bottom Call to Action -->
         <div class="mt-16 flex flex-col items-center gap-6">
             <p class="text-blue-100 font-medium">Ready to secure your own files?</p>
-            <a href="/user/register"
-                class="w-full max-w-xs rounded-full bg-white text-blue-900 px-8 py-4 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
+            <a href="/user/register" class="w-full max-w-xs rounded-full bg-white text-blue-900 px-8 py-4 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
                 hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent
                 focus:outline-none focus:ring-4 focus:ring-blue-300/50 flex items-center justify-center gap-2">
                 <span>Join the Community</span>
@@ -224,6 +325,97 @@
         &copy; 2025 Your Drive. All rights reserved.
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navContainer = document.getElementById('main-nav-container');
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+
+            // Mobile menu helpers
+            function updateMenuIcon(isOpen) {
+                const ic = document.getElementById('menu-icon');
+                if (!ic) return;
+                ic.className = isOpen ? 'ph-bold ph-x text-3xl' : 'ph-bold ph-list text-3xl';
+                ic.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+                ic.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            }
+            function openMenu() {
+                mobileMenu.classList.add('open');
+                navContainer.classList.add('nav-hide-bg');
+                updateMenuIcon(true);
+                if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
+                if (menuBtn) menuBtn.style.zIndex = '9999';
+                document.body.style.overflow = 'hidden';
+            }
+            function closeMenu() {
+                mobileMenu.classList.remove('open');
+                navContainer.classList.remove('nav-hide-bg');
+                updateMenuIcon(false);
+                if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+                if (menuBtn) menuBtn.style.zIndex = '';
+                document.body.style.overflow = '';
+            }
+
+            // Mobile Menu Toggle
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (mobileMenu.classList.contains('open')) closeMenu(); else openMenu();
+            });
+
+            // Close when clicking/touching outside the menu
+            document.addEventListener('pointerdown', (e) => {
+                if (!mobileMenu.classList.contains('open')) return;
+                if (mobileMenu.contains(e.target) || menuBtn.contains(e.target)) return;
+                closeMenu();
+            });
+
+            // Close mobile menu on resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768 && mobileMenu.classList.contains('open')) {
+                    closeMenu();
+                }
+            });
+
+            const handleScroll = () => {
+                if (mobileMenu && mobileMenu.classList.contains('open')) {
+                    navContainer.classList.add('nav-hide-bg');
+                } else if (window.scrollY > 10) {
+                    navContainer.classList.add('nav-scrolled');
+                    navContainer.classList.remove('bg-transparent', 'border-transparent');
+                    navContainer.classList.remove('nav-hide-bg');
+                } else {
+                    navContainer.classList.remove('nav-scrolled');
+                    navContainer.classList.add('bg-transparent', 'border-transparent');
+                    navContainer.classList.remove('nav-hide-bg');
+                }
+            };
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
+
+            // Active nav highlighting (desktop + mobile)
+            function setActiveNav() {
+                const anchors = document.querySelectorAll('a.nav-link');
+                const currentPath = window.location.pathname;
+                const redirectEl = document.getElementById('redirect-to');
+                const targetPath = (redirectEl && redirectEl.dataset.target) ? redirectEl.dataset.target : currentPath;
+                anchors.forEach(a => {
+                    try {
+                        const aPath = new URL(a.href, location.origin).pathname;
+                        if (aPath === targetPath || (aPath !== '/' && targetPath.startsWith(aPath))) {
+                            a.classList.add('active');
+                            a.setAttribute('aria-current', 'page');
+                        } else {
+                            a.classList.remove('active');
+                            a.removeAttribute('aria-current');
+                        }
+                    } catch (e) {}
+                });
+            }
+            setActiveNav();
+        });
+    </script>
 </body>
 
 </html>

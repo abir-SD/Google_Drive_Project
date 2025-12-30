@@ -4,37 +4,50 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>File Upload Status</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
-    <!-- Remix Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
-    
-    <!-- Fonts: Plus Jakarta Sans -->
+    <title>Your Drive - Upload Status</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Phosphor Icons & Remix Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
 
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
         }
 
-        /* Modern Gradient Background matching Home/Login/Register */
+        /* Shared Animated Background */
         .animated-bg {
             background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
             min-height: 100vh;
             width: 100%;
+            position: relative;
         }
 
         @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* Glassmorphism Utilities */
@@ -44,100 +57,351 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         .glass-inner {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        /* Dynamic Navbar Transition (From Welcome Page) */
+        #main-nav-container {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-scrolled {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border-radius: 0 0 0.75rem 0.75rem;
+        }
+
+        /* Remove nav background/blur when menu is open */
+        .nav-hide-bg {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-bottom-color: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* Nav Link Underline Logic */
+        .nav-link {
+            position: relative;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #dbeafe;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #67e8f9;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 50%;
+            background-color: #67e8f9;
+            transition: all 0.3s ease-in-out;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Dynamic Navbar Transition */
+        #main-nav-container {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Mobile Menu Drawer Logic */
+        #mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
     </style>
 </head>
 
-<body class="animated-bg flex items-center justify-center p-4">
+<body class="animated-bg text-white">
 
-    <!-- Glass Container -->
-    <div class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl relative overflow-hidden text-center">
-        
-        <%# 
-            This is the main logic of the page.
-            We check if a 'file' object was sent from the server.
-            The server only sends this object after a file has been successfully uploaded.
-        %>
-        <% if (typeof file !== 'undefined' && file) { %>
-            
-            <%# --- DISPLAY UPLOADED FILE INFO --- %>
-            <%# If the 'file' object exists, it means an upload was successful. %>
-            
-            <div class="mb-6 flex justify-center">
-                <div class="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.3)]">
-                    <i class="ri-checkbox-circle-fill text-green-400 text-4xl"></i>
-                </div>
-            </div>
-
-            <h1 class="text-2xl font-bold text-white mb-6">File Uploaded Successfully!</h1>
-            
-            <!-- File Details Card -->
-            <div class="glass-inner rounded-xl p-6 mb-8 text-left space-y-3">
-                <div class="flex items-start gap-3">
-                    <div class="mt-1"><i class="ri-file-line text-cyan-300"></i></div>
-                    <div class="overflow-hidden">
-                        <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">File Name</p>
-                        <p class="text-white text-sm truncate"><%= file.originalname %></p>
-                    </div>
-                </div>
-                
-                <div class="h-px bg-white/10 w-full my-2"></div>
-
-                <div class="flex items-start gap-3">
-                    <div class="mt-1"><i class="ri-file-settings-line text-cyan-300"></i></div>
-                    <div>
-                        <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">File Type</p>
-                        <p class="text-white text-sm"><%= file.mimetype %></p>
-                    </div>
-                </div>
-
-                <div class="h-px bg-white/10 w-full my-2"></div>
-
-                <div class="flex items-start gap-3">
-                    <div class="mt-1"><i class="ri-hard-drive-2-line text-cyan-300"></i></div>
-                    <div>
-                        <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">File Size</p>
-                        <p class="text-white text-sm"><%= (file.size / 1024).toFixed(2) %> KB</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Upload Another Button -->
-            <a href="<%= (typeof type !== 'undefined' && type === 'global') ? '/global' : '/home' %>"
-                class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
-                hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent">
-                <i class="ri-upload-cloud-2-line"></i>
-                <span>Upload Another File</span>
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 px-4">
+        <div id="main-nav-container"
+            class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent">
+            <!-- Brand -->
+            <a href="/welcome" class="flex items-center gap-2 relative z-[60]">
+                <i class="ph-fill ph-cloud-arrow-up text-cyan-300 text-2xl"></i>
+                <span class="font-bold tracking-tight text-xl">Your Drive</span>
             </a>
 
-        <% } else { %>
+            <!-- Desktop Links Group (Hidden on small) -->
+            <div class="hidden md:flex items-center gap-6 md:gap-8">
+                <a href="/home" class="nav-link">
+                    <i class="ph ph-user text-cyan-300"></i>
+                    <span>Personal</span>
+                </a>
 
-            <%# --- SHOW UPLOAD FORM (ERROR STATE) --- %>
-            <%# If the 'file' object does NOT exist, it means we need to show the error/back state %>
-            
-            <div class="mb-6 flex justify-center">
-                <div class="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-                    <i class="ri-close-circle-fill text-red-400 text-4xl"></i>
-                </div>
+                <a href="/global" class="nav-link">
+                    <i class="ph ph-globe text-cyan-300"></i>
+                    <span>Global</span>
+                </a>
+
+                <a href="/about" class="nav-link">
+                    <i class="ph ph-info text-cyan-300"></i>
+                    <span>About</span>
+                </a>
+
+                <div class="w-px h-6 bg-white/10 mx-1"></div>
+
+                <a href="/members" class="nav-link">
+                    <i class="ph-bold ph-users-three text-cyan-300"></i>
+                    <span>Community</span>
+                </a>
             </div>
 
-            <h2 class="text-2xl font-bold text-white mb-2">Oops!</h2>
-            <p class="text-blue-100 mb-8">You haven't selected a File yet</p>
-            
-            <!-- Go Back Button (Implemented as 'a' tag as requested) -->
-            <a href="/home" 
-                class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
-                hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent">
-                <i class="ri-arrow-left-line"></i>
-                <span>Go Back</span>
+            <!-- Hamburger Button (Mobile Only) -->
+            <button id="menu-btn" class="md:hidden relative z-[60] p-2 text-cyan-300 focus:outline-none" aria-label="Open menu" aria-expanded="false">
+                <i id="menu-icon" class="ph-bold ph-list text-3xl"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Side Menu Overlay -->
+        <div id="mobile-menu"
+            class="fixed inset-y-0 right-0 w-[280px] glass-panel z-50 md:hidden flex flex-col p-8 pt-28 shadow-2xl space-y-8">
+            <a href="/home" class="nav-link text-lg">
+                <i class="ph ph-user text-cyan-300 text-xl"></i>
+                <span>Personal</span>
             </a>
+            <a href="/global" class="nav-link text-lg">
+                <i class="ph ph-globe text-cyan-300 text-xl"></i>
+                <span>Global</span>
+            </a>
+            <a href="/about" class="nav-link text-lg">
+                <i class="ph ph-info text-cyan-300 text-xl"></i>
+                <span>About</span>
+            </a>
+            <div class="w-full h-px bg-white/10"></div>
+            <a href="/members" class="nav-link text-lg">
+                <i class="ph-bold ph-users-three text-cyan-300 text-xl"></i>
+                <span>Community</span>
+            </a>
+        </div>
+    </nav>
 
-        <% } %>
-    </div>
+    <!-- Main Content Area -->
+    <main class="min-h-screen flex items-center justify-center pt-32 pb-20 px-4 relative z-10">
 
+        <!-- Glass Container -->
+        <div class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl relative overflow-hidden text-center">
+
+            <div id="ejs-mock-view">
+                <% if (file) { %>
+                <!-- SUCCESS STATE -->
+                <div id="success-state">
+                    <div class="mb-6 flex justify-center">
+                        <div
+                            class="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                            <i class="ri-checkbox-circle-fill text-green-400 text-4xl"></i>
+                        </div>
+                    </div>
+
+                    <h1 class="text-2xl font-bold text-white mb-6">File Uploaded Successfully!</h1>
+
+                    <div class="glass-inner rounded-xl p-6 mb-8 text-left space-y-3">
+                        <div class="flex items-start gap-3">
+                            <div class="mt-1"><i class="ri-file-line text-cyan-300"></i></div>
+                            <div class="overflow-hidden flex-1">
+                                <p class="text-[10px] text-blue-200 uppercase tracking-widest font-bold">File Name</p>
+                                <p class="text-white text-sm truncate font-medium"><%= file.originalname %></p>
+                            </div>
+                        </div>
+
+                        <div class="h-px bg-white/10 w-full my-2"></div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="mt-1"><i class="ri-file-settings-line text-cyan-300"></i></div>
+                            <div class="flex-1">
+                                <p class="text-[10px] text-blue-200 uppercase tracking-widest font-bold">File Type</p>
+                                <p class="text-white text-sm font-medium"><%= file.mimetype %></p>
+                            </div>
+                        </div>
+
+                        <div class="h-px bg-white/10 w-full my-2"></div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="mt-1"><i class="ri-hard-drive-2-line text-cyan-300"></i></div>
+                            <div class="flex-1">
+                                <p class="text-[10px] text-blue-200 uppercase tracking-widest font-bold">File Size</p>
+                                <p class="text-white text-sm font-medium"><%= (file.size < 1024) ? (file.size + ' B') : (file.size < 1024*1024 ? (file.size/1024).toFixed(2) + ' KB' : (file.size/1024/1024).toFixed(2) + ' MB') %></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="<%= redirectTo %>"
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-white text-blue-900 px-5 py-4 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent">
+                        <i class="ri-upload-cloud-2-line"></i>
+                        <span>Upload Another File</span>
+                    </a>
+                    <div id="redirect-to" data-target="<%= redirectTo %>" style="display:none"></div>
+                </div>
+                <% } %>
+
+                <!-- ERROR STATE (Hidden by default in this preview) -->
+                <div id="error-state" class="hidden">
+                    <div class="mb-6 flex justify-center">
+                        <div
+                            class="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                            <i class="ri-close-circle-fill text-red-400 text-4xl"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white mb-2">Oops!</h2>
+                    <p class="text-blue-100 mb-8 font-light">You haven't selected a file yet or the upload failed.</p>
+                    <a href="<%= redirectTo %>"
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-white text-blue-900 px-5 py-4 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent">
+                        <i class="ri-arrow-left-line"></i>
+                        <span>Go Back</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-6 text-white/40 text-sm relative z-10">
+        &copy; 2025 Your Drive. Secure Cloud Solutions.
+    </footer>
+
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+
+        function updateMenuIcon(isOpen) {
+            const ic = document.getElementById('menu-icon');
+            if (!ic) return;
+            ic.className = isOpen ? 'ph-bold ph-x text-3xl' : 'ph-bold ph-list text-3xl';
+            ic.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+            ic.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+        function openMenu() {
+            mobileMenu.classList.add('open');
+            navContainer.classList.add('nav-hide-bg');
+            updateMenuIcon(true);
+            if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
+            if (menuBtn) menuBtn.style.zIndex = '9999';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeMenu() {
+            mobileMenu.classList.remove('open');
+            navContainer.classList.remove('nav-hide-bg');
+            updateMenuIcon(false);
+            if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+            if (menuBtn) menuBtn.style.zIndex = '';
+            document.body.style.overflow = '';
+        }
+
+        // Navbar scroll logic (Identical to welcome.ejs)
+        document.addEventListener('DOMContentLoaded', () => {
+            const navContainer = document.getElementById('main-nav-container');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            const handleScroll = () => {
+                if (mobileMenu && mobileMenu.classList.contains('open')) {
+                    navContainer.classList.add('nav-hide-bg');
+                } else if (window.scrollY > 10) {
+                    navContainer.classList.add('nav-scrolled');
+                    navContainer.classList.remove('bg-transparent', 'border-transparent');
+                    navContainer.classList.remove('nav-hide-bg');
+                } else {
+                    navContainer.classList.remove('nav-scrolled');
+                    navContainer.classList.add('bg-transparent', 'border-transparent');
+                    navContainer.classList.remove('nav-hide-bg');
+                }
+            };
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
+        });
+
+        // Mobile Menu Toggle
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (mobileMenu.classList.contains('open')) closeMenu(); else openMenu();
+        });
+
+        // Close when clicking/touching outside the menu
+        document.addEventListener('pointerdown', (e) => {
+            if (!mobileMenu.classList.contains('open')) return;
+            if (mobileMenu.contains(e.target) || menuBtn.contains(e.target)) return;
+            closeMenu();
+        });
+
+        // Close mobile menu on resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768 && mobileMenu.classList.contains('open')) {
+                closeMenu();
+            }
+        });
+
+        // Navbar scroll logic (Identical to welcome.ejs)
+        document.addEventListener('DOMContentLoaded', () => {
+            const navContainer = document.getElementById('main-nav-container');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            const handleScroll = () => {
+                if (mobileMenu && mobileMenu.classList.contains('open')) {
+                    navContainer.classList.add('nav-hide-bg');
+                } else if (window.scrollY > 10) {
+                    navContainer.classList.add('nav-scrolled');
+                    navContainer.classList.remove('bg-transparent', 'border-transparent');
+                    navContainer.classList.remove('nav-hide-bg');
+                } else {
+                    navContainer.classList.remove('nav-scrolled');
+                    navContainer.classList.add('bg-transparent', 'border-transparent');
+                    navContainer.classList.remove('nav-hide-bg');
+                }
+            }; 
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
+
+            // Active nav highlighting (desktop + mobile)
+            function setActiveNav() {
+                const anchors = document.querySelectorAll('a.nav-link');
+                const currentPath = window.location.pathname;
+                const redirectEl = document.getElementById('redirect-to');
+                const targetPath = (redirectEl && redirectEl.dataset.target) ? redirectEl.dataset.target : currentPath;
+                anchors.forEach(a => {
+                    try {
+                        const aPath = new URL(a.href, location.origin).pathname;
+                        if (aPath === targetPath || (aPath !== '/' && targetPath.startsWith(aPath))) {
+                            a.classList.add('active');
+                            a.setAttribute('aria-current', 'page');
+                        } else {
+                            a.classList.remove('active');
+                            a.removeAttribute('aria-current');
+                        }
+                    } catch (e) {}
+                });
+            }
+            setActiveNav();
+        });
+    </script>
 </body>
+
 </html>

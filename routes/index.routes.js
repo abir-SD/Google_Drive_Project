@@ -13,10 +13,16 @@ router.get('/welcome', (req, res) => {
 
     res.render('welcome')
 })
+
 router.get('/about', (req, res) => {
 
     res.render('about')
 })
+
+router.get('/logout', (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/welcome');
+});
 
 router.get('/home', authMiddleware, async (req, res) => {
 
@@ -62,7 +68,7 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
 
         await newFile.save();
 
-        res.render('upload', { file: req.file, type: 'personal' });
+        res.render('upload', { file: req.file, type: 'personal', redirectTo: '/home' });
     } catch (error) {
         console.error('Upload error:', error);
         res.status(500).send('Error uploading file.');
@@ -138,7 +144,7 @@ router.post('/upload-global', authMiddleware, upload.single('file'), async (req,
         });
 
         await newFile.save();
-        res.render('upload', { file: req.file, type: 'global' });
+        res.render('upload', { file: req.file, type: 'global', redirectTo: '/global' });
     } catch (error) {
         console.error('Global upload error:', error);
         res.status(500).send('Error uploading file.');

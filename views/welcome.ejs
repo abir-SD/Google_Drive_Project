@@ -21,6 +21,9 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
             overflow-x: hidden;
+            width: 100%;
+            /* Prevent layout shift when scrollbar disappears */
+            scrollbar-gutter: stable;
         }
 
         /* Modern Gradient Background */
@@ -47,6 +50,29 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        /* Dynamic Navbar Transition */
+        #main-nav-container {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Styles for when user has scrolled down */
+        .nav-scrolled {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Remove nav background/blur when menu is open */
+        .nav-hide-bg {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border-bottom-color: transparent !important;
+            box-shadow: none !important;
+        }
+
         /* Nav Link Underline */
         .nav-link {
             position: relative;
@@ -60,9 +86,7 @@
             transition: color 0.3s ease;
         }
         
-        .nav-link:hover {
-            color: #67e8f9;
-        }
+        .nav-link:hover { color: #67e8f9; }
 
         .nav-link::after {
             content: '';
@@ -75,11 +99,19 @@
             transition: all 0.3s ease-in-out;
             transform: translateX(-50%);
         }
-        .nav-link:hover::after {
-            width: 100%;
+        .nav-link:hover::after { width: 100%; }
+
+        /* Mobile Menu Drawer Logic */
+        #mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Premium "Contact Sales" Style Button Interaction */
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        /* Premium Buttons */
         .btn-premium {
             position: relative;
             display: inline-flex;
@@ -89,7 +121,6 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* The Sliding Arrow */
         .btn-premium .btn-arrow {
             position: absolute;
             left: -20px;
@@ -98,12 +129,10 @@
             font-size: 1.1rem;
         }
 
-        /* The Button Text */
         .btn-premium .btn-text {
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Hover States for Arrows and Text */
         .btn-premium:hover .btn-arrow {
             left: 24px;
             opacity: 1;
@@ -113,9 +142,7 @@
             transform: translateX(10px);
         }
 
-        /* --- RESTORED ORIGINAL COLORS --- */
-
-        /* Sign In: Outline style */
+        /* Colors */
         .btn-signin-style {
             border: 2px solid rgba(255, 255, 255, 0.4);
             color: white;
@@ -123,14 +150,13 @@
         }
         .btn-signin-style:hover {
             background-color: white;
-            color: #1e3a8a; /* dark blue text on white bg */
+            color: #1e3a8a;
             border-color: white;
         }
 
-        /* Get Started: Solid style */
         .btn-getstarted-style {
             background-color: white;
-            color: #1e3a8a; /* dark blue */
+            color: #1e3a8a;
             border: 2px solid white;
         }
         .btn-getstarted-style:hover {
@@ -164,48 +190,50 @@
         }
     </style>
 </head>
-<body class="animated-bg text-white flex flex-col">
+<body class="animated-bg text-white flex flex-col min-h-screen">
 
     <!-- Navigation Header -->
     <nav class="fixed top-0 w-full z-50 px-4">
-        <div class="max-w-7xl mx-auto flex items-center justify-between glass-panel px-6 py-3 rounded-b-xl shadow-xl border-t-0">
+        <div id="main-nav-container" class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent relative z-[60]">
             <!-- Brand -->
             <a href="/welcome" class="flex items-center gap-2">
                 <i class="ph-fill ph-cloud-arrow-up text-cyan-300 text-2xl"></i>
                 <span class="font-bold tracking-tight text-xl">Your Drive</span>
             </a>
 
-            <!-- Links Group -->
-            <div class="flex items-center gap-6 md:gap-8">
-                <a href="/home" class="nav-link">
-                    <i class="ph ph-user text-cyan-300"></i>
-                    <span>Personal</span>
-                </a>
+            <!-- Desktop Links -->
+            <div class="hidden md:flex items-center gap-6 md:gap-8">
+                <a href="/home" class="nav-link"><i class="ph ph-user text-cyan-300"></i><span>Personal</span></a>
+                <a href="/global" class="nav-link"><i class="ph ph-globe text-cyan-300"></i><span>Global</span></a>
+                <a href="/about" class="nav-link"><i class="ph ph-info text-cyan-300"></i><span>About</span></a>
+                <div class="w-px h-6 bg-white/10 mx-1"></div>
+                <a href="/members" class="nav-link"><i class="ph-bold ph-users-three text-cyan-300"></i><span>Community</span></a>
+            </div>
 
-                <a href="/global" class="nav-link">
-                    <i class="ph ph-globe text-cyan-300"></i>
-                    <span>Global</span>
-                </a>
+            <!-- Hamburger Button -->
+            <button id="menu-btn" class="md:hidden p-2 text-cyan-300 focus:outline-none transition-transform duration-200 active:scale-90" aria-label="Open menu" aria-expanded="false">
+                <i id="menu-icon" class="ph-bold ph-list text-3xl"></i>
+            </button>
+        </div>
 
-                <a href="/about" class="nav-link">
-                    <i class="ph ph-info text-cyan-300"></i>
-                    <span>About</span>
-                </a>
+        <!-- Mobile Side Menu -->
+        <div id="mobile-menu" class="fixed inset-y-0 right-0 w-[280px] glass-panel z-50 md:hidden flex flex-col p-8 pt-28 shadow-2xl space-y-8">
+            <a href="/home" class="nav-link text-lg"><i class="ph ph-user text-cyan-300 text-xl"></i><span>Personal</span></a>
+            <a href="/global" class="nav-link text-lg"><i class="ph ph-globe text-cyan-300 text-xl"></i><span>Global</span></a>
+            <a href="/about" class="nav-link text-lg"><i class="ph ph-info text-cyan-300 text-xl"></i><span>About</span></a>
+            <div class="w-full h-px bg-white/10"></div>
+            <a href="/members" class="nav-link text-lg"><i class="ph-bold ph-users-three text-cyan-300 text-xl"></i><span>Community</span></a>
 
-                <div class="w-px h-6 bg-white/10 mx-1 hidden md:block"></div>
-
-                <a href="/members" class="nav-link">
-                    <i class="ph-bold ph-users-three text-cyan-300"></i>
-                    <span>Community</span>
-                </a>
+            <div class="pt-10 flex flex-col gap-4">
+                <a href="/user/login" class="btn-premium btn-signin-style text-center w-full px-4 py-3 rounded-full font-semibold">Sign In</a>
+                <a href="/user/register" class="btn-premium btn-getstarted-style text-center w-full px-4 py-3 rounded-full font-bold">Get Started</a>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-grow flex flex-col justify-center px-4 pt-32 pb-10 relative z-10 w-full">
+    <main class="flex-grow flex flex-col justify-center px-4 pt-32 sm:pt-48 pb-10 relative z-10 w-full overflow-hidden">
         
-        <!-- Background Decor elements -->
         <div class="cloud w-32 h-12 top-1/4 left-5 md:left-20 opacity-30 float-slow hidden sm:block">
             <style>.cloud:nth-child(1)::after { width: 40px; height: 40px; top: -20px; left: 10px; } .cloud:nth-child(1)::before { width: 50px; height: 50px; top: -30px; right: 10px; }</style>
         </div>
@@ -213,63 +241,55 @@
             <style>.cloud:nth-child(2)::after { width: 60px; height: 60px; top: -30px; left: 15px; } .cloud:nth-child(2)::before { width: 70px; height: 70px; top: -45px; right: 15px; }</style>
         </div>
 
-        <div class="text-center max-w-4xl w-full mx-auto">
-            
+        <div class="text-center max-w-4xl w-full mx-auto relative z-20">
             <div class="mb-12 space-y-6">
-                <h2 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight drop-shadow-lg">
+                <h2 class="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight leading-tight drop-shadow-lg">
                     Store. Share. <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-200">Access.</span>
                 </h2>
-                <p class="text-lg md:text-2xl text-blue-100 max-w-2xl mx-auto font-light leading-relaxed">
+                <p class="text-base sm:text-lg md:text-2xl text-blue-100 max-w-2xl mx-auto font-light leading-relaxed px-4">
                     Securely upload and manage your files — anytime, anywhere.
                 </p>
             </div>
 
-            <!-- Central Visual (Glass Card) -->
-            <div class="relative w-full max-w-lg mx-auto mb-16 h-64 md:h-80">
-                <div class="glass-panel w-full h-full rounded-2xl flex flex-col p-4 relative z-20 transition-all duration-500">
+            <div class="relative w-full max-w-lg mx-auto mb-16 px-4">
+                <div class="glass-panel w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl flex flex-col p-4 sm:p-6 relative z-20 transition-all duration-500 shadow-2xl">
                     <div class="flex gap-2 mb-4">
                         <div class="w-3 h-3 rounded-full bg-red-400"></div>
                         <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
                         <div class="w-3 h-3 rounded-full bg-green-400"></div>
                     </div>
-                    
-                    <div class="flex-1 grid grid-cols-3 gap-4 p-2 items-center">
-                        <div class="bg-white/10 rounded-lg p-3 flex flex-col items-center justify-center gap-2 transition-transform duration-300 hover:scale-110 cursor-pointer h-32 md:h-40">
-                            <i class="ph-fill ph-image text-4xl text-purple-300"></i>
-                            <div class="h-2 w-16 bg-white/20 rounded"></div>
+                    <div class="flex-1 grid grid-cols-3 gap-3 sm:gap-4 p-2 items-center">
+                        <div class="bg-white/10 rounded-lg p-2 sm:p-3 flex flex-col items-center justify-center gap-2 transition-transform duration-300 hover:scale-105 cursor-pointer h-24 sm:h-32 md:h-40">
+                            <i class="ph-fill ph-image text-3xl sm:text-4xl text-purple-300"></i>
+                            <div class="h-1.5 sm:h-2 w-12 sm:w-16 bg-white/20 rounded"></div>
                         </div>
-                        
-                        <div class="bg-white/20 rounded-lg p-3 flex flex-col items-center justify-center gap-2 shadow-lg border border-white/30 relative transition-transform duration-300 hover:scale-110 cursor-pointer h-36 md:h-44 -mt-2">
-                            <div class="absolute -top-2 -right-2 bg-blue-500 rounded-full p-1 shadow-lg">
-                                <i class="ph-bold ph-check text-xs text-white"></i>
+                        <div class="bg-white/20 rounded-lg p-2 sm:p-3 flex flex-col items-center justify-center gap-2 shadow-lg border border-white/30 relative transition-transform duration-300 hover:scale-105 cursor-pointer h-28 sm:h-36 md:h-44 -mt-2">
+                            <div class="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-blue-500 rounded-full p-1 shadow-lg">
+                                <i class="ph-bold ph-check text-[10px] sm:text-xs text-white"></i>
                             </div>
-                            <i class="ph-fill ph-play-circle text-5xl text-cyan-300"></i>
-                            <div class="h-2 w-20 bg-white/40 rounded mt-1"></div>
+                            <i class="ph-fill ph-play-circle text-4xl sm:text-5xl text-cyan-300"></i>
+                            <div class="h-1.5 sm:h-2 w-16 sm:w-20 bg-white/40 rounded mt-1"></div>
                         </div>
-                        
-                        <div class="bg-white/10 rounded-lg p-3 flex flex-col items-center justify-center gap-2 transition-transform duration-300 hover:scale-110 cursor-pointer h-32 md:h-40">
-                            <i class="ph-fill ph-file-text text-4xl text-blue-300"></i>
-                            <div class="h-2 w-16 bg-white/20 rounded"></div>
+                        <div class="bg-white/10 rounded-lg p-2 sm:p-3 flex flex-col items-center justify-center gap-2 transition-transform duration-300 hover:scale-105 cursor-pointer h-24 sm:h-32 md:h-40">
+                            <i class="ph-fill ph-file-text text-3xl sm:text-4xl text-blue-300"></i>
+                            <div class="h-1.5 sm:h-2 w-12 sm:w-16 bg-white/20 rounded"></div>
                         </div>
                     </div>
                 </div>
-                <div class="absolute -top-10 -left-10 w-24 h-24 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-                <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+                <div class="absolute -top-6 -left-6 sm:-top-10 sm:-left-10 w-20 h-20 sm:w-24 sm:h-24 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-50 sm:opacity-70"></div>
+                <div class="absolute -bottom-6 -right-6 sm:-bottom-10 sm:-right-10 w-20 h-20 sm:w-24 sm:h-24 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-50 sm:opacity-70"></div>
             </div>
 
-            <!-- Buttons with Restored Colors + New Animation -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
-                <a href="/user/login" class="btn-premium btn-signin-style text-center w-48 px-8 py-3.5 rounded-full font-semibold shadow-xl">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-5 px-6">
+                <a href="#" class="btn-premium btn-signin-style text-center w-full sm:w-48 px-8 py-3.5 rounded-full font-semibold shadow-xl">
                     <i class="ph-bold ph-arrow-right btn-arrow"></i>
                     <span class="btn-text">Sign In</span>
                 </a>
-                
-                <a href="/user/register" class="btn-premium btn-getstarted-style text-center w-48 px-8 py-3.5 rounded-full font-bold shadow-xl">
+                <a href="#" class="btn-premium btn-getstarted-style text-center w-full sm:w-48 px-8 py-3.5 rounded-full font-bold shadow-xl">
                     <i class="ph-bold ph-arrow-right btn-arrow"></i>
                     <span class="btn-text">Get Started</span>
                 </a>
             </div>
-
         </div>
     </main>
     
@@ -277,6 +297,69 @@
         &copy; 2025 Your Drive. All rights reserved.
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navContainer = document.getElementById('main-nav-container');
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+
+            const handleScroll = () => {
+                if (mobileMenu.classList.contains('open')) {
+                    navContainer.classList.add('nav-hide-bg');
+                } else if (window.scrollY > 10) {
+                    navContainer.classList.add('nav-scrolled');
+                    navContainer.classList.remove('nav-hide-bg');
+                } else {
+                    navContainer.classList.remove('nav-scrolled', 'nav-hide-bg');
+                }
+            };
+
+            function updateMenuIcon(isOpen) {
+                menuIcon.className = isOpen ? 'ph-bold ph-x text-3xl' : 'ph-bold ph-list text-3xl';
+            }
+
+            function openMenu() {
+                mobileMenu.classList.add('open');
+                navContainer.classList.add('nav-hide-bg');
+                updateMenuIcon(true);
+                menuBtn.setAttribute('aria-expanded', 'true');
+                
+                // Block scroll without removing scrollbar width
+                document.body.style.overflowY = 'hidden';
+            }
+
+            function closeMenu() {
+                mobileMenu.classList.remove('open');
+                navContainer.classList.remove('nav-hide-bg');
+                updateMenuIcon(false);
+                menuBtn.setAttribute('aria-expanded', 'false');
+                
+                // Restore scroll
+                document.body.style.overflowY = 'auto';
+                handleScroll();
+            }
+
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (mobileMenu.classList.contains('open')) closeMenu(); else openMenu();
+            });
+
+            document.addEventListener('pointerdown', (e) => {
+                if (!mobileMenu.classList.contains('open')) return;
+                if (mobileMenu.contains(e.target) || menuBtn.contains(e.target)) return;
+                closeMenu();
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768 && mobileMenu.classList.contains('open')) {
+                    closeMenu();
+                }
+            });
+
+            window.addEventListener('scroll', handleScroll, { passive: true });
+            handleScroll();
+        });
+    </script>
 </body>
 </html>
-

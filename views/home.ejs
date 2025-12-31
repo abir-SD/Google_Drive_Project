@@ -12,7 +12,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <style>
         body {
@@ -28,9 +29,17 @@
         }
 
         @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* --- ORIGINAL NAVBAR STYLES FROM HOME.EJS --- */
@@ -65,8 +74,9 @@
             color: #dbeafe;
             transition: color 0.3s ease;
         }
-        
-        .nav-link:hover, .nav-link.active {
+
+        .nav-link:hover,
+        .nav-link.active {
             color: #67e8f9;
         }
 
@@ -82,7 +92,8 @@
             transform: translateX(-50%);
         }
 
-        .nav-link:hover::after, .nav-link.active::after {
+        .nav-link:hover::after,
+        .nav-link.active::after {
             width: 100%;
         }
 
@@ -113,6 +124,7 @@
                 left: 24px;
                 opacity: 1;
             }
+
             .btn-premium:hover .btn-text {
                 transform: translateX(12px);
             }
@@ -125,6 +137,7 @@
                 opacity: 1;
                 margin-right: 8px;
             }
+
             .btn-premium .btn-text {
                 transform: none !important;
             }
@@ -154,9 +167,18 @@
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
 
         #mobile-menu {
             transform: translateX(100%);
@@ -172,7 +194,8 @@
 <body class="animated-bg text-white flex flex-col items-center">
 
     <nav class="fixed top-0 w-full z-50 px-4">
-        <div id="main-nav-container" class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent">
+        <div id="main-nav-container"
+            class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent">
             <a href="/welcome" class="flex items-center gap-2 relative z-[60]">
                 <i class="ph-fill ph-cloud-arrow-up text-cyan-300 text-2xl"></i>
                 <span class="font-bold tracking-tight text-xl">Your Drive</span>
@@ -198,12 +221,14 @@
                 </a>
             </div>
 
-            <button id="menu-btn" class="md:hidden relative z-[60] p-2 text-cyan-300 focus:outline-none" aria-label="Open menu" aria-expanded="false">
+            <button id="menu-btn" class="md:hidden relative z-[60] p-2 text-cyan-300 focus:outline-none"
+                aria-label="Open menu" aria-expanded="false">
                 <i id="menu-icon" class="ph-bold ph-list text-3xl"></i>
             </button>
         </div>
 
-        <div id="mobile-menu" class="fixed inset-y-0 right-0 w-[280px] glass-panel z-50 md:hidden flex flex-col p-8 pt-28 shadow-2xl space-y-8">
+        <div id="mobile-menu"
+            class="fixed inset-y-0 right-0 w-[280px] glass-panel z-50 md:hidden flex flex-col p-8 pt-28 shadow-2xl space-y-8">
             <a href="/home" class="nav-link text-lg">
                 <i class="ph ph-user text-cyan-300 text-xl"></i>
                 <span>Personal</span>
@@ -226,67 +251,107 @@
 
     <main class="flex-grow flex flex-col items-center px-4 pt-48 pb-10 relative z-10 w-full">
         <div class="w-full max-w-4xl space-y-8">
-            <div class="text-center mb-8">
-                <h1 class="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center gap-3">
-                    <i class="ph ph-user text-cyan-300"></i>
-                    <span>Personal Hub</span>
-                </h1>
-                <p class="text-blue-100 mt-2 text-lg font-light">Manage your personal files securely</p>
-            </div>
-
-            <div class="glass-panel rounded-2xl shadow-2xl overflow-hidden p-1">
-                <div class="max-h-[60vh] overflow-y-auto custom-scrollbar p-4 space-y-3">
-                    <% if (files.length===0) { %>
-                        <div class="text-center py-10 text-white/50">
-                            <i class="ri-folder-open-line text-5xl mb-3 block"></i>
-                            <p>No files uploaded yet.</p>
-                        </div>
-                    <% } %>
-
-                    <% files.forEach(file=> { %>
-                        <div class="glass-card flex items-center justify-between p-4 rounded-xl shadow-sm group">
-                            <div class="flex-grow min-w-0 pr-4 flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-cyan-300">
-                                    <i class="ri-file-line text-xl"></i>
-                                </div>
-                                <div class="text-base font-medium text-white truncate leading-snug sm:text-lg max-w-full">
-                                    <a href="/view/<%= file.s3Key %>" style="text-decoration: underline;"><%= file.originalName %></a>
-                                </div>
-                                <% if (file.size) { %>
-                                    <div class="text-xs text-white/50 hidden sm:block">
-                                        (<%= (file.size / 1024 / 1024).toFixed(2) %> MB)
-                                    </div>
-                                <% } %>
-                            </div>
-                            <a href="/download/<%= file.s3Key %>" download="<%= file.originalName %>" 
-                               class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
-                                <i class="ri-download-line text-xl"></i>
-                            </a>
-                        </div>
-                    <% }) %>
+            <% if (successMsg) { %>
+                <div id="toast-success"
+                    class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center w-full max-w-xs p-4 text-white bg-green-600 rounded-lg shadow-xl"
+                    role="alert">
+                    <div
+                        class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-200 bg-green-700 rounded-lg">
+                        <i class="ri-checkbox-circle-fill"></i>
+                    </div>
+                    <div class="ms-3 text-sm font-normal">
+                        <%= successMsg %>
+                    </div>
+                    <button type="button" onclick="this.parentElement.remove()"
+                        class="ms-auto -mx-1.5 -my-1.5 bg-green-600 text-green-200 hover:text-white p-1.5 inline-flex items-center justify-center h-8 w-8">
+                        <i class="ri-close-line"></i>
+                    </button>
                 </div>
-            </div>
+                <% } %>
+                    <div class="text-center mb-8">
+                        <h1
+                            class="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center gap-3">
+                            <i class="ph ph-user text-cyan-300"></i>
+                            <span>Personal Hub</span>
+                        </h1>
+                        <p class="text-blue-100 mt-2 text-lg font-light">Manage your personal files securely</p>
+                    </div>
 
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-5 mt-8 px-4">
-                <button id="open-upload-btn" class="btn-premium w-full sm:flex-1 rounded-full border-2 border-white/30 text-white px-8 py-3.5 font-bold hover:bg-white hover:text-blue-900 hover:border-transparent hover:shadow-lg focus:outline-none">
-                    <i class="ri-upload-cloud-2-line text-xl btn-icon-anim"></i>
-                    <span class="btn-text">Upload File</span>
-                </button>
+                    <div class="glass-panel rounded-2xl shadow-2xl overflow-hidden p-1">
+                        <div class="max-h-[60vh] overflow-y-auto custom-scrollbar p-4 space-y-3">
+                            <% if (files.length===0) { %>
+                                <div class="text-center py-10 text-white/50">
+                                    <i class="ri-folder-open-line text-5xl mb-3 block"></i>
+                                    <p>No files uploaded yet.</p>
+                                </div>
+                                <% } %>
 
-                <a href="/logout" class="btn-premium w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3.5 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none text-center">
-                    <i class="ri-logout-box-r-line text-xl btn-icon-anim"></i>
-                    <span class="btn-text">Logout</span>
-                </a>
-            </div>
+                                    <% files.forEach(file=> { %>
+                                        <div
+                                            class="glass-card flex items-center justify-between p-4 rounded-xl shadow-sm group">
+                                            <div class="flex-grow min-w-0 pr-4 flex items-center gap-4">
+                                                <div
+                                                    class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-cyan-300">
+                                                    <i class="ri-file-line text-xl"></i>
+                                                </div>
+                                                <div
+                                                    class="text-base font-medium text-white truncate leading-snug sm:text-lg max-w-full">
+                                                    <a href="/view/<%= file.s3Key %>"
+                                                        class="underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300 hover:text-cyan-300 transition-colors">
+                                                        <%= file.originalName %>
+                                                    </a>
+                                                </div>
+                                                <% if (file.size) { %>
+                                                    <div class="text-xs text-white/50 hidden sm:block">
+                                                        (<%= (file.size / 1024 / 1024).toFixed(2) %> MB)
+                                                    </div>
+                                                    <% } %>
+                                            </div>
+
+                                            <!-- Action Buttons Container -->
+                                            <div class="flex items-center gap-3">
+                                                <a href="/download/<%= file.s3Key %>"
+                                                    download="<%= file.originalName %>" title="Download"
+                                                    class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
+                                                    <i class="ri-download-line text-xl"></i>
+                                                </a>
+
+                                                <a href="/delete/<%= file._id %>" title="Delete"
+                                                    onclick="return confirm('Are you sure you want to delete this file?')"
+                                                    class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
+                                                    <i class="ri-delete-bin-line text-xl"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <% }) %>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-5 mt-8 px-4">
+                        <button id="open-upload-btn"
+                            class="btn-premium w-full sm:flex-1 rounded-full border-2 border-white/30 text-white px-8 py-3.5 font-bold hover:bg-white hover:text-blue-900 hover:border-transparent hover:shadow-lg focus:outline-none">
+                            <i class="ri-upload-cloud-2-line text-xl btn-icon-anim"></i>
+                            <span class="btn-text">Upload File</span>
+                        </button>
+
+                        <a href="/logout"
+                            class="btn-premium w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3.5 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none text-center">
+                            <i class="ri-logout-box-r-line text-xl btn-icon-anim"></i>
+                            <span class="btn-text">Logout</span>
+                        </a>
+                    </div>
         </div>
     </main>
 
-    <div id="popup" class="pop fixed inset-0 z-[100] flex hidden items-center justify-center bg-black/60 opacity-0 backdrop-blur-sm p-4">
-        <button onclick="hidePopUp()" class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-50">
+    <div id="popup"
+        class="pop fixed inset-0 z-[100] flex hidden items-center justify-center bg-black/60 opacity-0 backdrop-blur-sm p-4">
+        <button onclick="hidePopUp()"
+            class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-50">
             <i class="ri-close-line text-4xl"></i>
         </button>
 
-        <div class="glass-panel w-full max-w-lg scale-95 transform rounded-2xl p-8 shadow-2xl transition-all relative overflow-hidden">
+        <div
+            class="glass-panel w-full max-w-lg scale-95 transform rounded-2xl p-8 shadow-2xl transition-all relative overflow-hidden">
             <div class="text-center mb-6">
                 <h3 class="text-2xl font-bold text-white">Upload a File</h3>
                 <p class="text-blue-200 text-sm">Select a file to store securely</p>
@@ -294,10 +359,14 @@
 
             <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
                 <div class="flex w-full items-center justify-center">
-                    <label for="dropzone-file" class="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10 transition-all duration-300 group">
-                        <div id="dropzone-content" class="flex flex-col items-center justify-center pt-5 pb-6 text-white/70 group-hover:text-white transition-colors">
-                            <i class="ri-upload-cloud-line text-5xl mb-4 text-cyan-300 group-hover:scale-110 transition-transform"></i>
-                            <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to upload</span> or drag and drop</p>
+                    <label for="dropzone-file"
+                        class="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10 transition-all duration-300 group">
+                        <div id="dropzone-content"
+                            class="flex flex-col items-center justify-center pt-5 pb-6 text-white/70 group-hover:text-white transition-colors">
+                            <i
+                                class="ri-upload-cloud-line text-5xl mb-4 text-cyan-300 group-hover:scale-110 transition-transform"></i>
+                            <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to upload</span> or
+                                drag and drop</p>
                             <p class="text-xs text-white/50">Any file type (MAX. 10MB)</p>
                         </div>
                         <div id="filename-display" class="hidden text-center text-white font-medium p-4">
@@ -308,7 +377,8 @@
                     </label>
                 </div>
 
-                <button type="submit" class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none">
+                <button type="submit"
+                    class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none">
                     <i class="ri-check-line text-xl btn-icon-anim"></i>
                     <span class="btn-text">Confirm Upload</span>
                 </button>
@@ -336,7 +406,7 @@
                     navContainer.classList.add('bg-transparent', 'border-transparent');
                     navContainer.classList.remove('nav-hide-bg');
                 }
-            };  
+            };
             window.addEventListener('scroll', handleScroll);
             handleScroll();
 
@@ -350,7 +420,7 @@
                             a.classList.add('active');
                             a.setAttribute('aria-current', 'page');
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 });
             }
             setActiveNav();
@@ -422,6 +492,16 @@
                 }
             });
         });
+
+        setTimeout(() => {
+            const toast = document.getElementById('toast-success');
+            if (toast) {
+                toast.style.transition = 'opacity 0.5s ease';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }
+        }, 3000);
+
     </script>
 </body>
 

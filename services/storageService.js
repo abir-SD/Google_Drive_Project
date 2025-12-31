@@ -7,8 +7,8 @@ const { s3 } = require('../config/s3-config.js')
 
 // For uploading data ...
 
-const uploadFileToS3 = async (fileBuffer, originalName, MimeType, userId) => {
-    const fileKey = `${userName}/${Date.now()}-${originalName}`
+const uploadFileToS3 = async (fileBuffer, originalName, MimeType, folder) => {
+    const fileKey = `${folder}/${Date.now()}-${originalName}`
     const command = new PutObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET,
         Key: fileKey,
@@ -65,7 +65,7 @@ const deleteFileFromS3 = async (s3Key) => {
 
     try {
         await s3.send(command)
-        return true
+        return { success: true }
     }
     catch (err) {
         console.error("S3 Deletion Error:", err)

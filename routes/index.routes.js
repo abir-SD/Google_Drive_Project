@@ -1,6 +1,6 @@
 const express = require('express')
 const authMiddleware = require('../middlewares/authe')
-const { uploadFileToS3, getSignedDownloadUrl, getSignedViewUrl } = require('../services/storageService')
+const { uploadFileToS3, getSignedDownloadUrl, getSignedViewUrl, deleteFileFromS3 } = require('../services/storageService')
 const userModel = require('../models/user.model');
 
 const router = express.Router()
@@ -30,9 +30,15 @@ router.get('/home', authMiddleware, async (req, res) => {
         owner: req.user._id
     })
 
+    // Capture messages from query parameters
+    const successMsg = req.query.success;
+    const errorMsg = req.query.error;
+
     res.render('home', {
-        files: userFiles
-    })
+        files: userFiles,
+        successMsg: successMsg,
+        errorMsg: errorMsg
+    });
 })
 
 router.get('/members', async (req, res) => {
@@ -45,7 +51,7 @@ router.get('/members', async (req, res) => {
             count: allUsers.length,
             totalFiles: totalFiles
         });
-        
+
     } catch (error) {
         console.error("Error fetching users:", error);
         res.status(500).send("Server Error");
@@ -59,11 +65,15 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
             return;
         }
 
+        // Multer-s3 uploads directly to S3; use the returned key
+        const s3Key = req.file.key || (req.file.location && req.file.location.split('.amazonaws.com/')[1]);
+
         const newFile = new fileModel({
             owner: req.user._id,
             originalName: req.file.originalname,
             size: req.file.size,
-            s3Key: req.file.key
+            s3Key: s3Key,
+            isPublic: false
         })
 
         await newFile.save();
@@ -124,7 +134,8 @@ router.get('/view/:username/:filename', authMiddleware, async (req, res) => {
 // For Global file
 
 router.get('/global', authMiddleware, async (req, res) => {
-    const publicFiles = await fileModel.find({ isPublic: true });
+    // Add .populate('owner', 'username') to join the user data
+    const publicFiles = await fileModel.find({ isPublic: true }).populate('owner', 'username');
     res.render('global', { files: publicFiles });
 });
 
@@ -135,11 +146,14 @@ router.post('/upload-global', authMiddleware, upload.single('file'), async (req,
             return res.render('upload', { file: null, type: 'global' });
         }
 
+        // Multer-s3 already stored the file; use the returned key
+        const s3Key = req.file.key || (req.file.location && req.file.location.split('.amazonaws.com/')[1]);
+
         const newFile = new fileModel({
             owner: req.user._id,
             originalName: req.file.originalname,
             size: req.file.size,
-            s3Key: req.file.key,
+            s3Key: s3Key,
             isPublic: true
         });
 
@@ -176,6 +190,36 @@ router.get(/^\/view-public\/(.+)$/, authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('View error:', error);
         res.status(500).send('Error viewing file.');
+    }
+});
+
+// For deleting files
+
+router.get('/delete/:fileId', authMiddleware, async (req, res) => {
+    try {
+        const fileId = req.params.fileId;
+
+        // 1. Find the file to ensure the logged-in user owns it
+        const file = await fileModel.findOne({
+            _id: fileId,
+            owner: req.user._id // Security check: Only owner can delete
+        });
+
+        if (!file) {
+            return res.status(404).send('File not found or unauthorized');
+        }
+
+        // 2. Delete from S3 using the stored key
+        await deleteFileFromS3(file.s3Key);
+
+        // 3. Delete from MongoDB
+        await fileModel.findByIdAndDelete(fileId);
+
+        // Redirect with a success message in the URL
+        res.redirect('/home?success=File deleted successfully');
+    } catch (error) {
+        console.error('Delete error:', error);
+        res.status(500).send('Internal Server Error');
     }
 });
 

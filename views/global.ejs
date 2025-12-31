@@ -339,10 +339,19 @@
             </div>
             <form action="/upload-global" method="post" enctype="multipart/form-data">
                 <label
-                    class="flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10">
-                    <i class="ri-upload-cloud-line text-4xl text-cyan-300 mb-2"></i>
-                    <span class="text-sm font-medium">Click to select file</span>
-                    <input type="file" name="file" class="hidden" required />
+                    class="flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10 group">
+                    <div id="dropzone-content-global" class="flex flex-col items-center justify-center pt-5 pb-6 text-white/70 group-hover:text-white transition-colors">
+                        <i class="ri-upload-cloud-line text-4xl text-cyan-300 mb-2 group-hover:scale-110 transition-transform"></i>
+                        <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to select file</span></p>
+                        <p class="text-xs text-white/50">Any file type (MAX. 10MB)</p>
+                    </div>
+
+                    <div id="filename-display-global" class="hidden text-center text-white font-medium p-4">
+                        <i class="ri-file-check-line text-4xl text-green-400 mb-2 block"></i>
+                        <span id="file-name-text-global"></span>
+                    </div>
+
+                    <input id="dropzone-file-global" type="file" name="file" class="hidden" required />
                 </label>
                 <button type="submit"
                     class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 py-3.5 font-bold hover:bg-transparent hover:border-white hover:text-white border-2 border-transparent transition-all duration-400">
@@ -425,6 +434,17 @@
             };
             window.hidePopUp = () => {
                 popUp.classList.add('opacity-0');
+                // Reset any selected file state in popup
+                try {
+                    const df = document.getElementById('dropzone-file-global');
+                    const dcontent = document.getElementById('dropzone-content-global');
+                    const fdisplay = document.getElementById('filename-display-global');
+                    const fname = document.getElementById('file-name-text-global');
+                    if (df) df.value = '';
+                    if (fdisplay) fdisplay.classList.add('hidden');
+                    if (dcontent) dcontent.classList.remove('hidden');
+                    if (fname) fname.textContent = '';
+                } catch (err) { }
                 setTimeout(() => { popUp.classList.add('hidden'); }, 300);
             };
 
@@ -433,6 +453,24 @@
                 e.preventDefault();
                 window.showPopUp();
             });
+
+            // Global popup dropzone filename preview
+            const dropzoneInputGlobal = document.getElementById('dropzone-file-global');
+            const dropzoneContentGlobal = document.getElementById('dropzone-content-global');
+            const filenameDisplayGlobal = document.getElementById('filename-display-global');
+            const fileNameTextGlobal = document.getElementById('file-name-text-global');
+
+            if (dropzoneInputGlobal) {
+                dropzoneInputGlobal.addEventListener('change', () => {
+                    const file = dropzoneInputGlobal.files[0];
+                    if (file) {
+                        if (dropzoneContentGlobal) dropzoneContentGlobal.classList.add('hidden');
+                        if (filenameDisplayGlobal) filenameDisplayGlobal.classList.remove('hidden');
+                        if (fileNameTextGlobal) fileNameTextGlobal.textContent = file.name;
+                    }
+                });
+            }
+
         });
     </script>
 </body>

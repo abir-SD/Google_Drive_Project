@@ -58,32 +58,25 @@ router.get('/members', async (req, res) => {
     }
 });
 
-router.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
-    try {
-        if (!req.file) {
-            res.render('upload');
-            return;
+router.post('/upload',
+    authMiddleware,
+    upload.single('file'),
+    async (req, res) => {
+        try {
+            const newFile = new fileModel({
+                owner: req.user._id,
+                originalName: req.file.originalname,
+                size: req.file.size,
+                s3Key: req.file.key, // This will be "username/filename"
+                isPublic: false
+            });
+            await newFile.save();
+            res.render('upload', { file: req.file, type: 'personal', redirectTo: '/home' });
+        } catch (error) {
+            res.status(500).send('Personal upload failed');
         }
-
-        // Multer-s3 uploads directly to S3; use the returned key
-        const s3Key = req.file.key || (req.file.location && req.file.location.split('.amazonaws.com/')[1]);
-
-        const newFile = new fileModel({
-            owner: req.user._id,
-            originalName: req.file.originalname,
-            size: req.file.size,
-            s3Key: s3Key,
-            isPublic: false
-        })
-
-        await newFile.save();
-
-        res.render('upload', { file: req.file, type: 'personal', redirectTo: '/home' });
-    } catch (error) {
-        console.error('Upload error:', error);
-        res.status(500).send('Error uploading file.');
     }
-})
+);
 
 
 router.get('/download/:username/:filename', authMiddleware, async (req, res) => {
@@ -140,30 +133,29 @@ router.get('/global', authMiddleware, async (req, res) => {
 });
 
 
-router.post('/upload-global', authMiddleware, upload.single('file'), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.render('upload', { file: null, type: 'global' });
+router.post('/upload-global',
+    authMiddleware,
+    (req, res, next) => {
+        req.s3Folder = 'global'; // Force the folder to be 'global'
+        next();
+    },
+    upload.single('file'),
+    async (req, res) => {
+        try {
+            const newFile = new fileModel({
+                owner: req.user._id,
+                originalName: req.file.originalname,
+                size: req.file.size,
+                s3Key: req.file.key,
+                isPublic: true
+            });
+            await newFile.save();
+            res.render('upload', { file: req.file, type: 'global', redirectTo: '/global' });
+        } catch (error) {
+            res.status(500).send('Global upload failed');
         }
-
-        // Multer-s3 already stored the file; use the returned key
-        const s3Key = req.file.key || (req.file.location && req.file.location.split('.amazonaws.com/')[1]);
-
-        const newFile = new fileModel({
-            owner: req.user._id,
-            originalName: req.file.originalname,
-            size: req.file.size,
-            s3Key: s3Key,
-            isPublic: true
-        });
-
-        await newFile.save();
-        res.render('upload', { file: req.file, type: 'global', redirectTo: '/global' });
-    } catch (error) {
-        console.error('Global upload error:', error);
-        res.status(500).send('Error uploading file.');
     }
-});
+);
 
 router.get(/^\/download-public\/(.+)$/, authMiddleware, async (req, res) => {
     const s3Key = req.params[0];
@@ -199,24 +191,34 @@ router.get('/delete/:fileId', authMiddleware, async (req, res) => {
     try {
         const fileId = req.params.fileId;
 
-        // 1. Find the file to ensure the logged-in user owns it
+        // 1. Find the file and check ownership
         const file = await fileModel.findOne({
             _id: fileId,
-            owner: req.user._id // Security check: Only owner can delete
+            owner: req.user._id 
         });
 
         if (!file) {
             return res.status(404).send('File not found or unauthorized');
         }
 
-        // 2. Delete from S3 using the stored key
+        // 2. Store the public status before deleting the record
+        const wasPublic = file.isPublic;
+
+        // 3. Delete from S3
         await deleteFileFromS3(file.s3Key);
 
-        // 3. Delete from MongoDB
+        // 4. Delete from MongoDB
         await fileModel.findByIdAndDelete(fileId);
 
-        // Redirect with a success message in the URL
-        res.redirect('/home?success=File deleted successfully');
+        // 5. Dynamic Redirect based on the file type
+        if (wasPublic) {
+            // Redirect to global hub with success message
+            res.redirect('/global?success=Public file deleted successfully');
+        } else {
+            // Redirect to personal home with success message
+            res.redirect('/home?success=Personal file deleted successfully');
+        }
+
     } catch (error) {
         console.error('Delete error:', error);
         res.status(500).send('Internal Server Error');

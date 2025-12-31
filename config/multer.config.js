@@ -7,10 +7,11 @@ const storage = awsStorage({
     bucket: process.env.AWS_S3_BUCKET,
     contentType: awsStorage.AUTO_CONTENT_TYPE,
     key: (req, file, cb) => {
-        const userName = req.user.username
+        // Allow routes to override the target folder by setting req.s3Folder
+        const folder = req.s3Folder || req.user.username;
         const safeFileName = file.originalname.replace(/[^a-zA-Z0-9.]/g, '_')
-        const s3Key = `${userName}/${Date.now()}_${safeFileName}`
-        cb(null, s3Key); 
+        const s3Key = `${folder}/${Date.now()}_${safeFileName}`
+        cb(null, s3Key);
     }
 
 })

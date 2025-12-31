@@ -26,8 +26,10 @@ router.get('/logout', (req, res) => {
 
 router.get('/home', authMiddleware, async (req, res) => {
 
+    // Only show personal (non-public) files on the Home page
     const userFiles = await fileModel.find({
-        owner: req.user._id
+        owner: req.user._id,
+        isPublic: false
     })
 
     // Capture messages from query parameters
@@ -127,9 +129,22 @@ router.get('/view/:username/:filename', authMiddleware, async (req, res) => {
 // For Global file
 
 router.get('/global', authMiddleware, async (req, res) => {
-    // Add .populate('owner', 'username') to join the user data
-    const publicFiles = await fileModel.find({ isPublic: true }).populate('owner', 'username');
-    res.render('global', { files: publicFiles });
+    try {
+        const publicFiles = await fileModel.find({ isPublic: true }).populate('owner', 'username');
+
+        // 1. Capture the error and success messages from the URL query
+        const successMsg = req.query.success;
+        const errorMsg = req.query.error;
+
+        res.render('global', {
+            files: publicFiles,
+            successMsg: successMsg, // Pass success message
+            errorMsg: errorMsg       // Pass error message
+        });
+    } catch (error) {
+        console.error('Global route error:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 
@@ -191,36 +206,40 @@ router.get('/delete/:fileId', authMiddleware, async (req, res) => {
     try {
         const fileId = req.params.fileId;
 
-        // 1. Find the file and check ownership
+        // 1. Strict Ownership Check using User ID
+        // req.user._id comes from your authMiddleware
         const file = await fileModel.findOne({
             _id: fileId,
-            owner: req.user._id 
+            owner: req.user._id
         });
 
+        // 2. If no file is found matching BOTH ID and Owner, stop here
         if (!file) {
-            return res.status(404).send('File not found or unauthorized');
+            // Log the attempt for security monitoring
+            console.error(`Unauthorized delete attempt by User ID: ${req.user._id} on File ID: ${fileId}`);
+            // Redirect back to where they came from with an error
+            const redirectPath = req.headers.referer || '/home';
+            return res.redirect(`${redirectPath}?error=You do not have permission to delete this file.`);
         }
 
-        // 2. Store the public status before deleting the record
+        // 3. Proceed only if the check passed
         const wasPublic = file.isPublic;
 
-        // 3. Delete from S3
+        // Delete from physical storage (S3)
         await deleteFileFromS3(file.s3Key);
 
-        // 4. Delete from MongoDB
+        // Delete from database
         await fileModel.findByIdAndDelete(fileId);
 
-        // 5. Dynamic Redirect based on the file type
+        // 4. Send them back to the appropriate page
         if (wasPublic) {
-            // Redirect to global hub with success message
             res.redirect('/global?success=Public file deleted successfully');
         } else {
-            // Redirect to personal home with success message
             res.redirect('/home?success=Personal file deleted successfully');
         }
 
     } catch (error) {
-        console.error('Delete error:', error);
+        console.error('Delete Route Error:', error);
         res.status(500).send('Internal Server Error');
     }
 });

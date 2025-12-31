@@ -9,13 +9,14 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-    <!-- Remix Icons -->
+    <!-- Remix Icons & Phosphor (for consistency) -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <!-- Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
 
     <style>
@@ -23,7 +24,7 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* Modern Gradient Background matching Home Page */
+        /* Modern Gradient Background matching Project Theme */
         .animated-bg {
             background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
             background-size: 400% 400%;
@@ -33,17 +34,9 @@
         }
 
         @keyframes gradient {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* Glassmorphism Utilities */
@@ -54,25 +47,75 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* FIX 1: Custom Focus Border for Inputs (Simple Border Only) */
         .glass-input:focus {
             outline: none;
-            /* Crucial to remove default browser focus style */
             border-color: #22d3ee;
-            /* Ensure the border itself is cyan-400 */
         }
 
-        /* FIX 2: Ensure Autofill background remains translucent (the fix for the white background issue) */
+        /* Consistent Error UI */
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .error-alert {
+            animation: slideIn 0.4s ease forwards;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            backdrop-filter: blur(8px);
+        }
+
+        /* --- Welcome Page Button Logic --- */
+        .btn-premium {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-premium .btn-arrow {
+            position: absolute;
+            left: -20px;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+        }
+
+        .btn-premium .btn-text {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-premium:hover .btn-arrow {
+            left: 24px;
+            opacity: 1;
+        }
+
+        .btn-premium:hover .btn-text {
+            transform: translateX(10px);
+        }
+
+        /* Colors matching the 'Get Started' style from Welcome page */
+        .btn-getstarted-style {
+            background-color: white;
+            color: #1e3a8a;
+            border: 2px solid white;
+        }
+        .btn-getstarted-style:hover {
+            background-color: transparent;
+            color: white;
+            border-color: white;
+        }
+
+        /* Autofill Correction */
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
         input:-webkit-autofill:focus,
         input:-webkit-autofill:active {
-            /* Use a translucent white background via box-shadow to match the glass style */
             -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.05) inset !important;
             box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.05) inset !important;
             -webkit-text-fill-color: white !important;
-            /* Keep text white */
-            /* Use a long transition time to prevent color flashing */
             transition: background-color 5000s ease-in-out 0s;
         }
     </style>
@@ -80,93 +123,112 @@
 
 <body class="animated-bg flex items-center justify-center p-4">
 
-    <!-- Glass Container for Registration Form -->
-    <div class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+    <!-- Glass Container -->
+    <div class="glass-panel w-full max-w-md p-8 rounded-3xl shadow-2xl relative overflow-hidden">
 
         <!-- Header -->
         <div class="text-center mb-8">
             <div class="flex justify-center mb-4">
-                <i class="ri-user-add-line text-cyan-300 text-5xl"></i>
+                <div class="w-16 h-16 rounded-2xl bg-cyan-400/20 flex items-center justify-center border border-cyan-400/30">
+                    <i class="ph-fill ph-user-plus text-cyan-300 text-3xl"></i>
+                </div>
             </div>
             <h2 class="text-3xl font-bold text-white tracking-tight">Create Account</h2>
             <p class="text-blue-200 mt-2 text-sm">Join us and start managing your files today</p>
         </div>
 
-        <!-- Registration Form (Logic Preserved) -->
-        <form action="/user/register" method="post" class="space-y-6">
+        <!-- Consistent Error UI -->
+        <% if (error) { %>
+            <div id="error-message" class="error-alert flex items-center gap-3 p-4 mb-6 rounded-xl text-red-200 text-sm">
+                <i class="ph ph-warning-circle text-lg text-red-400"></i>
+                <span class="flex-1 font-medium"><%= error %></span>
+            </div>
+        <% } %>
 
-            <!-- User Name Field -->
+        <!-- Registration Form -->
+        <form action="/user/register" method="post" class="space-y-5">
+
+            <!-- User Name -->
             <div>
-                <label for="user" class="block mb-2 text-sm font-medium text-blue-100">User name</label>
+                <label for="user" class="block mb-2 text-xs font-semibold uppercase tracking-wider text-blue-200/70 ml-1">Username</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="ri-user-line text-blue-300"></i>
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-blue-300">
+                        <i class="ph ph-user"></i>
                     </div>
                     <input type="text" id="user" name="username" required
-                        class="glass-input bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-10 p-3 placeholder-white/30 transition-all shadow-sm backdrop-blur-sm"
-                        placeholder="User name" />
+                        class="glass-input bg-white/5 border border-white/10 text-white text-sm rounded-xl block w-full pl-11 p-3.5 placeholder-white/20 transition-all backdrop-blur-sm"
+                        placeholder="Choose a username" />
                 </div>
             </div>
 
-            <!-- Email Field -->
+            <!-- Email -->
             <div>
-                <label for="email" class="block mb-2 text-sm font-medium text-blue-100">Email address</label>
+                <label for="email" class="block mb-2 text-xs font-semibold uppercase tracking-wider text-blue-200/70 ml-1">Email Address</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="ri-mail-line text-blue-300"></i>
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-blue-300">
+                        <i class="ph ph-envelope"></i>
                     </div>
                     <input type="email" id="email" name="email" required
-                        class="glass-input bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-10 p-3 placeholder-white/30 transition-all shadow-sm backdrop-blur-sm"
-                        placeholder="username@company.com" />
+                        class="glass-input bg-white/5 border border-white/10 text-white text-sm rounded-xl block w-full pl-11 p-3.5 placeholder-white/20 transition-all backdrop-blur-sm"
+                        placeholder="name@example.com" />
                 </div>
             </div>
 
-            <!-- Password Field -->
+            <!-- Password -->
             <div>
-                <label for="password" class="block mb-2 text-sm font-medium text-blue-100">Password</label>
+                <label for="password" class="block mb-2 text-xs font-semibold uppercase tracking-wider text-blue-200/70 ml-1">Password</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="ri-lock-line text-blue-300"></i>
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-blue-300">
+                        <i class="ph ph-lock"></i>
                     </div>
                     <input type="password" id="password" name="password" required
-                        class="glass-input bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-10 p-3 placeholder-white/30 transition-all shadow-sm backdrop-blur-sm"
+                        class="glass-input bg-white/5 border border-white/10 text-white text-sm rounded-xl block w-full pl-11 p-3.5 placeholder-white/20 transition-all backdrop-blur-sm"
                         placeholder="•••••••••" />
                 </div>
             </div>
 
-            <!-- Terms Checkbox -->
-            <div class="flex items-start">
+            <!-- Terms -->
+            <div class="flex items-start gap-3 py-1">
                 <div class="flex items-center h-5">
                     <input id="remember" type="checkbox" value="" required
-                        class="w-4 h-4 rounded border-white/30 bg-white/10 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:ring-offset-transparent" />
+                        class="w-4 h-4 rounded border-white/20 bg-white/5 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:ring-offset-transparent cursor-pointer" />
                 </div>
-                <label for="remember" class="ms-2 text-sm font-medium text-blue-200">
-                    I agree with the <a href="#"
-                        class="text-cyan-300 hover:text-white hover:underline transition-colors">terms and
-                        conditions</a>.
+                <label for="remember" class="text-xs leading-tight text-blue-200/80 cursor-pointer">
+                    I agree to the <a href="#" class="text-cyan-300 hover:text-white hover:underline transition-colors font-medium">Terms</a> 
+                    and <a href="#" class="text-cyan-300 hover:text-white hover:underline transition-colors font-medium">Privacy Policy</a>.
                 </label>
             </div>
 
-            <div class="text-center pt-2">
-                <p class="text-sm font-medium text-blue-200">
+            <!-- THE PREMIUM SUBMIT BUTTON (Same as Welcome Page) -->
+            <button type="submit" class="btn-premium btn-getstarted-style w-full mt-2 px-8 py-3.5 rounded-full font-bold shadow-xl cursor-pointer">
+                <i class="ph-bold ph-arrow-right btn-arrow"></i>
+                <span class="btn-text">Create Account</span>
+            </button>
+
+            <!-- Login Link -->
+            <div class="text-center pt-4 border-t border-white/5 mt-4">
+                <p class="text-sm text-blue-200/60 font-medium">
                     Already have an account?
-                    <a href="/user/login"
-                        class="text-cyan-300 hover:text-white hover:underline transition-colors font-semibold">
-                        Log in here.
+                    <a href="/user/login" class="text-cyan-300 hover:text-white hover:underline transition-colors font-extrabold ml-1">
+                        Log in
                     </a>
                 </p>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
-                hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent
-                focus:outline-none focus:ring-4 focus:ring-blue-300/50 flex items-center justify-center gap-2">
-                <span>Submit</span>
-                <i class="ri-arrow-right-line"></i>
-            </button>
-
         </form>
     </div>
+
+    <script>
+        const errorBox = document.getElementById('error-message');
+        if (errorBox) {
+            setTimeout(() => {
+                errorBox.style.transition = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+                errorBox.style.opacity = "0";
+                errorBox.style.transform = "translateY(-10px)";
+                setTimeout(() => errorBox.remove(), 600);
+            }, 6000);
+        }
+    </script>
 
 </body>
 

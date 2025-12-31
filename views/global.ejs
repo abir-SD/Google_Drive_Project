@@ -36,12 +36,55 @@
             100% { background-position: 0% 50%; }
         }
 
-         /* Dynamic Navbar Transition */
+        /* --- PREMIUM BUTTON ANIMATIONS --- */
+        .btn-premium {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-icon-anim {
+            position: absolute;
+            left: -20px;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-text {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Desktop Hover Logic */
+        @media (hover: hover) {
+            .btn-premium:hover .btn-icon-anim {
+                left: 24px;
+                opacity: 1;
+            }
+            .btn-premium:hover .btn-text {
+                transform: translateX(12px);
+            }
+        }
+
+        /* Mobile/Touch Fallback (Visible Icons) */
+        @media (pointer: coarse) {
+            .btn-premium .btn-icon-anim {
+                position: static;
+                opacity: 1;
+                margin-right: 10px;
+            }
+            .btn-premium .btn-text {
+                transform: none !important;
+            }
+        }
+
+        /* --- REST OF THE STYLES --- */
         #main-nav-container {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Mobile Menu Drawer Logic */
         #mobile-menu {
             transform: translateX(100%);
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -51,7 +94,6 @@
             transform: translateX(0);
         }
 
-        /* Glassmorphism Utilities */
         .glass-panel {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
@@ -71,11 +113,6 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        /* Navbar dynamic state - Exactly matching welcome.ejs */
-        #main-nav-container {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
         .nav-scrolled {
             background: rgba(255, 255, 255, 0.1) !important;
             backdrop-filter: blur(12px) !important;
@@ -84,7 +121,6 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
-        /* Remove nav background/blur when menu is open */
         .nav-hide-bg {
             background: transparent !important;
             backdrop-filter: none !important;
@@ -93,7 +129,6 @@
             box-shadow: none !important;
         }
 
-        /* Nav Link Underline - Exactly matching welcome.ejs */
         .nav-link {
             position: relative;
             padding: 4px 0;
@@ -136,44 +171,36 @@
 
     <nav class="fixed top-0 w-full z-50 px-4">
         <div id="main-nav-container" class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent">
-            <!-- Brand -->
             <a href="/welcome" class="flex items-center gap-2 relative z-[60]">
                 <i class="ph-fill ph-cloud-arrow-up text-cyan-300 text-2xl"></i>
                 <span class="font-bold tracking-tight text-xl">Your Drive</span>
             </a>
 
-            <!-- Desktop Links Group (Hidden on small) -->
             <div class="hidden md:flex items-center gap-6 md:gap-8">
                 <a href="/home" class="nav-link">
                     <i class="ph ph-user text-cyan-300"></i>
                     <span>Personal</span>
                 </a>
-
                 <a href="/global" class="nav-link">
                     <i class="ph ph-globe text-cyan-300"></i>
                     <span>Global</span>
                 </a>
-
                 <a href="/about" class="nav-link">
                     <i class="ph ph-info text-cyan-300"></i>
                     <span>About</span>
                 </a>
-
                 <div class="w-px h-6 bg-white/10 mx-1"></div>
-
                 <a href="/members" class="nav-link">
                     <i class="ph-bold ph-users-three text-cyan-300"></i>
                     <span>Community</span>
                 </a>
             </div>
 
-            <!-- Hamburger Button (Mobile Only) -->
             <button id="menu-btn" class="md:hidden relative z-[60] p-2 text-cyan-300 focus:outline-none" aria-label="Open menu" aria-expanded="false">
                 <i id="menu-icon" class="ph-bold ph-list text-3xl"></i>
             </button>
         </div>
 
-        <!-- Mobile Side Menu Overlay -->
         <div id="mobile-menu" class="fixed inset-y-0 right-0 w-[280px] glass-panel z-50 md:hidden flex flex-col p-8 pt-28 shadow-2xl space-y-8">
             <a href="/home" class="nav-link text-lg">
                 <i class="ph ph-user text-cyan-300 text-xl"></i>
@@ -242,14 +269,14 @@
             </div>
 
             <div class="flex flex-col sm:flex-row justify-center items-center gap-5 mt-8">
-                <button id="open-upload-btn" class="w-full sm:flex-1 rounded-full border-2 border-white/40 text-white px-8 py-3.5 font-bold transition-all duration-300 hover:bg-white hover:text-blue-900 flex items-center justify-center gap-2">
-                    <i class="ri-upload-cloud-2-line text-xl"></i>
-                    Upload Publicly
+                <button id="open-upload-btn" class="btn-premium w-full sm:flex-1 rounded-full border-2 border-white/40 text-white px-8 py-3.5 font-bold hover:bg-white hover:text-blue-900 hover:border-white transition-all duration-400">
+                    <i class="ri-upload-cloud-2-line text-xl btn-icon-anim"></i>
+                    <span class="btn-text">Upload Publicly</span>
                 </button>
 
-                <a href="/logout" class="w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3 font-bold shadow-xl transition-all duration-300 hover:bg-transparent hover:border-white hover:text-white border-2 border-transparent flex items-center justify-center gap-2">
-                    <i class="ri-logout-box-r-line text-xl"></i>
-                    Logout
+                <a href="/logout" class="btn-premium w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3.5 font-bold shadow-xl border-2 border-transparent hover:bg-transparent hover:border-white hover:text-white transition-all duration-400 text-center">
+                    <i class="ri-logout-box-r-line text-xl btn-icon-anim"></i>
+                    <span class="btn-text">Logout</span>
                 </a>
             </div>
         </div>
@@ -270,7 +297,10 @@
                     <span class="text-sm font-medium">Click to select file</span>
                     <input type="file" name="file" class="hidden" required />
                 </label>
-                <button type="submit" class="mt-6 w-full rounded-full bg-white text-blue-900 py-3 font-bold">Upload Now</button>
+                <button type="submit" class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 py-3.5 font-bold hover:bg-transparent hover:border-white hover:text-white border-2 border-transparent transition-all duration-400">
+                    <i class="ri-check-line text-xl btn-icon-anim"></i>
+                    <span class="btn-text">Upload Now</span>
+                </button>
             </form>
         </div>
     </div>
@@ -281,7 +311,6 @@
             const popUp = document.getElementById('popup');
             const menuBtn = document.getElementById('menu-btn');
             const mobileMenu = document.getElementById('mobile-menu');
-            const menuIcon = document.getElementById('menu-icon');
 
             const handleScroll = () => {
                 if (mobileMenu && mobileMenu.classList.contains('open')) {
@@ -295,68 +324,47 @@
                 }
             };
 
-            // Robust mobile menu open/close helpers (always re-query the icon to avoid stale references)
             function updateMenuIcon(isOpen) {
                 const ic = document.getElementById('menu-icon');
                 if (!ic) return;
                 ic.className = isOpen ? 'ph-bold ph-x text-3xl' : 'ph-bold ph-list text-3xl';
-                ic.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
-                ic.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             }
             function openMenu() {
                 mobileMenu.classList.add('open');
                 setTimeout(() => { navContainer.classList.add('nav-hide-bg'); }, 0);
                 updateMenuIcon(true);
-                if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
-                if (menuBtn) menuBtn.style.zIndex = '9999';
                 document.body.style.overflow = 'hidden';
             }
             function closeMenu() {
                 mobileMenu.classList.remove('open');
                 navContainer.classList.remove('nav-hide-bg');
                 updateMenuIcon(false);
-                if (menuBtn) menuBtn.style.zIndex = '';
                 document.body.style.overflow = '';
             }
 
-            // Mobile Menu Toggle
             menuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (mobileMenu.classList.contains('open')) closeMenu(); else openMenu();
             });
 
-            // Close when clicking / touching outside the menu
             document.addEventListener('pointerdown', (e) => {
                 if (!mobileMenu.classList.contains('open')) return;
                 if (mobileMenu.contains(e.target) || menuBtn.contains(e.target)) return;
                 closeMenu();
             });
 
-            // Close mobile menu on resize
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 768 && mobileMenu.classList.contains('open')) {
-                    closeMenu();
-                }
-            });
-
             window.addEventListener('scroll', handleScroll);
             handleScroll();
 
-            // Active nav highlighting (desktop + mobile)
             function setActiveNav() {
                 const anchors = document.querySelectorAll('a.nav-link');
                 const currentPath = window.location.pathname;
-                const redirectEl = document.getElementById('redirect-to');
-                const targetPath = (redirectEl && redirectEl.dataset.target) ? redirectEl.dataset.target : currentPath;
                 anchors.forEach(a => {
                     try {
                         const aPath = new URL(a.href, location.origin).pathname;
-                        if (aPath === targetPath || (aPath !== '/' && targetPath.startsWith(aPath))) {
+                        if (aPath === currentPath) {
                             a.classList.add('active');
                             a.setAttribute('aria-current', 'page');
-                        } else {
-                            a.classList.remove('active');
-                            a.removeAttribute('aria-current');
                         }
                     } catch (e) {}
                 });
@@ -372,16 +380,10 @@
                 setTimeout(() => { popUp.classList.add('hidden'); }, 300);
             };
 
-            // Fallback: make sure the upload button opens popup even if inline onclick fails
             const openUploadBtn = document.getElementById('open-upload-btn');
             if (openUploadBtn) openUploadBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                if (typeof window.showPopUp === 'function') return window.showPopUp();
-                const popUp = document.getElementById('popup');
-                if (popUp) {
-                    popUp.classList.remove('hidden');
-                    setTimeout(() => { popUp.classList.remove('opacity-0'); }, 10);
-                }
+                window.showPopUp();
             });
         });
     </script>

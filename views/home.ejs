@@ -33,7 +33,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Dynamic Navbar Transition */
+        /* --- ORIGINAL NAVBAR STYLES FROM HOME.EJS --- */
         #main-nav-container {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -46,7 +46,6 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
-        /* Remove nav background/blur when menu is open */
         .nav-hide-bg {
             background: transparent !important;
             backdrop-filter: none !important;
@@ -55,7 +54,6 @@
             box-shadow: none !important;
         }
 
-        /* Navigation Styling */
         .nav-link {
             position: relative;
             padding: 4px 0;
@@ -88,6 +86,51 @@
             width: 100%;
         }
 
+        /* --- BUTTON ANIMATION STYLES (MATCHING LOGIN PAGE) --- */
+        .btn-premium {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-icon-anim {
+            position: absolute;
+            left: -20px;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-text {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hover animation for devices WITH cursor */
+        @media (hover: hover) {
+            .btn-premium:hover .btn-icon-anim {
+                left: 24px;
+                opacity: 1;
+            }
+            .btn-premium:hover .btn-text {
+                transform: translateX(12px);
+            }
+        }
+
+        /* Layout for devices WITHOUT cursor (Mobile/Tab) */
+        @media (pointer: coarse) {
+            .btn-premium .btn-icon-anim {
+                position: static;
+                opacity: 1;
+                margin-right: 8px;
+            }
+            .btn-premium .btn-text {
+                transform: none !important;
+            }
+        }
+
+        /* --- OTHER UTILITIES --- */
         .glass-panel {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(12px);
@@ -111,25 +154,10 @@
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
 
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
 
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-
-        /* Dynamic Navbar Transition */
-        #main-nav-container {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Mobile Menu Drawer Logic */
         #mobile-menu {
             transform: translateX(100%);
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -143,47 +171,38 @@
 
 <body class="animated-bg text-white flex flex-col items-center">
 
-    <!-- Navbar -->
     <nav class="fixed top-0 w-full z-50 px-4">
         <div id="main-nav-container" class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent">
-            <!-- Brand -->
             <a href="/welcome" class="flex items-center gap-2 relative z-[60]">
                 <i class="ph-fill ph-cloud-arrow-up text-cyan-300 text-2xl"></i>
                 <span class="font-bold tracking-tight text-xl">Your Drive</span>
             </a>
 
-            <!-- Desktop Links Group (Hidden on small) -->
             <div class="hidden md:flex items-center gap-6 md:gap-8">
                 <a href="/home" class="nav-link">
                     <i class="ph ph-user text-cyan-300"></i>
                     <span>Personal</span>
                 </a>
-
                 <a href="/global" class="nav-link">
                     <i class="ph ph-globe text-cyan-300"></i>
                     <span>Global</span>
                 </a>
-
                 <a href="/about" class="nav-link">
                     <i class="ph ph-info text-cyan-300"></i>
                     <span>About</span>
                 </a>
-
                 <div class="w-px h-6 bg-white/10 mx-1"></div>
-
                 <a href="/members" class="nav-link">
                     <i class="ph-bold ph-users-three text-cyan-300"></i>
                     <span>Community</span>
                 </a>
             </div>
 
-            <!-- Hamburger Button (Mobile Only) -->
             <button id="menu-btn" class="md:hidden relative z-[60] p-2 text-cyan-300 focus:outline-none" aria-label="Open menu" aria-expanded="false">
                 <i id="menu-icon" class="ph-bold ph-list text-3xl"></i>
             </button>
         </div>
 
-        <!-- Mobile Side Menu Overlay -->
         <div id="mobile-menu" class="fixed inset-y-0 right-0 w-[280px] glass-panel z-50 md:hidden flex flex-col p-8 pt-28 shadow-2xl space-y-8">
             <a href="/home" class="nav-link text-lg">
                 <i class="ph ph-user text-cyan-300 text-xl"></i>
@@ -204,80 +223,65 @@
             </a>
         </div>
     </nav>
-<main class="flex-grow flex flex-col items-center px-4 pt-48 pb-10 relative z-10 w-full">
-    <div class="w-full max-w-4xl space-y-8">
 
-        <div class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center gap-3">
-                <i class="ph ph-user text-cyan-300"></i>
-                <span>Personal Hub</span>
-            </h1>
-            <p class="text-blue-100 mt-2 text-lg font-light">Manage your personal files securely</p>
-        </div>
+    <main class="flex-grow flex flex-col items-center px-4 pt-48 pb-10 relative z-10 w-full">
+        <div class="w-full max-w-4xl space-y-8">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center gap-3">
+                    <i class="ph ph-user text-cyan-300"></i>
+                    <span>Personal Hub</span>
+                </h1>
+                <p class="text-blue-100 mt-2 text-lg font-light">Manage your personal files securely</p>
+            </div>
 
-        <div class="glass-panel rounded-2xl shadow-2xl overflow-hidden p-1">
-            <div class="max-h-[60vh] overflow-y-auto custom-scrollbar p-4 space-y-3">
-
-                <% if (files.length===0) { %>
-                    <div class="text-center py-10 text-white/50">
-                        <i class="ri-folder-open-line text-5xl mb-3 block"></i>
-                        <p>No files uploaded yet.</p>
-                    </div>
-                <% } %>
-
-                <% files.forEach(file=> { %>
-                    <div class="glass-card flex items-center justify-between p-4 rounded-xl shadow-sm group">
-                        <div class="flex-grow min-w-0 pr-4 flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-cyan-300">
-                                <i class="ri-file-line text-xl"></i>
-                            </div>
-
-                            <div class="text-base font-medium text-white truncate leading-snug sm:text-lg max-w-full">
-                                <a href="/view/<%= file.s3Key %>" style="text-decoration: underline;"><%= file.originalName %></a>
-                            </div>
-
-                            <% if (file.size) { %>
-                                <div class="text-xs text-white/50 hidden sm:block">
-                                    (<%= (file.size / 1024 / 1024).toFixed(2) %> MB)
-                                </div>
-                            <% } %>
+            <div class="glass-panel rounded-2xl shadow-2xl overflow-hidden p-1">
+                <div class="max-h-[60vh] overflow-y-auto custom-scrollbar p-4 space-y-3">
+                    <% if (files.length===0) { %>
+                        <div class="text-center py-10 text-white/50">
+                            <i class="ri-folder-open-line text-5xl mb-3 block"></i>
+                            <p>No files uploaded yet.</p>
                         </div>
-                        <a href="/download/<%= file.s3Key %>" download="<%= file.originalName %>" class="
-                            flex-shrink-0 
-                            bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200
-                            w-10 h-10 rounded-full flex items-center justify-center
-                            shadow-lg transition duration-200 ease-in-out 
-                            focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-transparent
-                            group-hover:scale-110
-                        " title="Download <%= file.originalName %>">
-                            <i class="ri-download-line text-xl leading-none"></i>
-                        </a>
-                    </div>
-                <% }) %>
+                    <% } %>
+
+                    <% files.forEach(file=> { %>
+                        <div class="glass-card flex items-center justify-between p-4 rounded-xl shadow-sm group">
+                            <div class="flex-grow min-w-0 pr-4 flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-cyan-300">
+                                    <i class="ri-file-line text-xl"></i>
+                                </div>
+                                <div class="text-base font-medium text-white truncate leading-snug sm:text-lg max-w-full">
+                                    <a href="/view/<%= file.s3Key %>" style="text-decoration: underline;"><%= file.originalName %></a>
+                                </div>
+                                <% if (file.size) { %>
+                                    <div class="text-xs text-white/50 hidden sm:block">
+                                        (<%= (file.size / 1024 / 1024).toFixed(2) %> MB)
+                                    </div>
+                                <% } %>
+                            </div>
+                            <a href="/download/<%= file.s3Key %>" download="<%= file.originalName %>" 
+                               class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
+                                <i class="ri-download-line text-xl"></i>
+                            </a>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-5 mt-8 px-4">
+                <button id="open-upload-btn" class="btn-premium w-full sm:flex-1 rounded-full border-2 border-white/30 text-white px-8 py-3.5 font-bold hover:bg-white hover:text-blue-900 hover:border-transparent hover:shadow-lg focus:outline-none">
+                    <i class="ri-upload-cloud-2-line text-xl btn-icon-anim"></i>
+                    <span class="btn-text">Upload File</span>
+                </button>
+
+                <a href="/logout" class="btn-premium w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3.5 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none text-center">
+                    <i class="ri-logout-box-r-line text-xl btn-icon-anim"></i>
+                    <span class="btn-text">Logout</span>
+                </a>
             </div>
         </div>
+    </main>
 
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-5 mt-8">
-            <button id="open-upload-btn" class="w-full sm:flex-1 rounded-full border-2 border-white/30 text-white px-8 py-3 font-bold transition-all duration-300 
-                hover:bg-white hover:text-blue-900 hover:border-transparent hover:shadow-lg hover:shadow-blue-900/20
-                focus:outline-none focus:ring-4 focus:ring-white/20 flex items-center justify-center gap-2">
-                <i class="ri-upload-cloud-2-line text-xl"></i>
-                Upload File
-            </button>
-
-            <a href="/logout"
-                class="w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
-                hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none
-                border-2 border-transparent 
-                focus:outline-none focus:ring-4 focus:ring-blue-300/50 flex items-center justify-center gap-2 text-center">
-                <i class="ri-logout-box-r-line text-xl"></i>
-                Logout
-            </a>
-        </div>
-    </div>
-</main>
-    <!-- Popup -->
-    <div id="popup" class="pop fixed inset-0 z-50 flex hidden items-center justify-center bg-black/60 opacity-0 backdrop-blur-sm p-4">
+    <div id="popup" class="pop fixed inset-0 z-[100] flex hidden items-center justify-center bg-black/60 opacity-0 backdrop-blur-sm p-4">
         <button onclick="hidePopUp()" class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-50">
             <i class="ri-close-line text-4xl"></i>
         </button>
@@ -290,29 +294,23 @@
 
             <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
                 <div class="flex w-full items-center justify-center">
-                    <label for="dropzone-file"
-                        class="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10 transition-all duration-300 group">
-
+                    <label for="dropzone-file" class="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10 transition-all duration-300 group">
                         <div id="dropzone-content" class="flex flex-col items-center justify-center pt-5 pb-6 text-white/70 group-hover:text-white transition-colors">
                             <i class="ri-upload-cloud-line text-5xl mb-4 text-cyan-300 group-hover:scale-110 transition-transform"></i>
                             <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to upload</span> or drag and drop</p>
                             <p class="text-xs text-white/50">Any file type (MAX. 10MB)</p>
                         </div>
-
                         <div id="filename-display" class="hidden text-center text-white font-medium p-4">
                             <i class="ri-file-check-line text-4xl text-green-400 mb-2 block"></i>
                             <span id="file-name-text"></span>
                         </div>
-
                         <input id="dropzone-file" type="file" class="hidden" name="file" />
                     </label>
                 </div>
 
-                <button type="submit" class="mt-6 w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 
-                    hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none
-                    border-2 border-transparent 
-                    focus:outline-none focus:ring-4 focus:ring-blue-300/50">
-                    Upload File
+                <button type="submit" class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none">
+                    <i class="ri-check-line text-xl btn-icon-anim"></i>
+                    <span class="btn-text">Confirm Upload</span>
                 </button>
             </form>
         </div>
@@ -320,9 +318,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Navbar Scroll Logic
+            // --- ORIGINAL NAVBAR SCRIPT FROM HOME.EJS ---
             const navContainer = document.getElementById('main-nav-container');
-            // Ensure these are available before the scroll handler runs
             const menuBtn = document.getElementById('menu-btn');
             const mobileMenu = document.getElementById('mobile-menu');
             const menuIcon = document.getElementById('menu-icon');
@@ -339,30 +336,54 @@
                     navContainer.classList.add('bg-transparent', 'border-transparent');
                     navContainer.classList.remove('nav-hide-bg');
                 }
-            };  
+            };  
             window.addEventListener('scroll', handleScroll);
-            handleScroll(); // Check initial state
+            handleScroll();
 
-            // Active nav highlighting (desktop + mobile)
             function setActiveNav() {
                 const anchors = document.querySelectorAll('a.nav-link');
                 const currentPath = window.location.pathname;
-                const redirectEl = document.getElementById('redirect-to');
-                const targetPath = (redirectEl && redirectEl.dataset.target) ? redirectEl.dataset.target : currentPath;
                 anchors.forEach(a => {
                     try {
                         const aPath = new URL(a.href, location.origin).pathname;
-                        if (aPath === targetPath || (aPath !== '/' && targetPath.startsWith(aPath))) {
+                        if (aPath === currentPath) {
                             a.classList.add('active');
                             a.setAttribute('aria-current', 'page');
-                        } else {
-                            a.classList.remove('active');
-                            a.removeAttribute('aria-current');
                         }
                     } catch (e) {}
                 });
             }
             setActiveNav();
+
+            // Mobile Menu Toggle
+            function updateMenuIcon(isOpen) {
+                if (!menuIcon) return;
+                menuIcon.className = isOpen ? 'ph-bold ph-x text-3xl' : 'ph-bold ph-list text-3xl';
+            }
+            function openMenu() {
+                mobileMenu.classList.add('open');
+                navContainer.classList.add('nav-hide-bg');
+                updateMenuIcon(true);
+                document.body.style.overflow = 'hidden';
+            }
+            function closeMenu() {
+                mobileMenu.classList.remove('open');
+                navContainer.classList.remove('nav-hide-bg');
+                updateMenuIcon(false);
+                document.body.style.overflow = '';
+                handleScroll();
+            }
+
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (mobileMenu.classList.contains('open')) closeMenu(); else openMenu();
+            });
+
+            document.addEventListener('pointerdown', (e) => {
+                if (!mobileMenu.classList.contains('open')) return;
+                if (mobileMenu.contains(e.target) || menuBtn.contains(e.target)) return;
+                closeMenu();
+            });
 
             // Popup & Upload Logic
             const popUp = document.getElementById('popup');
@@ -371,141 +392,35 @@
             const dropzoneContent = document.getElementById('dropzone-content');
             const filenameDisplay = document.getElementById('filename-display');
             const fileNameText = document.getElementById('file-name-text');
-            const uploadForm = document.getElementById('upload-form');
-            // menuBtn, mobileMenu and menuIcon are declared earlier to avoid TDZ errors
 
             window.showPopUp = () => {
                 popUp.classList.remove('hidden');
                 setTimeout(() => {
                     popUp.classList.remove('opacity-0');
                     const content = popUp.querySelector('.transform');
-                    if (content) {
-                        content.classList.remove('scale-95');
-                        content.classList.add('scale-100');
-                    }
+                    if (content) content.classList.replace('scale-95', 'scale-100');
                 }, 10);
             };
 
             window.hidePopUp = () => {
                 popUp.classList.add('opacity-0');
                 const content = popUp.querySelector('.transform');
-                if (content) {
-                    content.classList.remove('scale-100');
-                    content.classList.add('scale-95');
-                }
+                if (content) content.classList.replace('scale-100', 'scale-95');
                 setTimeout(() => {
                     popUp.classList.add('hidden');
-                    resetDropzone();
                 }, 300);
             };
 
-            // Fallback: ensure upload button opens the popup even if inline onclick fails
-            const openUploadBtn = document.getElementById('open-upload-btn');
-            if (openUploadBtn) openUploadBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (typeof window.showPopUp === 'function') return window.showPopUp();
-                // fallback behavior if showPopUp is not defined
-                const popUp = document.getElementById('popup');
-                if (popUp) {
-                    popUp.classList.remove('hidden');
-                    setTimeout(() => { popUp.classList.remove('opacity-0'); const content = popUp.querySelector('.transform'); if (content) { content.classList.remove('scale-95'); content.classList.add('scale-100'); } }, 10);
-                }
-            });
+            document.getElementById('open-upload-btn').addEventListener('click', window.showPopUp);
 
-            const resetDropzone = () => {
-                if (dropzoneInput) dropzoneInput.value = '';
-                if (dropzoneContent) dropzoneContent.classList.remove('hidden');
-                if (filenameDisplay) filenameDisplay.classList.add('hidden');
-                if (dropzoneLabel) {
-                    dropzoneLabel.classList.remove('border-green-400', 'bg-white/20');
-                    dropzoneLabel.classList.add('border-white/30', 'bg-white/5');
-                }
-            };
-
-            // Mobile menu helpers (unified with welcome2.ejs behavior)
-            function updateMenuIcon(isOpen) {
-                const ic = document.getElementById('menu-icon');
-                if (!ic) return;
-                ic.className = isOpen ? 'ph-bold ph-x text-3xl' : 'ph-bold ph-list text-3xl';
-                ic.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
-                ic.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            }
-            function openMenu() {
-                mobileMenu.classList.add('open');
-                navContainer.classList.add('nav-hide-bg');
-                updateMenuIcon(true);
-                if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
-                if (menuBtn) menuBtn.style.zIndex = '9999';
-                document.body.style.overflow = 'hidden';
-            }
-            function closeMenu() {
-                mobileMenu.classList.remove('open');
-                navContainer.classList.remove('nav-hide-bg');
-                updateMenuIcon(false);
-                if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
-                if (menuBtn) menuBtn.style.zIndex = '';
-                document.body.style.overflow = '';
-            }
-
-            // Mobile Menu Toggle
-            menuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (mobileMenu.classList.contains('open')) closeMenu(); else openMenu();
-            });
-
-            // Close when clicking/touching outside the menu
-            document.addEventListener('pointerdown', (e) => {
-                if (!mobileMenu.classList.contains('open')) return;
-                if (mobileMenu.contains(e.target) || menuBtn.contains(e.target)) return;
-                closeMenu();
-            });
-
-            // Close mobile menu on resize
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 768 && mobileMenu.classList.contains('open')) {
-                    closeMenu();
-                }
-            });
-
-            const handleFileSelect = (file) => {
+            dropzoneInput.addEventListener('change', () => {
+                const file = dropzoneInput.files[0];
                 if (file) {
                     dropzoneContent.classList.add('hidden');
                     filenameDisplay.classList.remove('hidden');
-                    if (fileNameText) fileNameText.textContent = file.name;
-                    dropzoneLabel.classList.remove('border-white/30', 'bg-white/5');
-                    dropzoneLabel.classList.add('border-green-400', 'bg-white/20');
+                    fileNameText.textContent = file.name;
                 }
-            };
-
-            if (dropzoneInput) {
-                dropzoneInput.addEventListener('change', () => handleFileSelect(dropzoneInput.files[0]));
-            }
-
-            if (dropzoneLabel) {
-                dropzoneLabel.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    dropzoneLabel.classList.add('bg-white/20');
-                });
-                dropzoneLabel.addEventListener('dragleave', (e) => {
-                    e.preventDefault();
-                    dropzoneLabel.classList.remove('bg-white/20');
-                });
-                dropzoneLabel.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    dropzoneLabel.classList.remove('bg-white/20');
-                    const files = e.dataTransfer.files;
-                    if (files.length > 0) {
-                        dropzoneInput.files = files;
-                        handleFileSelect(files[0]);
-                    }
-                });
-            }
-
-            if (uploadForm) {
-                uploadForm.addEventListener('submit', () => {
-                    setTimeout(() => hidePopUp(), 100);
-                });
-            }
+            });
         });
     </script>
 </body>

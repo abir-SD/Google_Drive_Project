@@ -20,6 +20,21 @@ const fileSchema = new mongoose.Schema({
     isPublic: {
         type: Boolean,
         default: false
+    },
+    // Optional: link file to a space
+    space: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'space',
+        default: null
+    },
+    // Denormalized fields for faster reads
+    spaceName: {
+        type: String,
+        default: null
+    },
+    spaceOwnerUsername: {
+        type: String,
+        default: null
     }
 })
 

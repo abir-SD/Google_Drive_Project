@@ -17,6 +17,13 @@ const indexRouter = require('./routes/index.routes')
 app.set('view engine', 'ejs')
 app.use(express.static('assets'))
 app.use(cookieParser())
+const session = require('express-session')
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'dev_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }
+}))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

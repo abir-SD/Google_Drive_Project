@@ -186,6 +186,12 @@
             background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
         }
+
+        .space-blur {
+            filter: blur(15px);
+            pointer-events: none;
+            user-select: none;
+        }
     </style>
 </head>
 
@@ -332,17 +338,11 @@
                                                     </div>
                                                     <!-- Action Buttons Container -->
                                                     <div class="flex items-center gap-3">
-                                                        <a href="/download-public/<%= file.s3Key %>"
-                                                            download="<%= file.originalName %>" title="Download"
-                                                            class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
-                                                            <i class="ri-download-line text-xl"></i>
-                                                        </a>
+                                                        <a href="/download-public/<%= file.s3Key %>" download="<%= file.originalName %>" title="Download" class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-download-line text-xl"></i></a>
 
-                                                        <a href="/delete/<%= file._id %>" title="Delete"
-                                                            onclick="return confirm('Are you sure you want to delete this file?')"
-                                                            class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
-                                                            <i class="ri-delete-bin-line text-xl"></i>
-                                                        </a>
+                                                        <% if (user && (file.owner && (file.owner._id ? file.owner._id.toString() === user._id.toString() : file.owner.toString() === user._id.toString()))) { %>
+                                                            <a href="/delete/<%= file._id %>" title="Delete" onclick="return confirm('Are you sure you want to delete this file?')" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-delete-bin-line text-xl"></i></a>
+                                                        <% } %>
                                                     </div>
                                                 </div>
                                                 <% }) %>
@@ -353,15 +353,240 @@
                                 <button id="open-upload-btn"
                                     class="btn-premium w-full sm:flex-1 rounded-full border-2 border-white/40 text-white px-8 py-3.5 font-bold hover:bg-white hover:text-blue-900 hover:border-white transition-all duration-400">
                                     <i class="ri-upload-cloud-2-line text-xl btn-icon-anim"></i>
-                                    <span class="btn-text">Upload Publicly</span>
+                                    <span class="btn-text">Upload to Global Hub</span>
                                 </button>
 
-                                <a href="/logout"
+                                <!-- <button onclick="document.getElementById('createSpaceModal').classList.remove('hidden')"
                                     class="btn-premium w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3.5 font-bold shadow-xl border-2 border-transparent hover:bg-transparent hover:border-white hover:text-white transition-all duration-400 text-center">
+                                    <i class="ri-logout-box-r-line text-xl btn-icon-anim"></i>
+                                    <span class="btn-text">Create Space</span>
+                                </button> -->
+                                <a href="/logout"
+                                    class="btn-premium w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3.5 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none text-center">
                                     <i class="ri-logout-box-r-line text-xl btn-icon-anim"></i>
                                     <span class="btn-text">Logout</span>
                                 </a>
                             </div>
+        </div>
+
+
+        <!-- Community Features (User-managed dynamic divs) -->
+
+        <div class="w-full max-w-4xl space-y-8">
+            <% if (locals.errorMsg) { %>
+                <div id="toast-error"
+                    class="flex items-center w-full p-4 mb-4 text-white bg-red-500/20 border border-red-500/50 rounded-xl shadow-lg backdrop-blur-md"
+                    role="alert">
+                    <div
+                        class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-400 bg-white/10 rounded-lg">
+                        <i class="ri-error-warning-line text-xl"></i>
+                    </div>
+                    <div class="ms-3 text-sm font-medium">
+                        <%= errorMsg %>
+                    </div>
+                    <button type="button" onclick="this.parentElement.remove()"
+                        class="ms-auto -mx-1.5 -my-1.5 p-1.5 text-white/50 hover:text-white transition-colors">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                <% } %>
+
+                    <% if (locals.successMsg) { %>
+                        <div id="toast-success"
+                            class="flex items-center w-full p-4 mb-4 text-white bg-green-500/20 border border-green-500/50 rounded-xl shadow-lg backdrop-blur-md"
+                            role="alert">
+                            <div
+                                class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-400 bg-white/10 rounded-lg">
+                                <i class="ri-checkbox-circle-line text-xl"></i>
+                            </div>
+                            <div class="ms-3 text-sm font-medium">
+                                <%= successMsg %>
+                            </div>
+                            <button type="button" onclick="this.parentElement.remove()"
+                                class="ms-auto -mx-1.5 -my-1.5 p-1.5 text-white/50 hover:text-white transition-colors">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        </div>
+                        <% } %>
+                            <%# I wanna to keep this things as a title of that section from this %>
+                                <div class="text-center mb-8">
+                                    <h1
+                                        class="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center gap-3">
+                                        <i class="ri-global-line text-cyan-300"></i>
+                                        <span>Protected Space</span>
+                                    </h1>
+                                    <p class="text-blue-100 mt-2 text-lg font-light">Share your files with your loved
+                                        one's
+                                    </p>
+                                </div>
+                                <%# to this %>
+                                    <div id="spaces-container" class="space-y-10">
+                                        <% spaces.forEach(space=> { %>
+                                            <% let ownerId=space.owner ? (space.owner._id || space.owner).toString() :
+                                                null; const isOwner=user && ownerId && user._id.toString()===ownerId;
+                                                const isUnlocked=unlockedSpaces.includes(space._id.toString()) ||
+                                                isOwner; %>
+                                                <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden"
+                                                    data-space-id="<%= space._id %>">
+                                                    <div class="flex justify-between items-center mb-8">
+                                                        <div class="flex items-center gap-4">
+                                                            <div
+                                                                class="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center border border-purple-500/30">
+                                                                <i
+                                                                    class="ri-folder-lock-line text-2xl text-purple-400"></i>
+                                                            </div>
+                                                            <div>
+                                                                <h3 class="text-2xl font-bold text-white">
+                                                                    <%= space.name %>
+                                                                </h3>
+                                                                <p class="text-sm text-white/60">Created by <span
+                                                                        class="font-medium">@<%= (space.owner &&
+                                                                            space.owner.username) ? space.owner.username
+                                                                            : 'Unknown' %></span></p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center gap-3">
+                                                            <% if(isUnlocked) { %>
+                                                                <a href="/download-space-all/<%= space._id %>" title="Download All" class="bg-white/5 hover:bg-cyan-500 w-10 h-10 rounded-full flex items-center justify-center transition"><i class="ri-download-line"></i></a>
+                                                                <% if(isOwner) { %>
+                                                                    <button data-space-id="<%= space._id %>" data-space-name="<%= space.name %>" onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)" title="Upload" class="bg-white/5 hover:bg-green-500 w-10 h-10 rounded-full flex items-center justify-center transition"><i class="ri-upload-2-line"></i></button>
+                                                                    <button data-space-id="<%= space._id %>" onclick="deleteSpace(this.dataset.spaceId)" title="Delete" class="bg-white/5 hover:bg-red-500 w-10 h-10 rounded-full flex items-center justify-center transition"><i class="ri-delete-bin-line"></i></button>
+                                                                <% } %>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+
+                                                    <div
+                                                        class="grid grid-cols-2 md:grid-cols-5 gap-6 <%= !isUnlocked ? 'space-blur' : '' %>">
+                                                        <% if(isUnlocked && space.files.length===0) { %>
+                                                            <div class="col-span-full text-center py-6 text-white/40">
+                                                                <i class="ri-folder-open-line text-4xl mb-2 block"></i>
+                                                                <p class="text-sm">No files in this space.</p>
+                                                            </div>
+                                                            <% } %>
+                                                                <% if(isUnlocked) { %>
+                                                                    <% space.files.forEach(file=> { %>
+                                                                        <div
+                                                                            class="bg-white/5 rounded-2xl p-4 border border-white/5 hover:border-purple-500/30 transition group relative">
+                                                                            <a href="/view-space/<%= file._id %>" class="block">
+                                                                                <i class="ri-file-line text-3xl text-purple-300"></i>
+                                                                                <p class="text-sm mt-2 truncate text-slate-300"><%= file.originalName %></p>
+                                                                                <p class="text-xs text-white/50 mt-1">@<%= file.owner && file.owner.username ? file.owner.username : 'Unknown' %></p>
+                                                                            </a>
+
+                                                                            <div
+                                                                                class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 flex gap-2">
+                                                                                <a href="/download-space/<%= file._id %>"
+                                                                                    download="<%= file.originalName %>"
+                                                                                    class="bg-purple-500 p-1 rounded-md transition"><i
+                                                                                        class="ri-download-line text-xs"></i></a>
+                                                                                <% if (user &&
+                                                                                    (user._id.toString()===(file.owner ?
+                                                                                    file.owner.toString() : '' ) ||
+                                                                                    user._id.toString()===(space.owner ?
+                                                                                    space.owner.toString() : '' ))) { %>
+                                                                                    <a href="/delete/<%= file._id %>"
+                                                                                        class="bg-red-500 p-1 rounded-md transition"
+                                                                                        title="Delete"
+                                                                                        onclick="return confirm('Delete this file?')"><i
+                                                                                            class="ri-delete-bin-line text-xs"></i></a>
+                                                                                    <% } %>
+                                                                            </div>
+                                                                        </div>
+                                                                        <% }) %>
+                                                                            <% } %>
+                                                    </div>
+
+                                                    <% if(!isUnlocked) { %>
+                                                        <div
+                                                            class="absolute inset-0 z-[30] flex flex-col items-center justify-center bg-black/60 backdrop-blur-md p-4 text-center">
+                                                            <div class="mb-4">
+                                                                <div
+                                                                    class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-white/20">
+                                                                    <i
+                                                                        class="ri-lock-password-fill text-3xl text-cyan-400"></i>
+                                                                </div>
+                                                                <h3 class="text-xl font-bold text-white">
+                                                                    <%= space.name %>
+                                                                </h3>
+                                                                <p class="text-xs text-slate-400 mt-1">
+                                                                    Protected by @<%= (space.owner &&
+                                                                        space.owner.username) ? space.owner.username
+                                                                        : 'Community Member' %>
+                                                                </p>
+                                                            </div>
+
+                                                            <form action="/unlock-space/<%= space._id %>" method="POST"
+                                                                class="w-full max-w-[280px] space-y-3">
+                                                                <div class="relative">
+                                                                    <input type="password" name="password"
+                                                                        placeholder="Enter Access Password" required
+                                                                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-cyan-400 focus:bg-white/20 transition-all text-center">
+                                                                </div>
+                                                                <button type="submit"
+                                                                    class="w-full bg-cyan-500 hover:bg-cyan-400 text-white py-3 rounded-xl font-bold shadow-lg shadow-cyan-500/20 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                                                                    <i class="ri-key-2-line"></i> Unlock Space
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                        <% } %>
+                                                </div>
+                                                <% }) %>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row justify-center items-center gap-5 mt-8">
+                                        <button id="create-space-btn"
+                                            class="btn-premium w-full sm:flex-1 rounded-full bg-white text-blue-900 px-8 py-3.5 font-bold shadow-xl border-2 border-transparent hover:bg-transparent hover:border-white hover:text-white transition-all duration-400 text-center">
+                                            <i class="ri-logout-box-r-line text-xl btn-icon-anim"></i>
+                                            <span class="btn-text">Create Space</span>
+                                        </button>
+                                    </div>
+
+
+                                    <!-- Create Space Modal -->
+                                    <div id="createSpaceModal"
+                                        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md px-4 text-center">
+                                        <div class="glass-panel p-8 rounded-[2rem] w-full max-w-md">
+                                            <h2 class="text-2xl font-bold mb-2 text-white">Create a New Space</h2>
+                                            <p class="text-blue-200 text-sm mb-4">Create a private space to share files
+                                                with a password.</p>
+                                            <form id="create-space-form" class="space-y-6">
+                                                <input type="text" name="name" required placeholder="Space Name"
+                                                    class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 focus:outline-none focus:border-cyan-400 transition" />
+                                                <input type="password" name="password" required placeholder="Password"
+                                                    class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 focus:outline-none focus:border-cyan-400 transition" />
+                                                <div class="flex gap-3 pt-4">
+                                                    <button type="button"
+                                                        onclick="document.getElementById('createSpaceModal').classList.add('hidden')"
+                                                        class="flex-1 py-4 rounded-2xl bg-white/5 hover:bg-white/10 font-bold transition">Cancel</button>
+                                                    <button type="submit"
+                                                        class="flex-1 py-4 rounded-2xl bg-cyan-500 hover:bg-cyan-400 font-bold transition">Create</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Space Upload Modal -->
+                                    <div id="spaceUploadModal"
+                                        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md px-4 text-center">
+                                        <div class="glass-panel p-8 rounded-[2rem] w-full max-w-md">
+                                            <h2 id="spaceUploadTitle" class="text-2xl font-bold mb-2 text-white">Upload
+                                                to Space</h2>
+                                            <p id="spaceUploadDesc" class="text-blue-200 text-sm mb-4">Share files
+                                                privately to this space.</p>
+                                            <form id="spaceUploadForm" method="POST" enctype="multipart/form-data"
+                                                class="space-y-6">
+                                                <input type="file" name="file" required
+                                                    class="block w-full text-sm text-slate-400 file:mr-4 file:py-3 file:px-6 file:rounded-2xl file:border-0 file:text-sm file:font-bold file:bg-cyan-500 file:text-white hover:file:bg-cyan-400 cursor-pointer" />
+                                                <div class="flex gap-3 pt-4">
+                                                    <button type="button"
+                                                        onclick="document.getElementById('spaceUploadModal').classList.add('hidden')"
+                                                        class="flex-1 py-4 rounded-2xl bg-white/5 hover:bg-white/10 font-bold transition">Cancel</button>
+                                                    <button type="submit"
+                                                        class="flex-1 py-4 rounded-2xl bg-cyan-500 hover:bg-cyan-400 font-bold transition">Upload</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
         </div>
     </main>
 
@@ -404,6 +629,35 @@
     </div>
 
     <script>
+        function openSpaceUpload(spaceId, spaceName) {
+            const modal = document.getElementById('spaceUploadModal');
+            const form = document.getElementById('spaceUploadForm');
+            const title = document.getElementById('spaceUploadTitle');
+            const desc = document.getElementById('spaceUploadDesc');
+            form.action = `/upload-space/${spaceId}`;
+            if (title) title.textContent = `Share with ${spaceName}`;
+            if (desc) desc.textContent = `This file will only be visible to ${spaceName}.`;
+            modal.classList.remove('hidden');
+        }
+
+        async function deleteSpace(spaceId) {
+            if (confirm('Are you sure you want to delete this space and all its files?')) {
+                try {
+                    const response = await fetch(`/space/${spaceId}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        document.querySelector(`[data-space-id="${spaceId}"]`).remove();
+                    } else {
+                        alert(result.message || 'Failed to delete space.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting space:', error);
+                    alert('An error occurred while deleting the space.');
+                }
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             const hideElement = (id) => {
@@ -528,6 +782,79 @@
                 });
             }
 
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const createSpaceBtn = document.getElementById('create-space-btn');
+            const createSpaceModal = document.getElementById('createSpaceModal');
+            const createSpaceForm = document.getElementById('create-space-form');
+            const spacesContainer = document.getElementById('spaces-container');
+
+            if (createSpaceBtn) {
+                createSpaceBtn.addEventListener('click', () => {
+                    createSpaceModal.classList.remove('hidden');
+                });
+            }
+
+            if (createSpaceForm) {
+                createSpaceForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(createSpaceForm);
+                    const data = Object.fromEntries(formData.entries());
+
+                    try {
+                        const response = await fetch('/create-space', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            const newSpaceElement = createSpaceElement(result.space);
+                            spacesContainer.insertAdjacentHTML('afterbegin', newSpaceElement);
+                            createSpaceModal.classList.add('hidden');
+                            createSpaceForm.reset();
+                        } else {
+                            alert(result.message || 'Failed to create space.');
+                        }
+                    } catch (error) {
+                        console.error('Error creating space:', error);
+                        alert('An error occurred while creating the space.');
+                    }
+                });
+            }
+
+            function createSpaceElement(space) {
+                // The user who creates the space is the owner and it's unlocked for them by default.
+                return `
+                <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden" data-space-id="${space._id}">
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center border border-purple-500/30">
+                                <i class="ri-folder-lock-line text-2xl text-purple-400"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white">${space.name}</h3>
+                            <p class="text-sm text-white/60 mt-2">Created by <span class="font-medium">@${space.ownerUsername || '<%= (user && user.username) ? user.username : "You" %>'}</span></p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button data-space-id="${space._id}" data-space-name="${space.name}" onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)" title="Upload" class="bg-white/5 hover:bg-green-500 w-10 h-10 rounded-full flex items-center justify-center transition"><i class="ri-upload-2-line"></i></button>
+                            <button data-space-id="${space._id}" onclick="deleteSpace(this.dataset.spaceId)" title="Delete" class="bg-white/5 hover:bg-red-500 w-10 h-10 rounded-full flex items-center justify-center transition"><i class="ri-delete-bin-line"></i></button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+                        <div class="col-span-full text-center py-6 text-white/40">
+                            <i class="ri-folder-open-line text-4xl mb-2 block"></i>
+                            <p class="text-sm">No files in this space.</p>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
         });
     </script>
 </body>

@@ -47,6 +47,29 @@ router.get('/home', authMiddleware, async (req, res) => {
         errorMsg: errorMsg
     });
 })
+router.get('/space', authMiddleware, async (req, res) => {
+    try {
+        // 1. Fetch all Protected Spaces (populate files and each file's owner)
+        // Ensure spaceModel is required at the top of your file
+        const spaces = await spaceModel.find()
+            .populate({ path: 'files', populate: { path: 'owner', select: 'username' } })
+            .populate('owner', 'username');
+
+        // 2. Get unlocked spaces from session
+        const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
+
+        res.render('space', {
+            user: req.user,
+            spaces: spaces,
+            unlockedSpaces: unlockedSpaces,
+            successMsg: req.query.success,
+            errorMsg: req.query.error
+        });
+    } catch (error) {
+        console.error("Error loading space page:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
 router.get('/members', async (req, res) => {
     try {
@@ -142,7 +165,7 @@ router.get('/global', authMiddleware, async (req, res) => {
 
         // 2. Fetch all Protected Spaces (populate files and each file's owner username)
         const spaces = await spaceModel.find().populate({ path: 'files', populate: { path: 'owner', select: 'username' } }).populate('owner', 'username');
-        
+
         // 3. Get unlocked spaces from session
         const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
 
@@ -215,7 +238,7 @@ router.get(/^\/view-public\/(.+)$/, authMiddleware, async (req, res) => {
 
 // For deleting files
 
-// ... existing imports ...
+
 
 
 // NEW SPACE ROUTES

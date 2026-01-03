@@ -164,7 +164,7 @@ router.get('/global', authMiddleware, async (req, res) => {
         const publicFiles = await fileModel.find({ isPublic: true }).populate('owner', 'username');
 
         // 2. Fetch all Protected Spaces (populate files and each file's owner username)
-        const spaces = await spaceModel.find().populate({ path: 'files', populate: { path: 'owner', select: 'username' } }).populate('owner', 'username');
+        const spaces = await spaceModel.find().sort({ _id: 1 }).sort({ _id: 1 }).populate({ path: 'files', populate: { path: 'owner', select: 'username' } }).populate('owner', 'username');
 
         // 3. Get unlocked spaces from session
         const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
@@ -264,7 +264,20 @@ router.post('/create-space', authMiddleware, async (req, res) => {
 
         res.status(201).json({ success: true, space: spaceObj });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Failed to create space', error: err.message });
+        console.error('Error creating space:', err);
+        if (err && err.code === 11000) {
+            // Deduce which key caused the duplicate error and return a helpful message
+            const dupKey = err.keyValue ? Object.keys(err.keyValue)[0] : null;
+            if (dupKey === 'name') {
+                return res.status(409).json({ success: false, message: 'A space with this name already exists. Please choose a different name.' });
+            } else if (dupKey === 'owner') {
+                // This means there is a stray unique index preventing the owner from having multiple spaces
+                return res.status(409).json({ success: false, message: 'You cannot create another space because of a database unique constraint on the owner field. The server will attempt to correct this; please try again shortly.' });
+            }
+            // Fallback message for other duplicate keys
+            return res.status(409).json({ success: false, message: 'A duplicate key error occurred while creating the space.', details: err.keyValue });
+        }
+        res.status(500).json({ success: false, message: 'An internal server error occurred while creating the space.' });
     }
 });
 
@@ -279,19 +292,18 @@ router.post('/unlock-space/:spaceId', authMiddleware, async (req, res) => {
         // ensure session saved before redirect
         return req.session.save(err => {
             if (err) console.warn('Session save error:', err);
-            return res.redirect('/global');
+            return res.redirect('/space');
         });
     }
-    res.redirect('/global?error=Incorrect Password');
+    res.redirect('/space?error=Incorrect Password');
 });
 
 router.post('/upload-space/:spaceId', authMiddleware, uploadSpace.single('file'), async (req, res) => {
     try {
-        // Load space and owner username to add into file doc
         const space = await spaceModel.findById(req.params.spaceId).populate('owner', 'username');
-        if (!space) return res.redirect('/global?error=Space not found');
+        if (!space) return res.status(404).json({ success: false, message: 'Space not found' });
         if (space.owner._id.toString() !== req.user._id.toString()) {
-            return res.redirect('/global?error=Only owners can upload');
+            return res.status(403).json({ success: false, message: 'Only owners can upload' });
         }
 
         const newFile = await fileModel.create({
@@ -299,18 +311,22 @@ router.post('/upload-space/:spaceId', authMiddleware, uploadSpace.single('file')
             originalName: req.file.originalname,
             size: req.file.size,
             owner: req.user._id,
-            isPublic: false, // Keeping it private within the space
+            isPublic: false,
             space: space._id,
             spaceName: space.name,
             spaceOwnerUsername: space.owner.username || req.user.username
         });
+        
+        await newFile.populate('owner', 'username');
+
 
         space.files.push(newFile._id);
         await space.save();
-        res.redirect('/global?success=File uploaded to space');
+
+        res.status(201).json({ success: true, message: 'File uploaded successfully', file: newFile });
     } catch (err) {
         console.error('Upload to space error:', err);
-        res.redirect('/global?error=Upload failed');
+        res.status(500).json({ success: false, message: 'Upload failed' });
     }
 });
 
@@ -331,7 +347,11 @@ router.delete('/space/:spaceId', authMiddleware, async (req, res) => {
             } catch (e) {
                 console.warn('Error deleting file from S3:', file.s3Key, e.message);
             }
-            await fileModel.findByIdAndDelete(file._id);
+            try {
+                await fileModel.findByIdAndDelete(file._id);
+            } catch (e) {
+                console.warn('Error deleting file record from DB:', file._id, e.message);
+            }
         }
 
         // Delete the space
@@ -345,43 +365,48 @@ router.delete('/space/:spaceId', authMiddleware, async (req, res) => {
 });
 
 // Delete a single file (used by Home and inside Spaces). Works for personal and space files.
-router.get('/delete/:fileId', authMiddleware, async (req, res) => {
+router.delete('/delete/:fileId', authMiddleware, async (req, res) => {
     try {
         const file = await fileModel.findById(req.params.fileId);
-        if (!file) return res.redirect('/home?error=File not found');
+        if (!file) {
+            return res.status(404).json({ success: false, message: 'File not found.' });
+        }
 
         // Load space if present
         let space = null;
-        if (file.space) space = await spaceModel.findById(file.space);
+        if (file.space) {
+            space = await spaceModel.findById(file.space);
+        }
 
-        // Ensure we have owner objects (in case not populated)
-        const fileOwnerId = (file.owner && file.owner._id) ? file.owner._id.toString() : (file.owner ? file.owner.toString() : null);
-        const spaceOwnerId = (space && space.owner && space.owner._id) ? space.owner._id.toString() : (space && space.owner ? space.owner.toString() : null);
-        const isFileOwner = fileOwnerId && fileOwnerId === req.user._id.toString();
-        const isSpaceOwner = spaceOwnerId && spaceOwnerId === req.user._id.toString();
+        // Authorize: user must be file owner OR space owner
+        const isFileOwner = file.owner && file.owner.toString() === req.user._id.toString();
+        const isSpaceOwner = space && space.owner && space.owner.toString() === req.user._id.toString();
+
         if (!isFileOwner && !isSpaceOwner) {
-            const redirectTo = (file.isPublic || space) ? '/global' : '/home';
-            return res.redirect(`${redirectTo}?error=Not authorized to delete`);
+            return res.status(403).json({ success: false, message: 'You are not authorized to delete this file.' });
         }
 
         // Delete from S3
-        try { await deleteFileFromS3(file.s3Key); } catch (e) { console.warn('S3 delete failed:', e.message); }
+        try {
+            await deleteFileFromS3(file.s3Key);
+        } catch (e) {
+            console.warn('S3 delete failed but continuing DB deletion:', e.message);
+        }
 
-        // Remove from space.files if applicable
+        // If it's a space file, remove reference from space
         if (space) {
-            space.files = space.files.filter(fId => fId.toString() !== file._id.toString());
+            space.files.pull(file._id);
             await space.save();
         }
 
-        await fileModel.findByIdAndDelete(file._id);
+        // Delete the file document
+        await fileModel.findByIdAndDelete(req.params.fileId);
 
-        // Redirect to appropriate place
-        // If file belonged to a space or was public, return to /global; otherwise back to /home
-        const redirectTo = (space || file.isPublic) ? '/global' : '/home';
-        return res.redirect(`${redirectTo}?success=File deleted`);
+        res.json({ success: true, message: 'File deleted successfully.' });
+
     } catch (err) {
         console.error('Error deleting file:', err);
-        return res.redirect('/home?error=Failed to delete file');
+        res.status(500).json({ success: false, message: 'An internal error occurred while deleting the file.' });
     }
 });
 

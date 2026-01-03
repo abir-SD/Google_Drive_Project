@@ -7,9 +7,22 @@ dotenv.config()
 
 
 const connectToDB = require('./config/db')
-connectToDB()
 
 const cookieParser = require('cookie-parser')
+
+// Start server only after DB connects so we can display a clean console (only two lines)
+connectToDB().then(() => {
+    // Start listening after DB is connected. We print both lines here (DB connect already printed 'connected to db')
+    app.listen(3000, () => {
+        console.log('listening on port 3000')
+    });
+}).catch(err => {
+    // If DB connection failed, exit to avoid starting server in bad state
+    console.error('Failed to start server due to DB connection failure');
+    process.exit(1);
+});
+
+// Note: removed previous immediate listen call to avoid duplicate logs
 
 
 

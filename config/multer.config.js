@@ -9,7 +9,7 @@ const storage = awsStorage({
     bucket: process.env.AWS_S3_BUCKET,
     contentType: awsStorage.AUTO_CONTENT_TYPE,
     key: (req, file, cb) => {
-        const folder = req.s3Folder || req.user.username;
+        const folder = req.s3Folder || `personal/${req.user.username}`;
         const safeFileName = file.originalname.replace(/[^a-zA-Z0-9.]/g, '_')
         const s3Key = `${folder}/${Date.now()}_${safeFileName}`
         cb(null, s3Key);
@@ -33,7 +33,7 @@ const spaceStorage = awsStorage({
             const ownerUsername = (space.owner && space.owner.username) ? space.owner.username : (req.user && req.user.username) ? req.user.username : 'unknown';
             // sanitize space name to be S3-friendly (no slashes or weird chars)
             const safeSpaceName = String(space.name).replace(/[^a-zA-Z0-9-_]/g, '_');
-            const folder = `space/${ownerUsername}/${safeSpaceName}`;
+            const folder = `protectedSpace/${ownerUsername}/${safeSpaceName}`;
             const safeFileName = file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
             const s3Key = `${folder}/${Date.now()}_${safeFileName}`;
             cb(null, s3Key);
@@ -43,15 +43,30 @@ const spaceStorage = awsStorage({
     }
 });
 
+// Specific storage for public spaces (User Hub)
+const publicSpaceStorage = awsStorage({
+    s3,
+    bucket: process.env.AWS_S3_BUCKET,
+    contentType: awsStorage.AUTO_CONTENT_TYPE,
+    key: (req, file, cb) => {
+        // generalSpace/<username>/<filename>
+        const folder = `generalSpace/${req.user.username}`;
+        const safeFileName = file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
+        const s3Key = `${folder}/${Date.now()}_${safeFileName}`;
+        cb(null, s3Key);
+    }
+});
 
 const upload = multer({
     storage
 })
 
 const uploadSpace = multer({ storage: spaceStorage });
+const uploadPublicSpace = multer({ storage: publicSpaceStorage });
 
 
 module.exports = {
     upload,
-    uploadSpace
+    uploadSpace,
+    uploadPublicSpace
 };

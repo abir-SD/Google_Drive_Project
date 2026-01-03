@@ -27,6 +27,7 @@ connectToDB().then(() => {
 
 
 const indexRouter = require('./routes/index.routes')
+const publicSpaceRouter = require('./routes/publicSpace.routes')
 app.set('view engine', 'ejs')
 app.use(express.static('assets'))
 app.use(cookieParser())
@@ -46,6 +47,7 @@ app.use(express.urlencoded({ extended: true }))
 
 
 app.use('/', indexRouter)
+app.use('/', publicSpaceRouter)
 
 // It will hit /user/test
 app.use('/user', userRouter)

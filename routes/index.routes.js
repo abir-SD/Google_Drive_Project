@@ -111,8 +111,11 @@ router.post('/upload',
 
 router.get('/download/:username/:filename', authMiddleware, async (req, res) => {
     try {
-        const s3Key = `${req.params.username}/${req.params.filename}`;
-        const file = await fileModel.findOne({ s3Key: s3Key });
+        const legacyKey = `${req.params.username}/${req.params.filename}`;
+        const newKey = `personal/${req.params.username}/${req.params.filename}`;
+
+        // Check for both new and old key formats
+        const file = await fileModel.findOne({ $or: [{ s3Key: newKey }, { s3Key: legacyKey }] });
 
         if (!file) {
             return res.status(404).send('File not found.');
@@ -122,7 +125,8 @@ router.get('/download/:username/:filename', authMiddleware, async (req, res) => 
             return res.status(403).send('You do not have permission to access this file.');
         }
 
-        const downloadUrl = await getSignedDownloadUrl(s3Key, file.originalName);
+        // Use the actual s3Key from the database
+        const downloadUrl = await getSignedDownloadUrl(file.s3Key, file.originalName);
         return res.redirect(downloadUrl);
 
     } catch (error) {
@@ -134,8 +138,11 @@ router.get('/download/:username/:filename', authMiddleware, async (req, res) => 
 
 router.get('/view/:username/:filename', authMiddleware, async (req, res) => {
     try {
-        const s3Key = `${req.params.username}/${req.params.filename}`;
-        const file = await fileModel.findOne({ s3Key: s3Key });
+        const legacyKey = `${req.params.username}/${req.params.filename}`;
+        const newKey = `personal/${req.params.username}/${req.params.filename}`;
+
+        // Check for both new and old key formats
+        const file = await fileModel.findOne({ $or: [{ s3Key: newKey }, { s3Key: legacyKey }] });
 
         if (!file) {
             return res.status(404).send('File not found.');
@@ -145,7 +152,8 @@ router.get('/view/:username/:filename', authMiddleware, async (req, res) => {
             return res.status(403).send('You do not have permission to access this file.');
         }
 
-        const viewUrl = await getSignedViewUrl(s3Key, file.originalName);
+        // Use the actual s3Key from the database
+        const viewUrl = await getSignedViewUrl(file.s3Key, file.originalName);
         return res.redirect(viewUrl);
 
     } catch (error) {
@@ -187,7 +195,7 @@ router.get('/global', authMiddleware, async (req, res) => {
 router.post('/upload-global',
     authMiddleware,
     (req, res, next) => {
-        req.s3Folder = 'global'; // Force the folder to be 'global'
+        req.s3Folder = `global/${req.user.username}`; // Force the folder to be 'global/username'
         next();
     },
     upload.single('file'),

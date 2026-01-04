@@ -3,18 +3,29 @@ const router = express.Router();
 const PublicSpace = require('../models/PublicSpace.model');
 const authMiddleware = require('../middlewares/authe');
 const { uploadPublicSpace } = require('../config/multer.config');
+const { deleteFileFromS3 } = require('../services/storageService');
+const fileModel = require('../models/File.model');
+const archiver = require('archiver');
+const { s3 } = require('../config/s3-config');
 
 router.post('/create-public-space', authMiddleware, async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, allowUploads, allowDownloads } = req.body;
         
         if (!name) {
             return res.status(400).json({ success: false, message: 'Space name is required' });
         }
 
+        const existingSpace = await PublicSpace.findOne({ name });
+        if (existingSpace) {
+            return res.status(400).json({ success: false, message: 'Space name already exists. Please choose another.' });
+        }
+
         const newSpace = await PublicSpace.create({
             name,
-            owner: req.user._id
+            owner: req.user._id,
+            allowUploads: allowUploads === 'true',
+            allowDownloads: allowDownloads === 'true'
         });
 
         // Convert to object and append ownerUsername for the frontend to display immediately
@@ -35,12 +46,25 @@ router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.s
             return res.status(404).send('Space not found');
         }
 
-        // Check if user is owner
-        if (space.owner.toString() !== req.user._id.toString()) {
-            return res.status(403).send('Unauthorized: Only the space owner can upload files here.');
+        // Check if uploads are allowed (if restricted, only owner can upload)
+        if ((space.allowUploads === false || space.allowUploads === 'false') && space.owner.toString() !== req.user._id.toString()) {
+            await deleteFileFromS3(req.file.key).catch(err => console.error('Cleanup error:', err));
+            return res.status(403).json({ success: false, message: 'Uploads are disabled for this space by the owner.' });
         }
 
+        // 1. Create the file in the main files collection first
+        const savedFile = await fileModel.create({
+            originalName: req.file.originalname,
+            s3Key: req.file.key,
+            size: req.file.size,
+            owner: req.user._id,
+            isPublic: true,
+            space: space._id
+        });
+
+        // 2. Create the embedded file object, using the SAME _id
         const newFile = {
+            _id: savedFile._id, // Sync IDs
             originalName: req.file.originalname,
             s3Key: req.file.key,
             size: req.file.size,
@@ -51,8 +75,8 @@ router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.s
         space.files.push(newFile);
         await space.save();
 
-        // Return the newly added file with owner info for the frontend
-        const addedFile = space.files[space.files.length - 1].toObject();
+        // 3. Prepare response for frontend
+        const addedFile = savedFile.toObject();
         addedFile.owner = {
             _id: req.user._id,
             username: req.user.username
@@ -73,18 +97,21 @@ router.delete('/delete-public-space/:spaceId', authMiddleware, async (req, res) 
             return res.status(404).json({ success: false, message: 'Space not found' });
         }
 
-        // Strict ownership check
-        if (space.owner.toString() !== req.user._id.toString()) {
+        // Strict ownership check or permission check
+        if (!space.owner || space.owner.toString() !== req.user._id.toString()) {
             return res.status(403).json({ success: false, message: 'You can only delete spaces you created.' });
         }
 
-        // Note: S3 file deletion is temporarily disabled to prevent crashes if storageService is missing.
-        // if (space.files && space.files.length > 0) {
-        //     const deletePromises = space.files.map(file => {
-        //         if (file.s3Key) return deleteFileFromS3(file.s3Key);
-        //     });
-        //     await Promise.allSettled(deletePromises);
-        // }
+        if (space.files && space.files.length > 0) {
+            const deletePromises = space.files.map(async file => {
+                if (file.s3Key) {
+                    await fileModel.findOneAndDelete({ s3Key: file.s3Key });
+                    console.log(`[Delete Space] Deleting S3 Key: ${file.s3Key}`);
+                    return deleteFileFromS3(file.s3Key).catch(err => console.error('S3 Delete Error:', err));
+                }
+            });
+            await Promise.allSettled(deletePromises);
+        }
 
         await PublicSpace.findByIdAndDelete(req.params.spaceId);
 
@@ -92,6 +119,125 @@ router.delete('/delete-public-space/:spaceId', authMiddleware, async (req, res) 
     } catch (error) {
         console.error('Error deleting public space:', error);
         res.status(500).json({ success: false, message: 'Server error during deletion' });
+    }
+});
+
+router.get('/get-public-spaces', authMiddleware, async (req, res) => {
+    try {
+        const spaces = await PublicSpace.find().populate('owner', 'username').populate('files.owner', 'username');
+        res.json({ success: true, spaces });
+    } catch (error) {
+        console.error('Error fetching public spaces:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+router.delete('/delete-public-file/:spaceId/:fileId', authMiddleware, async (req, res) => {
+    try {
+        const { spaceId, fileId } = req.params;
+        const space = await PublicSpace.findById(spaceId);
+
+        if (!space) {
+            return res.status(404).json({ success: false, message: 'Space not found' });
+        }
+
+        const fileIndex = space.files.findIndex(f => f._id.toString() === fileId);
+        if (fileIndex === -1) {
+            return res.status(404).json({ success: false, message: 'File not found in this space' });
+        }
+
+        // Allow deletion if user is Space Owner OR File Owner
+        if (space.owner.toString() !== req.user._id.toString() && space.files[fileIndex].owner.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ success: false, message: 'Unauthorized to delete this file' });
+        }
+
+        const fileToDelete = space.files[fileIndex];
+        if (fileToDelete.s3Key) {
+            await fileModel.findOneAndDelete({ s3Key: fileToDelete.s3Key });
+            console.log(`[Delete File] Deleting S3 Key: ${fileToDelete.s3Key}`);
+            await deleteFileFromS3(fileToDelete.s3Key).catch(err => console.error('S3 Delete Error:', err));
+        }
+
+        space.files.splice(fileIndex, 1);
+        await space.save();
+
+        res.json({ success: true, message: 'File deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting public file:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+router.get('/download-public-space-all/:spaceId', authMiddleware, async (req, res) => {
+    try {
+        const space = await PublicSpace.findById(req.params.spaceId);
+        if (!space) {
+            return res.status(404).send('Space not found');
+        }
+
+        if ((space.allowDownloads === false || space.allowDownloads === 'false') && space.owner.toString() !== req.user._id.toString()) {
+            return res.status(403).send('Downloads are disabled for this space.');
+        }
+
+        const archive = archiver('zip', { zlib: { level: 9 } });
+
+        // Handle archive errors
+        archive.on('error', (err) => {
+            console.error('Archiver error:', err);
+            if (!res.headersSent) {
+                res.status(500).send({ error: err.message });
+            } else {
+                res.end();
+            }
+        });
+
+        // Handle warnings
+        archive.on('warning', (err) => {
+            if (err.code === 'ENOENT') {
+                console.warn('Archiver warning:', err);
+            } else {
+                console.error('Archiver error:', err);
+            }
+        });
+
+        const safeName = (space.name || 'download').replace(/[^a-zA-Z0-9-_ ]/g, '_');
+        res.attachment(`${safeName}.zip`);
+        archive.pipe(res);
+
+        space.files.forEach(file => {
+            if (file.s3Key) {
+                try {
+                    if (s3 && typeof s3.getObject === 'function') {
+                        const stream = s3.getObject({
+                            Bucket: process.env.AWS_S3_BUCKET,
+                            Key: file.s3Key
+                        }).createReadStream();
+
+                        stream.on('error', (err) => {
+                            console.error(`S3 Stream Error for ${file.originalName}:`, err);
+                            archive.append(Buffer.from(`Error downloading file: ${err.message}`), { name: `ERROR_${file.originalName}.txt` });
+                        });
+
+                        archive.append(stream, { name: file.originalName });
+                    } else {
+                        console.error('S3 client incompatible or missing getObject');
+                        archive.append(Buffer.from('Server configuration error: S3 client incompatibility.'), { name: 'ERROR_CONFIG.txt' });
+                    }
+                } catch (err) {
+                    console.error(`Error processing file ${file.originalName}:`, err);
+                    archive.append(Buffer.from(`Error processing file: ${err.message}`), { name: `ERROR_${file.originalName}.txt` });
+                }
+            }
+        });
+
+        await archive.finalize();
+    } catch (error) {
+        console.error('Error downloading space:', error);
+        if (!res.headersSent) {
+            res.status(500).send('Server Error');
+        } else {
+            res.end();
+        }
     }
 });
 

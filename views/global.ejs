@@ -447,82 +447,129 @@
                             </button>
                         </div>
                         <% } %>
-            <% if (locals.publicSpaces && publicSpaces.length > 0) { %>
-                <% publicSpaces.forEach(space => { %>
-                    <% 
-                        const ownerId = space.owner ? (space.owner._id || space.owner).toString() : null;
-                        const isOwner = user && ownerId && user._id.toString() === ownerId;
-                    %>
-                    <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden" data-space-id="<%= space._id %>" data-space-name="<%= space.name %>" data-owner-id="<%= ownerId %>">
-                        <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border-white-500/30">
-                                    <i class="ri-folder-3-line text-2xl text-white/60"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold text-white"><%= space.name %></h3>
-                                    <p class="text-sm text-white/60">Created by <span class="font-medium">@<%= (space.owner && space.owner.username) ? space.owner.username : 'Unknown' %></span></p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <a href="/download-space-all/<%= space._id %>" title="Download All" class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-download-line text-xl"></i></a>
-                                <% if(isOwner) { %>
-                                    <button data-space-id="<%= space._id %>" data-space-name="<%= space.name %>" onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)" title="Upload" class="flex-shrink-0 bg-white/10 hover:bg-blue-500 hover:text-white text-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-upload-cloud-2-line"></i></button>
-                                    <button data-space-id="<%= space._id %>" onclick="deleteSpace(this.dataset.spaceId)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-delete-bin-line text-xl"></i></button>
-                                <% } %>
-                            </div>
-                        </div>
-
-                        <div class="glass-panel-light rounded-2xl h-[250px] overflow-y-auto custom-scrollbar p-4 space-y-3">
-                            <% if(!space.files || space.files.length === 0) { %>
-                                <div class="flex flex-col items-center justify-center h-full text-white/40">
-                                    <i class="ri-folder-open-line text-6xl mb-4 block"></i>
-                                    <p class="text-xl">No public files available yet.</p>
-                                </div>
-                            <% } else { %>
-                                <% space.files.forEach(file => { %>
-                                    <div class="glass-card flex items-center justify-between p-4 rounded-xl group">
-                                        <div class="flex-grow min-w-0 pr-4 flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-cyan-300">
-                                                <i class="ri-file-line text-xl"></i>
-                                            </div>
-                                            <div class="truncate">
-                                                <a href="/view-space/<%= file._id %>" class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
-                                                    <%= file.originalName %>
-                                                </a>
-                                                <div class="flex items-center gap-2 mt-0.5">
-                                                    <span class="text-sm font-medium text-blue-200/70">
-                                                        @<%= file.owner && file.owner.username ? file.owner.username : 'Unknown' %>
-                                                    </span>
-                                                    <% if (file.size) { %>
-                                                        <span class="text-xs text-blue-200/70">
-                                                            • <%= (file.size / 1024 / 1024).toFixed(2) %> MB
-                                                        </span>
+                            <% if (typeof publicSpaces !=='undefined' && publicSpaces && publicSpaces.length> 0) { %>
+                                <% publicSpaces.forEach(space=> { %>
+                                    <% const ownerId=space.owner ? (space.owner._id || space.owner).toString() : null;
+                                        const isOwner=user && ownerId && user._id.toString()===ownerId;
+                                        const allowDownloads = space.allowDownloads !== false && space.allowDownloads !== 'false';
+                                        const allowUploads = space.allowUploads !== false && space.allowUploads !== 'false';
+                                        const canDownload = isOwner || allowDownloads;
+                                        const canUpload = isOwner || allowUploads; %>
+                                        <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden"
+                                            data-space-id="<%= space._id %>" data-space-name="<%= space.name %>" data-allow-downloads="<%= (space.allowDownloads !== false && space.allowDownloads !== 'false') %>"
+                                            data-owner-id="<%= ownerId %>">
+                                            <div
+                                                class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
+                                                <div class="flex items-center gap-4">
+                                                    <div
+                                                        class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border-white-500/30">
+                                                        <i class="ri-folder-3-line text-2xl text-white/60"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h3 class="text-2xl font-bold text-white">
+                                                            <%= space.name %>
+                                                        </h3>
+                                                        <p class="text-sm text-white/60">Created by <span
+                                                                class="font-medium">@<%= (space.owner &&
+                                                                    space.owner.username) ? space.owner.username
+                                                                    : 'Unknown' %></span></p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex items-center gap-3">
+                                                    <% if (canDownload) { %>
+                                                    <a href="/download-public-space-all/<%= space._id %>"
+                                                        title="Download All"
+                                                        class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
+                                                            class="ri-download-line text-xl"></i>
+                                                    </a>
                                                     <% } %>
+                                                    <% if (canUpload) { %>
+                                                    <button data-space-id="<%= space._id %>"
+                                                        data-space-name="<%= space.name %>"
+                                                        onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)"
+                                                        title="Upload"
+                                                        class="flex-shrink-0 bg-white/10 hover:bg-blue-500 hover:text-white text-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
+                                                            class="ri-upload-cloud-2-line"></i></button>
+                                                    <% } %>
+                                                    <% if(isOwner) { %>
+                                                        <button data-space-id="<%= space._id %>"
+                                                            onclick="deleteSpace(this.dataset.spaceId)" title="Delete"
+                                                            class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
+                                                                class="ri-delete-bin-line text-xl"></i>
+                                                        </button>
+                                                        <% } %>
                                                 </div>
                                             </div>
+
+                                            <div
+                                                class="glass-panel-light rounded-2xl h-[250px] overflow-y-auto custom-scrollbar p-4 space-y-3">
+                                                <% if(!space.files || space.files.length===0) { %>
+                                                    <div
+                                                        class="flex flex-col items-center justify-center h-full text-white/40">
+                                                        <i class="ri-folder-open-line text-6xl mb-4 block"></i>
+                                                        <p class="text-xl">No public files available yet.</p>
+                                                    </div>
+                                                    <% } else { %>
+                                                        <% space.files.forEach(file=> { %>
+                                                            <div
+                                                                class="glass-card flex items-center justify-between p-4 rounded-xl group">
+                                                                <div
+                                                                    class="flex-grow min-w-0 pr-4 flex items-center gap-4">
+                                                                    <div
+                                                                        class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-cyan-300">
+                                                                        <i class="ri-file-line text-xl"></i>
+                                                                    </div>
+                                                                    <div class="truncate">
+                                                                        <a href="/view-public/<%= file.s3Key %>"
+                                                                            class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
+                                                                            <%= file.originalName %>
+                                                                        </a>
+                                                                        <div class="flex items-center gap-2 mt-0.5">
+                                                                            <span
+                                                                                class="text-sm font-medium text-blue-200/70">
+                                                                                @<%= file.owner && file.owner.username ?
+                                                                                    file.owner.username : 'Unknown' %>
+                                                                            </span>
+                                                                            <% if (file.size) { %>
+                                                                                <span class="text-xs text-blue-200/70">
+                                                                                    • <%= (file.size / 1024 /
+                                                                                        1024).toFixed(2) %> MB
+                                                                                </span>
+                                                                                <% } %>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex items-center gap-3">
+                                                                    <% if (allowDownloads) { %>
+                                                                    <a href="/download-public/<%= file.s3Key %>"
+                                                                        download="<%= file.originalName %>"
+                                                                            class="ri-download-line text-xl"></i></a>
+                                                                    <% } %>
+                                                                    <% if (user && (file.owner && (file.owner._id ||
+                                                                        file.owner).toString()===user._id.toString() ||
+                                                                        isOwner)) { %>
+                                                                        <button
+                                                                            onclick="deletePublicFile('<%= space._id %>', '<%= file._id %>', this)"
+                                                                            title="Delete"
+                                                                            class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
+                                                                                class="ri-delete-bin-line text-xl"></i></button>
+                                                                        <% } %>
+                                                                </div>
+                                                            </div>
+                                                            <% }) %>
+                                                                <% } %>
+                                            </div>
                                         </div>
-                                        <div class="flex items-center gap-3">
-                                            <a href="/download-space/<%= file._id %>" download="<%= file.originalName %>" title="Download" class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-download-line text-xl"></i></a>
-                                            <% if (user && (file.owner && (file.owner._id || file.owner).toString() === user._id.toString() || isOwner)) { %>
-                                                <button onclick="deleteFile('<%= file._id %>', this)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-delete-bin-line text-xl"></i></button>
-                                            <% } %>
-                                        </div>
-                                    </div>
-                                <% }) %>
-                            <% } %>
-                        </div>
-                    </div>
-                <% }) %>
-            <% } else { %>
-                <div class="text-center text-white/50 py-10">
-                    <i class="ri-folder-add-line text-5xl mb-3 block opacity-50"></i>
-                    <p>No user spaces created yet. Be the first!</p>
-                </div>
-            <% } %>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <div class="text-center text-white/50 py-10">
+                                                    <i class="ri-folder-add-line text-5xl mb-3 block opacity-50"></i>
+                                                    <p>No user spaces created yet. Be the first!</p>
+                                                </div>
+                                                <% } %>
         </div>
     </main>
-<!-- Create Space Modal -->
+    <!-- Create Space Modal -->
     <div id="createSpaceModal"
         class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md px-4 text-center">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-8 shadow-2xl relative">
@@ -547,6 +594,38 @@
                         class="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all" />
                 </div>
 
+                <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white/10 rounded-lg text-cyan-300">
+                            <i class="ri-shield-user-line text-xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-sm font-medium text-white">Allow Uploads</p>
+                            <p class="text-xs text-white/50">Others can upload files</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="allowUploads" value="true" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white/10 rounded-lg text-green-300">
+                            <i class="ri-download-cloud-2-line text-xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-sm font-medium text-white">Allow Downloads</p>
+                            <p class="text-xs text-white/50">Others can download files</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="allowDownloads" value="true" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
+                </div>
+
                 <div class="flex flex-col sm:flex-row gap-3 pt-4">
                     <button type="button" onclick="document.getElementById('createSpaceModal').classList.add('hidden')"
                         class="btn-premium w-full flex-1 rounded-full border-2 border-white/40 text-white px-4 py-3 font-bold hover:border-white/70 hover:text-blue-900 hover:bg-white hover:border-white transition-all duration-400">
@@ -562,15 +641,18 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Upload to Space Modal -->
-    <div id="spaceUploadModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md px-4 text-center">
+    <div id="spaceUploadModal"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md px-4 text-center">
         <div class="glass-panel w-full max-w-lg rounded-2xl p-8 shadow-2xl relative">
-            <button onclick="document.getElementById('spaceUploadModal').classList.add('hidden')" class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors">
+            <button onclick="document.getElementById('spaceUploadModal').classList.add('hidden')"
+                class="absolute top-4 right-4 text-white/70 hover:text-white transition-colors">
                 <i class="ri-close-line text-3xl"></i>
             </button>
-            
-            <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/20 shadow-inner">
+
+            <div
+                class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/20 shadow-inner">
                 <i class="ri-upload-cloud-2-fill text-3xl text-cyan-300"></i>
             </div>
 
@@ -578,8 +660,10 @@
             <p id="spaceUploadDesc" class="text-blue-200 text-sm mb-8">Upload a file to this space.</p>
 
             <form id="spaceUploadForm" method="POST" enctype="multipart/form-data" class="space-y-5">
-                <label class="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10 group transition-all">
-                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-white/70 group-hover:text-white">
+                <label
+                    class="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/5 hover:bg-white/10 group transition-all">
+                    <div
+                        class="flex flex-col items-center justify-center pt-5 pb-6 text-white/70 group-hover:text-white">
                         <i class="ri-file-add-line text-3xl mb-2"></i>
                         <p class="text-sm">Click to select file</p>
                     </div>
@@ -587,10 +671,12 @@
                 </label>
 
                 <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                    <button type="button" onclick="document.getElementById('spaceUploadModal').classList.add('hidden')" class="btn-premium w-full flex-1 rounded-full border-2 border-white/40 text-white px-4 py-3 font-bold hover:border-white/70 hover:text-blue-900 hover:bg-white hover:border-white transition-all duration-400">
+                    <button type="button" onclick="document.getElementById('spaceUploadModal').classList.add('hidden')"
+                        class="btn-premium w-full flex-1 rounded-full border-2 border-white/40 text-white px-4 py-3 font-bold hover:border-white/70 hover:text-blue-900 hover:bg-white hover:border-white transition-all duration-400">
                         <span class="btn-text">Cancel</span>
                     </button>
-                    <button type="submit" class="btn-premium w-full flex-1 rounded-full bg-white text-blue-900 px-4 py-3 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none">
+                    <button type="submit"
+                        class="btn-premium w-full flex-1 rounded-full bg-white text-blue-900 px-4 py-3 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none">
                         <span class="btn-text">Upload</span>
                     </button>
                 </div>
@@ -697,7 +783,47 @@
             }
         }
 
+        async function deletePublicFile(spaceId, fileId, element) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                try {
+                    const response = await fetch(`/delete-public-file/${spaceId}/${fileId}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        const card = element.closest('.glass-card');
+                        const container = card.parentElement;
+                        card.remove();
+
+                        if (container.children.length === 0) {
+                            container.innerHTML = `
+                                <div class="flex flex-col items-center justify-center h-full text-white/40">
+                                    <i class="ri-folder-open-line text-6xl mb-4 block"></i>
+                                    <p class="text-xl">No public files available yet.</p>
+                                </div>`;
+                        }
+                        showToast(result.message || 'File deleted successfully', 'success');
+                    } else {
+                        showToast(result.message || 'Failed to delete file.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error deleting file:', error);
+                    showToast('An error occurred while deleting the file.', 'error');
+                }
+            }
+        }
+
         async function deleteSpace(spaceId) {
+            const currentUserId = '<%= user ? user._id.toString() : "" %>';
+            const spaceEl = document.querySelector(`[data-space-id="${spaceId}"]`);
+            
+            if (spaceEl && spaceEl.dataset.ownerId) {
+                if (currentUserId !== spaceEl.dataset.ownerId) {
+                    showToast('Unauthorized: You can only delete your own spaces.', 'error');
+                    return;
+                }
+            }
+
             if (confirm('Are you sure you want to delete this space and all its files?')) {
                 try {
                     const response = await fetch(`/delete-public-space/${spaceId}`, {
@@ -705,7 +831,19 @@
                     });
                     const result = await response.json();
                     if (result.success) {
-                        document.querySelector(`[data-space-id="${spaceId}"]`).remove();
+                        const el = document.querySelector(`[data-space-id="${spaceId}"]`);
+                        if (el) {
+                            const container = el.parentElement;
+                            el.remove();
+                            if (container.children.length === 0) {
+                                container.innerHTML = `
+                                    <div class="text-center text-white/50 py-10">
+                                        <i class="ri-folder-add-line text-5xl mb-3 block opacity-50"></i>
+                                        <p>No user spaces created yet. Be the first!</p>
+                                    </div>`;
+                            }
+                        }
+                        showToast(result.message || 'Space deleted successfully', 'success');
                     } else {
                         showToast(result.message || 'Failed to delete space.', 'error');
                     }
@@ -853,6 +991,33 @@
             const searchReset = document.getElementById('space-search-reset');
             const searchMsg = document.getElementById('space-search-msg');
 
+            // Fetch all public spaces on load to ensure visibility for all users
+            window.addEventListener('pageshow', () => {
+                fetchPublicSpaces();
+            });
+
+            async function fetchPublicSpaces() {
+                try {
+                    const response = await fetch(`/get-public-spaces?t=${Date.now()}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        let newHtml = '';
+                        if (result.spaces && result.spaces.length > 0) {
+                            newHtml = result.spaces.map(space => createSpaceElement(space)).join('');
+                        } else {
+                            newHtml = `
+                                <div class="text-center text-white/50 py-10">
+                                    <i class="ri-folder-add-line text-5xl mb-3 block opacity-50"></i>
+                                    <p>No user spaces created yet. Be the first!</p>
+                                </div>`;
+                        }
+                        spacesContainer.innerHTML = newHtml;
+                    }
+                } catch (error) {
+                    console.error('Error fetching spaces:', error);
+                }
+            }
+
             function showAllSpaces() {
                 if (!spacesContainer) return;
                 spacesContainer.querySelectorAll('[data-space-id]').forEach(c => c.style.display = '');
@@ -914,6 +1079,10 @@
 
                     const formData = new FormData(createSpaceForm);
                     const data = Object.fromEntries(formData.entries());
+
+                    // Handle checkboxes explicitly to ensure false is sent when unchecked
+                    data.allowUploads = createSpaceForm.querySelector('input[name="allowUploads"]').checked;
+                    data.allowDownloads = createSpaceForm.querySelector('input[name="allowDownloads"]').checked;
 
                     try {
                         const response = await fetch('/create-public-space', {
@@ -1003,8 +1172,45 @@
 
             function createSpaceElement(space) {
                 const ownerId = space.owner ? (space.owner._id || space.owner).toString() : '';
+                const ownerName = space.ownerUsername || (space.owner && space.owner.username) ? (space.owner.username || space.ownerUsername) : 'Unknown';
+
+                const currentUserId = '<%= user ? user._id.toString() : "" %>';
+                const isOwner = currentUserId && ownerId && currentUserId === ownerId;
+                const allowDownloads = space.allowDownloads !== false && space.allowDownloads !== 'false';
+                const allowUploads = space.allowUploads !== false && space.allowUploads !== 'false';
+                const canDownload = isOwner || allowDownloads;
+                const canUpload = isOwner || allowUploads;
+
+                let actionButtons = `
+                `;
+
+                if (canDownload) {
+                    actionButtons += `<a href="/download-public-space-all/${space._id}" title="Download All" class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-download-line text-xl"></i></a>`;
+                }
+
+                if (canUpload) {
+                    actionButtons += `<button data-space-id="${space._id}" data-space-name="${space.name}" onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)" title="Upload" class="flex-shrink-0 bg-white/10 hover:bg-blue-500 hover:text-white text-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-upload-cloud-2-line"></i></button>`;
+                }
+
+                if (isOwner) {
+                    actionButtons += `
+                        <button data-space-id="${space._id}" onclick="deleteSpace(this.dataset.spaceId)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-delete-bin-line text-xl"></i></button>
+                    `;
+                }
+
+                let filesHtml = '';
+                if (space.files && space.files.length > 0) {
+                    filesHtml = space.files.map(file => createFileElement(file, space._id, ownerId, allowDownloads)).join('');
+                } else {
+                    filesHtml = `
+                        <div class="flex flex-col items-center justify-center h-full text-white/40">
+                            <i class="ri-folder-open-line text-6xl mb-4 block"></i>
+                            <p class="text-xl">No public files available yet.</p>
+                        </div>`;
+                }
+
                 return `
-                <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden" data-space-id="${space._id}" data-space-name="${space.name}" data-owner-id="${ownerId}">
+                <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden" data-space-id="${space._id}" data-space-name="${space.name}" data-owner-id="${ownerId}" data-allow-downloads="${allowDownloads}">
                     <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border-white-500/30">
@@ -1012,34 +1218,41 @@
                             </div>
                             <div>
                                 <h3 class="text-2xl font-bold text-white">${space.name}</h3>
-                                <p class="text-sm text-white/60">Created by <span class="font-medium">@${space.ownerUsername || '<%= (user && user.username) ? user.username : "You" %>'}</span></p>
+                                <p class="text-sm text-white/60">Created by <span class="font-medium">@${ownerName}</span></p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <a href="/download-space-all/${space._id}" title="Download All" class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-download-line text-xl"></i></a>
-                            <button data-space-id="${space._id}" data-space-name="${space.name}" onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)" title="Upload" class="flex-shrink-0 bg-white/10 hover:bg-blue-500 hover:text-white text-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-upload-cloud-2-line"></i></button>
-                            <button data-space-id="${space._id}" onclick="deleteSpace(this.dataset.spaceId)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-delete-bin-line text-xl"></i></button>
+                            ${actionButtons}
                         </div>
                     </div>
                     <div class="glass-panel-light rounded-2xl h-[250px] overflow-y-auto custom-scrollbar p-4 space-y-3">
-                        <div class="flex flex-col items-center justify-center h-full text-white/40">
-                            <i class="ri-folder-open-line text-6xl mb-4 block"></i>
-                            <p class="text-xl">No public files available yet.</p>
-                        </div>
+                        ${filesHtml}
                     </div>
                 </div>
                 `;
             }
 
-            function createFileElement(file, spaceId) {
-                const spaceCard = document.querySelector(`[data-space-id="${spaceId}"]`);
-                const spaceOwnerId = spaceCard ? spaceCard.dataset.ownerId : null;
+            function createFileElement(file, spaceId, providedSpaceOwnerId = null, providedAllowDownloads = null) {
+                let spaceOwnerId = providedSpaceOwnerId;
+                let allowDownloads = providedAllowDownloads;
+
+                if (!spaceOwnerId || allowDownloads === null) {
+                    const spaceCard = document.querySelector(`[data-space-id="${spaceId}"]`);
+                    if (spaceCard) {
+                        if (!spaceOwnerId) spaceOwnerId = spaceCard.dataset.ownerId;
+                        if (allowDownloads === null) allowDownloads = spaceCard.dataset.allowDownloads !== 'false';
+                    }
+                }
+                // Default to true if we still don't know (fallback)
+                if (allowDownloads === null) allowDownloads = true;
+
                 const currentUserId = '<%= user ? user._id : "" %>';
                 const fileOwnerId = file.owner._id || file.owner;
-                
+
                 // Check if current user can delete (is file owner OR space owner)
                 const canDelete = currentUserId && (currentUserId === fileOwnerId.toString() || currentUserId === spaceOwnerId);
-
+                const canDownload = allowDownloads || (currentUserId && currentUserId === spaceOwnerId);
+                const downloadTitle = (!allowDownloads && currentUserId === spaceOwnerId) ? "Download (Owner Access)" : "Download";
                 return `
                     <div class="glass-card flex items-center justify-between p-4 rounded-xl group">
                         <div class="flex-grow min-w-0 pr-4 flex items-center gap-4">
@@ -1047,7 +1260,7 @@
                                 <i class="ri-file-line text-xl"></i>
                             </div>
                             <div class="truncate">
-                                <a href="/view-space/${file._id}" class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
+                                <a href="/view-public/${file.s3Key}" class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
                                     ${file.originalName}
                                 </a>
                                 <div class="flex items-center gap-2 mt-0.5">
@@ -1059,9 +1272,11 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <a href="/download-space/${file._id}" download="${file.originalName}" title="Download" class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-download-line text-xl"></i></a>
+                            ${canDownload ? `
+                                <a href="/download-public/${file.s3Key}" download="${file.originalName}" title="${downloadTitle}" class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-download-line text-xl"></i></a>
+                            ` : ''}
                             ${canDelete ? `
-                                <button onclick="deleteFile('${file._id}', this)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
+                                <button onclick="deletePublicFile('${spaceId}', '${file._id}', this)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
                                     <i class="ri-delete-bin-line text-xl"></i>
                                 </button>
                             ` : ''}

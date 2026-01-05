@@ -5,6 +5,8 @@ const spaceSchema = new mongoose.Schema({
     password: { type: String, required: true },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
     // We link files to this space
+    allowDownloads: { type: Boolean, default: true },
+    allowDelete: { type: Boolean, default: false },
     files: [{ type: mongoose.Schema.Types.ObjectId, ref: 'file' }]
 });
 

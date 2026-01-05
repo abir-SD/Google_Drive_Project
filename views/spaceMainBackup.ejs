@@ -370,14 +370,10 @@
                 <% spaces.forEach(space=> { %>
                     <% let ownerId=space.owner ? (space.owner._id || space.owner).toString() : null; const isOwner=user
                         && ownerId && user._id.toString()===ownerId; const
-                        isUnlocked=unlockedSpaces.includes(space._id.toString()) || isOwner; 
-                        
-                        const allowDownloads = space.allowDownloads !== false;
-                        const allowDelete = space.allowDelete === true;
-                        %>
+                        isUnlocked=unlockedSpaces.includes(space._id.toString()) || isOwner; %>
                         <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden"
                             data-space-id="<%= space._id %>" data-space-name="<%= space.name %>"
-                            data-owner-id="<%= ownerId %>" data-allow-downloads="<%= allowDownloads %>" data-allow-delete="<%= allowDelete %>">
+                            data-owner-id="<%= ownerId %>">
                             <div
                                 class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
                                 <div class="flex items-center gap-4">
@@ -396,24 +392,20 @@
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <% if(isUnlocked) { %>
-                                        <% if (isOwner || allowDownloads) { %>
-                                            <a href="/download-space-all/<%= space._id %>" title="Download All"
-                                                class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
-                                                    class="ri-download-line text-xl"></i></a>
-                                        <% } %>
+                                        <a href="/download-space-all/<%= space._id %>" title="Download All"
+                                            class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
+                                                class="ri-download-line text-xl"></i></a>
                                         <% if(isOwner) { %>
                                             <button data-space-id="<%= space._id %>" data-space-name="<%= space.name %>"
                                                 onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)"
                                                 title="Upload"
                                                 class="flex-shrink-0 bg-white/10 hover:bg-blue-500 hover:text-white text-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
                                                     class="ri-upload-cloud-2-line"></i></button>
-                                        <% } %>
-                                        <% if(isOwner || allowDelete) { %>
                                             <button data-space-id="<%= space._id %>"
                                                 onclick="deleteSpace(this.dataset.spaceId)" title="Delete"
                                                 class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
                                                     class="ri-delete-bin-line text-xl"></i></button>
-                                        <% } %>
+                                            <% } %>
                                                 <% } %>
                                 </div>
                             </div>
@@ -432,10 +424,8 @@
                                                 file.owner).toString() : '';
                                                 const spaceOwnerId = space.owner ? (space.owner._id ||
                                                 space.owner).toString() : '';
-                                                const isFileOwner = user && user._id.toString() === fileOwnerId;
-                                                const isSpaceOwner = user && user._id.toString() === spaceOwnerId;
-                                                const canDelete = isFileOwner || isSpaceOwner || (isUnlocked && allowDelete);
-                                                const canDownload = isFileOwner || isSpaceOwner || (isUnlocked && allowDownloads);
+                                                const canDelete = user && (user._id.toString() ===
+                                                fileOwnerId || user._id.toString() === spaceOwnerId);
                                                 %>
                                                 <!-- From this -->
                                                 <div
@@ -466,18 +456,17 @@
                                                     </div>
                                                     <!-- Action Buttons Container -->
                                                     <div class="flex items-center gap-3">
-                                                        <% if (canDownload) { %>
-                                                            <a href="/download-space/<%= file._id %>"
-                                                                download="<%= file.originalName %>" title="Download"
-                                                                class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
-                                                                    class="ri-download-line text-xl"></i></a>
-                                                        <% } %>
                                                         <% if (canDelete) { %>
                                                             <button onclick="deleteFile('<%= file._id %>', this)"
                                                                 title="Delete"
                                                                 class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
                                                                     class="ri-delete-bin-line text-xl"></i></button>
-                                                        <% } %>
+                                                            <% } else { %>
+                                                                <a href="/download-space/<%= file._id %>"
+                                                                    download="<%= file.originalName %>" title="Download"
+                                                                    class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
+                                                                        class="ri-download-line text-xl"></i></a>
+                                                                <% } %>
                                                     </div>
                                                 </div>
 
@@ -598,40 +587,6 @@
                         class="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all" />
                 </div>
 
-                <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white/10 rounded-lg text-green-300">
-                            <i class="ri-download-cloud-2-line text-xl"></i>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-sm font-medium text-white">Allow Downloads</p>
-                            <p class="text-xs text-white/50">Others can download files</p>
-                        </div>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="allowDownloads" value="true" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
-                        </div>
-                    </label>
-                </div>
-
-                <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white/10 rounded-lg text-red-300">
-                            <i class="ri-delete-bin-line text-xl"></i>
-                        </div>
-                        <div class="text-left">
-                            <p class="text-sm font-medium text-white">Allow Delete</p>
-                            <p class="text-xs text-white/50">Others can delete files</p>
-                        </div>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="allowDelete" value="true" class="sr-only peer">
-                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500">
-                        </div>
-                    </label>
-                </div>
-
                 <div class="flex flex-col sm:flex-row gap-3 pt-4">
                     <button type="button" onclick="document.getElementById('createSpaceModal').classList.add('hidden')"
                         class="btn-premium w-full flex-1 rounded-full border-2 border-white/40 text-white px-4 py-3 font-bold hover:border-white/70 hover:text-blue-900 hover:bg-white hover:border-white transition-all duration-400">
@@ -740,15 +695,10 @@
 
         function createFileElement(file, spaceId) {
             const spaceCard = document.querySelector(`[data-space-id="${spaceId}"]`);
-            const spaceOwnerId = spaceCard ? spaceCard.dataset.ownerId : '';
-            const allowDelete = spaceCard ? spaceCard.dataset.allowDelete === 'true' : false;
-            const allowDownloads = spaceCard ? spaceCard.dataset.allowDownloads === 'true' : true;
-            
+            const spaceOwnerId = spaceCard.dataset.ownerId;
             const currentUserId = '<%= user._id %>';
-            const fileOwnerId = (file.owner._id || file.owner).toString();
 
-            const canDelete = currentUserId === fileOwnerId || currentUserId === spaceOwnerId || allowDelete;
-            const canDownload = currentUserId === fileOwnerId || currentUserId === spaceOwnerId || allowDownloads;
+            const canDelete = currentUserId === (file.owner._id || file.owner).toString() || currentUserId === spaceOwnerId;
 
             const deleteButton = `
                 <button
@@ -789,8 +739,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        ${canDownload ? downloadButton : ''}
-                        ${canDelete ? deleteButton : ''}
+                        ${canDelete ? deleteButton : downloadButton}
                     </div>
                 </div>
             `;
@@ -991,10 +940,6 @@
                     const formData = new FormData(createSpaceForm);
                     const data = Object.fromEntries(formData.entries());
 
-                    // Handle checkboxes explicitly
-                    data.allowDownloads = createSpaceForm.querySelector('input[name="allowDownloads"]').checked;
-                    data.allowDelete = createSpaceForm.querySelector('input[name="allowDelete"]').checked;
-
                     try {
                         const response = await fetch('/create-space', {
                             method: 'POST',
@@ -1082,14 +1027,8 @@
 
             function createSpaceElement(space) {
                 const ownerId = space.owner ? (space.owner._id || space.owner).toString() : '';
-                const currentUserId = '<%= user._id %>';
-                const isOwner = currentUserId === ownerId;
-                
-                const allowDownloads = space.allowDownloads !== false;
-                const allowDelete = space.allowDelete === true;
-                
                 return `
-                <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden" data-space-id="${space._id}" data-space-name="${space.name}" data-owner-id="${ownerId}" data-allow-downloads="${allowDownloads}" data-allow-delete="${allowDelete}">
+                <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden" data-space-id="${space._id}" data-space-name="${space.name}" data-owner-id="${ownerId}">
                     <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border-white-500/30">
@@ -1101,7 +1040,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            ${(isOwner || allowDownloads) ? `<a href="/download-space-all/${space._id}" title="Download All" class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-download-line text-xl"></i></a>` : ''}
+                            <a href="/download-space-all/${space._id}" title="Download All" class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-download-line text-xl"></i></a>
                             <button data-space-id="${space._id}" data-space-name="${space.name}" onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)" title="Upload" class="flex-shrink-0 bg-white/10 hover:bg-blue-500 hover:text-white text-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-upload-cloud-2-line"></i></button>
                             <button data-space-id="${space._id}" onclick="deleteSpace(this.dataset.spaceId)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-delete-bin-line text-xl"></i></button>
                         </div>

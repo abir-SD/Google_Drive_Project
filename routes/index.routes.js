@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 const router = express.Router()
 const { upload, uploadSpace } = require('../config/multer.config')
 const fileModel = require('../models/File.model')
+const spaceModel = require('../models/Space.model');
 
 
 
@@ -162,8 +163,6 @@ router.get('/view/:username/:filename', authMiddleware, async (req, res) => {
     }
 });
 
-// For Global file
-const spaceModel = require('../models/Space.model');
 
 // UPDATED GLOBAL ROUTE
 router.get('/global', authMiddleware, async (req, res) => {
@@ -252,7 +251,7 @@ router.get(/^\/view-public\/(.+)$/, authMiddleware, async (req, res) => {
 // NEW SPACE ROUTES
 router.post('/create-space', authMiddleware, async (req, res) => {
     try {
-        const { name, password } = req.body;
+        const { name, password, allowDelete, allowDownloads } = req.body;
         if (!name || !password) {
             return res.status(400).json({ success: false, message: 'Name and password are required.' });
         }
@@ -260,7 +259,9 @@ router.post('/create-space', authMiddleware, async (req, res) => {
         const newSpace = await spaceModel.create({
             name,
             password: hashedPassword,
-            owner: req.user._id
+            owner: req.user._id,
+            allowDelete: String(allowDelete) === 'true',
+            allowDownloads: String(allowDownloads) === 'true'
         });
 
         // Populate owner username before returning so client can render immediately
@@ -344,8 +345,15 @@ router.delete('/space/:spaceId', authMiddleware, async (req, res) => {
         if (!space) {
             return res.status(404).json({ success: false, message: 'Space not found' });
         }
-        if (space.owner.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ success: false, message: 'You are not the owner of this space' });
+
+        const isOwner = space.owner.toString() === req.user._id.toString();
+        const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
+        const isUnlocked = unlockedSpaces.includes(space._id.toString());
+
+        if (!isOwner) {
+            if (!space.allowDelete || !isUnlocked) {
+                return res.status(403).json({ success: false, message: 'You are not authorized to delete this space' });
+            }
         }
 
         // Delete all files from S3 and MongoDB
@@ -390,7 +398,17 @@ router.delete('/delete/:fileId', authMiddleware, async (req, res) => {
         const isFileOwner = file.owner && file.owner.toString() === req.user._id.toString();
         const isSpaceOwner = space && space.owner && space.owner.toString() === req.user._id.toString();
 
-        if (!isFileOwner && !isSpaceOwner) {
+        let canDelete = isFileOwner || isSpaceOwner;
+
+        // If space allows delete, check if user has unlocked the space
+        if (!canDelete && space && space.allowDelete) {
+            const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
+            if (unlockedSpaces.includes(space._id.toString())) {
+                canDelete = true;
+            }
+        }
+
+        if (!canDelete) {
             return res.status(403).json({ success: false, message: 'You are not authorized to delete this file.' });
         }
 
@@ -462,6 +480,11 @@ router.get('/download-space/:fileId', authMiddleware, async (req, res) => {
         const isUnlocked = unlockedSpaces.includes(space._id.toString()) || isSpaceOwner;
         if (!isUnlocked && !isFileOwner) return res.status(403).send('Not authorized to download this file');
 
+        // Check allowDownloads permission (if not owner)
+        if (!isSpaceOwner && !isFileOwner && space.allowDownloads === false) {
+            return res.status(403).send('Downloads are disabled for this space.');
+        }
+
         const downloadUrl = await getSignedDownloadUrl(file.s3Key, file.originalName);
         return res.redirect(downloadUrl);
     } catch (err) {
@@ -481,6 +504,11 @@ router.get('/download-space-all/:spaceId', authMiddleware, async (req, res) => {
         const isSpaceOwner = space.owner && space.owner._id && space.owner._id.toString() === req.user._id.toString();
         const isUnlocked = unlockedSpaces.includes(space._id.toString()) || isSpaceOwner;
         if (!isUnlocked) return res.status(403).send('Not authorized to download space files');
+
+        // Check allowDownloads permission (if not owner)
+        if (!isSpaceOwner && space.allowDownloads === false) {
+            return res.status(403).send('Downloads are disabled for this space.');
+        }
 
         // Prepare zip
         res.setHeader('Content-Type', 'application/zip');

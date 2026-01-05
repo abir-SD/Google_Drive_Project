@@ -451,13 +451,16 @@
                                 <% publicSpaces.forEach(space=> { %>
                                     <% const ownerId=space.owner ? (space.owner._id || space.owner).toString() : null;
                                         const isOwner=user && ownerId && user._id.toString()===ownerId;
-                                        const allowDownloads = space.allowDownloads !== false && space.allowDownloads !== 'false';
-                                        const allowUploads = space.allowUploads !== false && space.allowUploads !== 'false';
-                                        const canDownload = isOwner || allowDownloads;
-                                        const canUpload = isOwner || allowUploads; %>
+                                        
+                                        // Use truthy checks (!!) to be safe.
+                                        const downloadsAllowed = !!space.allowDownloads; 
+                                        const uploadsAllowed = !!space.allowUploads;
+
+                                        const canDownload = isOwner || downloadsAllowed;
+                                        const canUpload = isOwner || uploadsAllowed; %>
                                         <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden"
-                                            data-space-id="<%= space._id %>" data-space-name="<%= space.name %>" data-allow-downloads="<%= (space.allowDownloads !== false && space.allowDownloads !== 'false') %>"
-                                            data-owner-id="<%= ownerId %>">
+                                            data-space-id="<%= space._id %>" data-space-name="<%= space.name %>"
+                                            data-allow-downloads="<%= downloadsAllowed %>" data-owner-id="<%= ownerId %>">
                                             <div
                                                 class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
                                                 <div class="flex items-center gap-4">
@@ -466,7 +469,8 @@
                                                         <i class="ri-folder-3-line text-2xl text-white/60"></i>
                                                     </div>
                                                     <div>
-                                                        <h3 class="text-2xl font-bold text-white">
+                                                        <h3
+                                                            class="text-2xl font-bold text-white flex items-center gap-2">
                                                             <%= space.name %>
                                                         </h3>
                                                         <p class="text-sm text-white/60">Created by <span
@@ -477,27 +481,28 @@
                                                 </div>
                                                 <div class="flex items-center gap-3">
                                                     <% if (canDownload) { %>
-                                                    <a href="/download-public-space-all/<%= space._id %>"
-                                                        title="Download All"
-                                                        class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
-                                                            class="ri-download-line text-xl"></i>
-                                                    </a>
+                                                        <a href="/download-public-space-all/<%= space._id %>" 
+                                                           title="Download All" 
+                                                           class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
+                                                            <i class="ri-download-line text-xl"></i>
+                                                        </a>
                                                     <% } %>
+                                                
                                                     <% if (canUpload) { %>
-                                                    <button data-space-id="<%= space._id %>"
-                                                        data-space-name="<%= space.name %>"
-                                                        onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)"
-                                                        title="Upload"
-                                                        class="flex-shrink-0 bg-white/10 hover:bg-blue-500 hover:text-white text-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
-                                                            class="ri-upload-cloud-2-line"></i></button>
-                                                    <% } %>
-                                                    <% if(isOwner) { %>
-                                                        <button data-space-id="<%= space._id %>"
-                                                            onclick="deleteSpace(this.dataset.spaceId)" title="Delete"
-                                                            class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
-                                                                class="ri-delete-bin-line text-xl"></i>
+                                                        <button data-space-id="<%= space._id %>" 
+                                                                data-space-name="<%= space.name %>" 
+                                                                onclick="openSpaceUpload(this.dataset.spaceId, this.dataset.spaceName)" 
+                                                                title="Upload" 
+                                                                class="flex-shrink-0 bg-white/10 hover:bg-blue-500 hover:text-white text-blue-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
+                                                            <i class="ri-upload-cloud-2-line"></i>
                                                         </button>
-                                                        <% } %>
+                                                    <% } %>
+                                                    
+                                                    <% if(isOwner) { %>
+                                                        <button data-space-id="<%= space._id %>" onclick="deleteSpace(this.dataset.spaceId)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
+                                                            <i class="ri-delete-bin-line text-xl"></i> 
+                                                        </button>
+                                                    <% } %>
                                                 </div>
                                             </div>
 
@@ -540,20 +545,23 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="flex items-center gap-3">
-                                                                    <% if (allowDownloads) { %>
-                                                                    <a href="/download-public/<%= file.s3Key %>"
-                                                                        download="<%= file.originalName %>"
-                                                                            class="ri-download-line text-xl"></i></a>
+                                                                    <% if (canDownload) { %>
+                                                                        <a href="/download-public/<%= file.s3Key %>"
+                                                                            download="<%= file.originalName %>"
+                                                                            class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
+                                                                            <i class="ri-download-line text-xl"></i>
+                                                                        </a>
                                                                     <% } %>
-                                                                    <% if (user && (file.owner && (file.owner._id ||
-                                                                        file.owner).toString()===user._id.toString() ||
-                                                                        isOwner)) { %>
-                                                                        <button
-                                                                            onclick="deletePublicFile('<%= space._id %>', '<%= file._id %>', this)"
-                                                                            title="Delete"
-                                                                            class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
-                                                                                class="ri-delete-bin-line text-xl"></i></button>
-                                                                        <% } %>
+                                                                            <% if (user && (file.owner &&
+                                                                                (file.owner._id ||
+                                                                                file.owner).toString()===user._id.toString()
+                                                                                || isOwner)) { %>
+                                                                                <button
+                                                                                    onclick="deletePublicFile('<%= space._id %>', '<%= file._id %>', this)"
+                                                                                    title="Delete"
+                                                                                    class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
+                                                                                        class="ri-delete-bin-line text-xl"></i></button>
+                                                                                <% } %>
                                                                 </div>
                                                             </div>
                                                             <% }) %>
@@ -606,7 +614,9 @@
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="allowUploads" value="true" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                        <div
+                            class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500">
+                        </div>
                     </label>
                 </div>
 
@@ -622,7 +632,9 @@
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="allowDownloads" value="true" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                        <div
+                            class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
+                        </div>
                     </label>
                 </div>
 
@@ -816,7 +828,7 @@
         async function deleteSpace(spaceId) {
             const currentUserId = '<%= user ? user._id.toString() : "" %>';
             const spaceEl = document.querySelector(`[data-space-id="${spaceId}"]`);
-            
+
             if (spaceEl && spaceEl.dataset.ownerId) {
                 if (currentUserId !== spaceEl.dataset.ownerId) {
                     showToast('Unauthorized: You can only delete your own spaces.', 'error');
@@ -1176,10 +1188,13 @@
 
                 const currentUserId = '<%= user ? user._id.toString() : "" %>';
                 const isOwner = currentUserId && ownerId && currentUserId === ownerId;
-                const allowDownloads = space.allowDownloads !== false && space.allowDownloads !== 'false';
-                const allowUploads = space.allowUploads !== false && space.allowUploads !== 'false';
-                const canDownload = isOwner || allowDownloads;
-                const canUpload = isOwner || allowUploads;
+                
+                // Use truthy checks for plural field names
+                const downloadsAllowed = !!space.allowDownloads;
+                const uploadsAllowed = !!space.allowUploads;
+
+                const canDownload = isOwner || downloadsAllowed;
+                const canUpload = isOwner || uploadsAllowed;
 
                 let actionButtons = `
                 `;
@@ -1193,14 +1208,12 @@
                 }
 
                 if (isOwner) {
-                    actionButtons += `
-                        <button data-space-id="${space._id}" onclick="deleteSpace(this.dataset.spaceId)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-delete-bin-line text-xl"></i></button>
-                    `;
+                    actionButtons += `<button data-space-id="${space._id}" onclick="deleteSpace(this.dataset.spaceId)" title="Delete" class="flex-shrink-0 bg-white/10 hover:bg-red-500 hover:text-white text-red-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i class="ri-delete-bin-line text-xl"></i></button>`;
                 }
 
                 let filesHtml = '';
                 if (space.files && space.files.length > 0) {
-                    filesHtml = space.files.map(file => createFileElement(file, space._id, ownerId, allowDownloads)).join('');
+                    filesHtml = space.files.map(file => createFileElement(file, space._id, ownerId, downloadsAllowed)).join('');
                 } else {
                     filesHtml = `
                         <div class="flex flex-col items-center justify-center h-full text-white/40">
@@ -1210,14 +1223,16 @@
                 }
 
                 return `
-                <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden" data-space-id="${space._id}" data-space-name="${space.name}" data-owner-id="${ownerId}" data-allow-downloads="${allowDownloads}">
+                <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden" data-space-id="${space._id}" data-space-name="${space.name}" data-owner-id="${ownerId}" data-allow-downloads="${downloadsAllowed}">
                     <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border-white-500/30">
                                 <i class="ri-folder-3-line text-2xl text-white/60"></i>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-bold text-white">${space.name}</h3>
+                                <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                                    ${space.name}
+                                </h3>
                                 <p class="text-sm text-white/60">Created by <span class="font-medium">@${ownerName}</span></p>
                             </div>
                         </div>

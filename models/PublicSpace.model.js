@@ -11,6 +11,14 @@ const publicSpaceSchema = new mongoose.Schema({
         ref: 'user',
         required: true
     },
+    allowUploads: {
+        type: Boolean,
+        default: true
+    },
+    allowDownloads: {
+        type: Boolean,
+        default: true
+    },
     files: [{
         originalName: String,
         s3Key: String,

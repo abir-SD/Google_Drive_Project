@@ -11,7 +11,7 @@ const { s3 } = require('../config/s3-config');
 router.post('/create-public-space', authMiddleware, async (req, res) => {
     try {
         const { name, allowUploads, allowDownloads } = req.body;
-        
+
         if (!name) {
             return res.status(400).json({ success: false, message: 'Space name is required' });
         }
@@ -24,8 +24,9 @@ router.post('/create-public-space', authMiddleware, async (req, res) => {
         const newSpace = await PublicSpace.create({
             name,
             owner: req.user._id,
-            allowUploads: allowUploads === 'true',
-            allowDownloads: allowDownloads === 'true'
+            // This fix handles both boolean true/false and string "true"/"false"
+            allowUploads: String(allowUploads) === 'true',
+            allowDownloads: String(allowDownloads) === 'true'
         });
 
         // Convert to object and append ownerUsername for the frontend to display immediately
@@ -92,7 +93,7 @@ router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.s
 router.delete('/delete-public-space/:spaceId', authMiddleware, async (req, res) => {
     try {
         const space = await PublicSpace.findById(req.params.spaceId);
-        
+
         if (!space) {
             return res.status(404).json({ success: false, message: 'Space not found' });
         }

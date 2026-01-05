@@ -386,8 +386,8 @@
 
                 <button type="submit"
                     class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 px-5 py-3 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none">
-                    <i class="ri-check-line text-xl btn-icon-anim"></i>
-                    <span class="btn-text">Confirm Upload</span>
+                    <i class="ri-upload-cloud-2-line text-xl btn-icon-anim"></i>
+                    <span class="btn-text">Upload Now</span>
                 </button>
             </form>
         </div>
@@ -498,6 +498,19 @@
                     fileNameText.textContent = file.name;
                 }
             });
+
+            const uploadForm = document.getElementById('upload-form');
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', () => {
+                    const submitBtn = uploadForm.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        setTimeout(() => {
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = '<i class="ri-loader-4-line animate-spin text-xl btn-icon-anim"></i><span class="btn-text">Uploading...</span>';
+                        }, 0);
+                    }
+                });
+            }
         });
 
         setTimeout(() => {

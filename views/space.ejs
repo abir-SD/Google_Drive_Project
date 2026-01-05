@@ -354,12 +354,13 @@
                     <input id="space-search-input" name="space" type="search" placeholder="Search space by name"
                         class="w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-white/40" />
                 </div>
+                <button type="submit" class="hidden"></button>
                 <button type="button" id="space-search-reset"
                     class="btn-premium w-full sm:flex-1 rounded-full bg-white text-blue-900 px-4 py-2 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none">
                     <i class="ri-loop-left-fill text-xl btn-icon-anim"></i>
                     <span class="btn-text">Reset</span>
                 </button>
-                <button id="create-space-btn"
+                <button type="button" id="create-space-btn"
                     class="btn-premium w-full sm:flex-1 rounded-full border-2 border-white/40 text-white px-4 py-2 font-bold hover:border-white/70 hover:text-blue-900 hover:bg-white hover:border-white transition-all duration-400">
                     <i class="ri-folder-add-line text-xl btn-icon-anim"></i>
                     <span class="btn-text">Create Space</span>
@@ -382,7 +383,7 @@
                                 class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
                                 <div class="flex items-center gap-4">
                                     <div
-                                        class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border-white-500/30">
+                                        class="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-2xl flex items-center justify-center border-white-500/30">
                                         <i class="ri-folder-lock-line text-2xl  text-white/60"></i>
                                     </div>
                                     <div>
@@ -442,7 +443,7 @@
                                                     class="glass-card flex items-center justify-between p-4 rounded-xl group">
                                                     <div class="flex-grow min-w-0 pr-4 flex items-center gap-4">
                                                         <div
-                                                            class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-cyan-300">
+                                                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-cyan-300">
                                                             <i class="ri-file-line text-xl"></i>
                                                         </div>
                                                         <div class="truncate">
@@ -557,7 +558,7 @@
                         </label>
                         <button type="submit"
                             class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 py-3.5 font-bold hover:bg-transparent hover:border-white hover:text-white border-2 border-transparent transition-all duration-400">
-                            <i class="ri-upload-2-line text-xl btn-icon-anim"></i>
+                            <i class="ri-upload-cloud-2-line text-xl btn-icon-anim"></i>
                             <span class="btn-text">Upload Now</span>
                         </button>
                     </form>
@@ -769,7 +770,7 @@
             return `
                 <div class="glass-card flex items-center justify-between p-4 rounded-xl group">
                     <div class="flex-grow min-w-0 pr-4 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-cyan-300">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-cyan-300">
                             <i class="ri-file-line text-xl"></i>
                         </div>
                         <div class="truncate">
@@ -970,8 +971,27 @@
             }
 
             if (searchForm) searchForm.addEventListener('submit', (e) => { e.preventDefault(); performSearch(); });
-            if (searchReset) searchReset.addEventListener('click', () => { if (searchInput) searchInput.value = ''; showAllSpaces(); });
-            if (createSpaceBtn) createSpaceBtn.addEventListener('click', () => { createSpaceModal.classList.remove('hidden'); });
+            if (searchReset) searchReset.addEventListener('click', () => {
+                const originalContent = searchReset.innerHTML;
+                searchReset.disabled = true;
+                searchReset.innerHTML = '<i class="ri-loader-4-line animate-spin text-xl btn-icon-anim"></i><span class="btn-text">Loading...</span>';
+                setTimeout(() => {
+                    if (searchInput) searchInput.value = ''; 
+                    showAllSpaces();
+                    searchReset.innerHTML = originalContent;
+                    searchReset.disabled = false;
+                }, 300);
+            });
+            if (createSpaceBtn) createSpaceBtn.addEventListener('click', () => { 
+                const originalContent = createSpaceBtn.innerHTML;
+                createSpaceBtn.disabled = true;
+                createSpaceBtn.innerHTML = '<i class="ri-loader-4-line animate-spin text-xl btn-icon-anim"></i><span class="btn-text">Loading...</span>';
+                setTimeout(() => {
+                    createSpaceModal.classList.remove('hidden');
+                    createSpaceBtn.innerHTML = originalContent;
+                    createSpaceBtn.disabled = false;
+                }, 300);
+            });
 
             if (createSpaceForm) {
                 createSpaceForm.addEventListener('submit', async (e) => {
@@ -1049,6 +1069,13 @@
                     const action = spaceUploadForm.action;
                     const spaceId = action.split('/').pop();
 
+                    const submitBtn = spaceUploadForm.querySelector('button[type="submit"]');
+                    const originalBtnContent = submitBtn ? submitBtn.innerHTML : '';
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="ri-loader-4-line animate-spin text-xl btn-icon-anim"></i><span class="btn-text">Uploading...</span>';
+                    }
+
                     try {
                         const response = await fetch(action, {
                             method: 'POST',
@@ -1076,6 +1103,11 @@
                     } catch (error) {
                         console.error('Upload error:', error);
                         showToast('An error occurred during upload.', 'error');
+                    } finally {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnContent;
+                        }
                     }
                 });
             }
@@ -1092,7 +1124,7 @@
                 <div class="glass-panel rounded-[2rem] p-8 relative overflow-hidden" data-space-id="${space._id}" data-space-name="${space.name}" data-owner-id="${ownerId}" data-allow-downloads="${allowDownloads}" data-allow-delete="${allowDelete}">
                     <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-4 mb-8">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border-white-500/30">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-2xl flex items-center justify-center border-white-500/30">
                                 <i class="ri-folder-lock-line text-2xl  text-white/60"></i>
                             </div>
                             <div>

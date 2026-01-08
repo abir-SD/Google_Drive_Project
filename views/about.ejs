@@ -1,468 +1,235 @@
-<!DOCTYPE html>
-<html lang="en">
+<%- include('partials/header') %>
+    <%- include('partials/toast') %>
+        <%- include('partials/nav') %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - Your Drive</title>
-
-    <!-- Google Fonts: Plus Jakarta Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        /* Modern Gradient Background matching Home Page */
-        .animated-bg {
-            background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-            min-height: 100vh;
-            width: 100%;
-            position: relative;
-        }
-
-        @keyframes gradient {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        /* Glassmorphism Utilities */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        /* Dynamic Navbar Transition */
-        #main-nav-container {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .nav-scrolled {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Remove nav background/blur when menu is open */
-        .nav-hide-bg {
-            background: transparent !important;
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            border-bottom-color: transparent !important;
-            box-shadow: none !important;
-        }
-
-        /* Nav Link Underline Logic */
-        .nav-link {
-            position: relative;
-            padding: 4px 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #dbeafe;
-            transition: color 0.3s ease;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: #67e8f9;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -2px;
-            left: 50%;
-            background-color: #67e8f9;
-            transition: all 0.3s ease-in-out;
-            transform: translateX(-50%);
-        }
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 100%;
-        }
-
-        /* Tech Stack Tags */
-        .tech-tag {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 4px 12px;
-            border-radius: 99px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #67e8f9;
-        }
+            <style>
+                /* Tech Stack Tags */
+                .tech-tag {
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    padding: 4px 12px;
+                    border-radius: 99px;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    color: #67e8f9;
+                }
+            </style>
 
 
-        /* Mobile Menu Drawer Logic */
-        #mobile-menu {
-            transform: translateX(100%);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+            <!-- Main Content -->
+            <main class="flex-grow pt-40 pb-20 px-4 relative z-10 w-full">
+                <div class="max-w-4xl mx-auto">
 
-        #mobile-menu.open {
-            transform: translateX(0);
-        }
-
-        /* --- Modern Glassmorphism Buttons --- */
-        .btn-glass-signin {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .btn-glass-signin:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-glass-getstarted {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            color: #1e3a8a;
-            transition: all 0.3s ease;
-        }
-
-        .btn-glass-getstarted:hover {
-            background: rgba(255, 255, 255, 1);
-            border-color: rgba(255, 255, 255, 1);
-        }
-    </style>
-</head>
-
-<body class="animated-bg text-white flex flex-col">
-
-    <!-- Navigation Header -->
-    <nav class="fixed top-0 w-full z-50 px-4">
-        <div id="main-nav-container"
-            class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent">
-            <!-- Brand -->
-            <a href="/welcome" class="flex items-center gap-2 relative z-[60]">
-                <i class="ph-fill ph-cloud-arrow-up text-cyan-300 text-2xl"></i>
-                <span class="font-bold tracking-tight text-xl">Your Drive</span>
-            </a>
-
-            <!-- Desktop Links Group (Hidden on small) -->
-            <div class="hidden md:flex items-center gap-6 md:gap-8">
-                <a href="/home" class="nav-link">
-                    <i class="ph ph-user text-cyan-300"></i>
-                    <span>Personal</span>
-                </a>
-
-                <a href="/global" class="nav-link">
-                    <i class="ph ph-globe text-cyan-300"></i>
-                    <span>Global</span>
-                </a>
-
-                <a href="/space" class="nav-link">
-                    <i class="ph ph-lock-key text-cyan-300"></i>
-                    <span>Protected</span>
-                </a>
-                <a href="/about" class="nav-link">
-                    <i class="ph ph-info text-cyan-300"></i>
-                    <span>About</span>
-                </a>
-
-                <div class="w-px h-6 bg-white/10 mx-1"></div>
-
-                <a href="/members" class="nav-link">
-                    <i class="ph-bold ph-users-three text-cyan-300"></i>
-                    <span>Community</span>
-                </a>
-            </div>
-
-            <!-- Hamburger Button (Mobile Only) -->
-            <button id="menu-btn" class="md:hidden relative z-[60] p-2 text-cyan-300 focus:outline-none" aria-label="Open menu" aria-expanded="false">
-                <i id="menu-icon" class="ph-bold ph-list text-3xl"></i>
-            </button>
-        </div>
-
-        <!-- Mobile Side Menu Overlay -->
-        <div id="mobile-menu"
-            class="fixed inset-y-0 right-0 w-[280px] glass-panel z-50 md:hidden flex flex-col p-8 pt-28 shadow-2xl space-y-8">
-            <a href="/home" class="nav-link text-lg">
-                <i class="ph ph-user text-cyan-300 text-xl"></i>
-                <span>Personal</span>
-            </a>
-            <a href="/global" class="nav-link text-lg">
-                <i class="ph ph-globe text-cyan-300 text-xl"></i>
-                <span>Global</span>
-            </a>
-            <a href="/space" class="nav-link text-lg">
-                <i class="ph ph-lock-key text-cyan-300 text-xl"></i>
-                <span>Protected</span>
-            </a>
-            <a href="/about" class="nav-link text-lg">
-                <i class="ph ph-info text-cyan-300 text-xl"></i>
-                <span>About</span>
-            </a>
-            <div class="w-full h-px bg-white/10"></div>
-            <a href="/members" class="nav-link text-lg">
-                <i class="ph-bold ph-users-three text-cyan-300 text-xl"></i>
-                <span>Community</span>
-            </a>
-
-            <!-- Mobile Auth Buttons -->
-            <div class="pt-10 flex flex-col gap-4">
-                <a href="/user/login"
-                    class="btn-glass-signin text-center w-full px-4 py-3 rounded-full font-semibold">Sign
-                    In</a>
-                <a href="/user/register"
-                    class="btn-glass-getstarted text-center w-full px-4 py-3 rounded-full font-bold">Get
-                    Started</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="flex-grow pt-40 pb-20 px-4 relative z-10 w-full">
-        <div class="max-w-4xl mx-auto">
-
-            <!-- Hero Section -->
-            <div class="mb-12 text-center">
-                <h1 class="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">About <span
-                        class="text-cyan-300">Your Drive</span></h1>
-                <p class="text-lg text-blue-100 font-light leading-relaxed">
-                    This project is a web application that functions as a personal cloud storage service, much like a
-                    simplified Google Drive.
-                </p>
-            </div>
-
-            <!-- Features Grid -->
-            <div class="grid md:grid-cols-2 gap-6 mb-12">
-                <div class="glass-panel p-6 rounded-2xl">
-                    <div class="flex items-center gap-3 mb-4">
-                        <i class="ph-bold ph-shield-check text-2xl text-cyan-400"></i>
-                        <h3 class="font-bold text-xl">User Authentication</h3>
+                    <!-- Hero Section -->
+                    <div class="mb-12 text-center">
+                        <h1 class="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">About <span
+                                class="text-cyan-300">Your Drive</span></h1>
+                        <p class="text-lg text-blue-100 font-light leading-relaxed">
+                            This project is a web application that functions as a personal cloud storage service, much
+                            like a
+                            simplified Google Drive.
+                        </p>
                     </div>
-                    <p class="text-blue-100/80 text-sm leading-relaxed">Users can create an account, log in, and log
-                        out. The system uses JWT (JSON Web Tokens) for secure authentication.</p>
-                </div>
 
-                <div class="glass-panel p-6 rounded-2xl">
-                    <div class="flex items-center gap-3 mb-4">
-                        <i class="ph-bold ph-upload-simple text-2xl text-cyan-400"></i>
-                        <h3 class="font-bold text-xl">File Uploads</h3>
-                    </div>
-                    <p class="text-blue-100/80 text-sm leading-relaxed">Authenticated users can upload files. These
-                        files are stored securely on Amazon Web Services (AWS) S3.</p>
-                </div>
+                    <!-- Features Grid -->
+                    <div class="grid md:grid-cols-2 gap-6 mb-12">
+                        <div class="glass-panel p-6 rounded-2xl">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i class="ph-bold ph-shield-check text-2xl text-cyan-400"></i>
+                                <h3 class="font-bold text-xl">User Authentication</h3>
+                            </div>
+                            <p class="text-blue-100/80 text-sm leading-relaxed">Users can create an account, log in, and
+                                log
+                                out. The system uses JWT (JSON Web Tokens) for secure authentication.</p>
+                        </div>
 
-                <div class="glass-panel p-6 rounded-2xl">
-                    <div class="flex items-center gap-3 mb-4">
-                        <i class="ph-bold ph-folder-lock text-2xl text-cyan-400"></i>
-                        <h3 class="font-bold text-xl">Private Management</h3>
-                    </div>
-                    <p class="text-blue-100/80 text-sm leading-relaxed">Each user has their own private space where they
-                        can manage their uploaded files independently.</p>
-                </div>
+                        <div class="glass-panel p-6 rounded-2xl">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i class="ph-bold ph-upload-simple text-2xl text-cyan-400"></i>
+                                <h3 class="font-bold text-xl">File Uploads</h3>
+                            </div>
+                            <p class="text-blue-100/80 text-sm leading-relaxed">Authenticated users can upload files.
+                                These
+                                files are stored securely on Amazon Web Services (AWS) S3.</p>
+                        </div>
 
-                <div class="glass-panel p-6 rounded-2xl">
-                    <div class="flex items-center gap-3 mb-4">
-                        <i class="ph-bold ph-share-network text-2xl text-cyan-400"></i>
-                        <h3 class="font-bold text-xl">File Sharing</h3>
-                    </div>
-                    <p class="text-blue-100/80 text-sm leading-relaxed">Users can access a "global" section to view and
-                        download files shared by other users in the community.</p>
-                </div>
-            </div>
+                        <div class="glass-panel p-6 rounded-2xl">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i class="ph-bold ph-folder-lock text-2xl text-cyan-400"></i>
+                                <h3 class="font-bold text-xl">Private Management</h3>
+                            </div>
+                            <p class="text-blue-100/80 text-sm leading-relaxed">Each user has their own private space
+                                where they
+                                can manage their uploaded files independently.</p>
+                        </div>
 
-            <!-- Security & Tech Stack Split -->
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- Security Card -->
-                <div class="md:col-span-2 glass-panel p-8 rounded-2xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-10">
-                        <i class="ph ph-lock-key text-9xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
-                        <i class="ph-fill ph-fingerprint text-cyan-300"></i>
-                        Security Infrastructure
-                    </h3>
-                    <ul class="space-y-4">
-                        <li class="flex gap-3">
-                            <i class="ph ph-check-circle text-cyan-400 mt-1"></i>
-                            <span class="text-sm text-blue-100 leading-relaxed"><strong>Signed URLs:</strong>
-                                Application generates temporary, signed URLs for downloading, ensuring only authorized
-                                users can access files.</span>
-                        </li>
-                        <li class="flex gap-3">
-                            <i class="ph ph-check-circle text-cyan-400 mt-1"></i>
-                            <span class="text-sm text-blue-100 leading-relaxed"><strong>Password Hashing:</strong>
-                                <code>bcrypt</code> is used for hashing user passwords before storing them in the
-                                database.</span>
-                        </li>
-                        <li class="flex gap-3">
-                            <i class="ph ph-check-circle text-cyan-400 mt-1"></i>
-                            <span class="text-sm text-blue-100 leading-relaxed"><strong>Validation:</strong>
-                                code>express-validator</code> ensures all user input is sanitized and validated during
-                                registration.</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Tech Stack Column -->
-                <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-bold mb-6">Tech Stack</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="tech-tag">Node.js</span>
-                            <span class="tech-tag">Express.js</span>
-                            <span class="tech-tag">MongoDB</span>
-                            <span class="tech-tag">EJS</span>
-                            <span class="tech-tag">AWS S3</span>
-                            <span class="tech-tag">Multer</span>
-                            <span class="tech-tag">JWT</span>
-                            <span class="tech-tag">Mongoose</span>
+                        <div class="glass-panel p-6 rounded-2xl">
+                            <div class="flex items-center gap-3 mb-4">
+                                <i class="ph-bold ph-share-network text-2xl text-cyan-400"></i>
+                                <h3 class="font-bold text-xl">File Sharing</h3>
+                            </div>
+                            <p class="text-blue-100/80 text-sm leading-relaxed">Users can access a "global" section to
+                                view and
+                                download files shared by other users in the community.</p>
                         </div>
                     </div>
-                    <div class="mt-8 pt-8 border-t border-white/10">
-                        <div class="flex items-center gap-3">
-                            <i class="ph-bold ph-users-three text-cyan-400"></i>
+
+                    <!-- Security & Tech Stack Split -->
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <!-- Security Card -->
+                        <div class="md:col-span-2 glass-panel p-8 rounded-2xl relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-4 opacity-10">
+                                <i class="ph ph-lock-key text-9xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                                <i class="ph-fill ph-fingerprint text-cyan-300"></i>
+                                Security Infrastructure
+                            </h3>
+                            <ul class="space-y-4">
+                                <li class="flex gap-3">
+                                    <i class="ph ph-check-circle text-cyan-400 mt-1"></i>
+                                    <span class="text-sm text-blue-100 leading-relaxed"><strong>Signed URLs:</strong>
+                                        Application generates temporary, signed URLs for downloading, ensuring only
+                                        authorized
+                                        users can access files.</span>
+                                </li>
+                                <li class="flex gap-3">
+                                    <i class="ph ph-check-circle text-cyan-400 mt-1"></i>
+                                    <span class="text-sm text-blue-100 leading-relaxed"><strong>Password
+                                            Hashing:</strong>
+                                        <code>bcrypt</code> is used for hashing user passwords before storing them in
+                                        the
+                                        database.</span>
+                                </li>
+                                <li class="flex gap-3">
+                                    <i class="ph ph-check-circle text-cyan-400 mt-1"></i>
+                                    <span class="text-sm text-blue-100 leading-relaxed"><strong>Validation:</strong>
+                                        code>express-validator</code> ensures all user input is sanitized and validated
+                                        during
+                                        registration.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Tech Stack Column -->
+                        <div class="glass-panel p-8 rounded-2xl flex flex-col justify-between">
                             <div>
-                                <p class="text-xs text-blue-200">User Directory</p>
-                                <p class="text-sm font-bold">Members Page active</p>
+                                <h3 class="text-xl font-bold mb-6">Tech Stack</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="tech-tag">Node.js</span>
+                                    <span class="tech-tag">Express.js</span>
+                                    <span class="tech-tag">MongoDB</span>
+                                    <span class="tech-tag">EJS</span>
+                                    <span class="tech-tag">AWS S3</span>
+                                    <span class="tech-tag">Multer</span>
+                                    <span class="tech-tag">JWT</span>
+                                    <span class="tech-tag">Mongoose</span>
+                                </div>
+                            </div>
+                            <div class="mt-8 pt-8 border-t border-white/10">
+                                <div class="flex items-center gap-3">
+                                    <i class="ph-bold ph-users-three text-cyan-400"></i>
+                                    <div>
+                                        <p class="text-xs text-blue-200">User Directory</p>
+                                        <p class="text-sm font-bold">Members Page active</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
-            </div>
+            </main>
 
-        </div>
-    </main>
-
-    <footer class="text-center py-6 text-white/40 text-sm relative z-10">
-        &copy; 2025 Your Drive. All rights reserved.
-    </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const navContainer = document.getElementById('main-nav-container');
-            const menuBtn = document.getElementById('menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const menuIcon = document.getElementById('menu-icon');
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const navContainer = document.getElementById('main-nav-container');
+                    const menuBtn = document.getElementById('menu-btn');
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    const menuIcon = document.getElementById('menu-icon');
 
 
-            // Robust mobile menu open/close helpers (unified with welcome2.ejs)
-            function updateMenuIcon(isOpen) {
-                const ic = document.getElementById('menu-icon');
-                if (!ic) return;
-                ic.className = isOpen ? 'ph-bold ph-x text-3xl' : 'ph-bold ph-list text-3xl';
-                ic.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
-                ic.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            }
-            function openMenu() {
-                mobileMenu.classList.add('open');
-                navContainer.classList.add('nav-hide-bg');
-                updateMenuIcon(true);
-                if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
-                if (menuBtn) menuBtn.style.zIndex = '9999';
-                document.body.style.overflow = 'hidden';
-            }
-            function closeMenu() {
-                mobileMenu.classList.remove('open');
-                navContainer.classList.remove('nav-hide-bg');
-                updateMenuIcon(false);
-                if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
-                if (menuBtn) menuBtn.style.zIndex = '';
-                document.body.style.overflow = '';
-            }
+                    // Robust mobile menu open/close helpers (unified with welcome2.ejs)
+                    function updateMenuIcon(isOpen) {
+                        const ic = document.getElementById('menu-icon');
+                        if (!ic) return;
+                        ic.className = isOpen ? 'ph-bold ph-x text-3xl' : 'ph-bold ph-list text-3xl';
+                        ic.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+                        ic.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    }
+                    function openMenu() {
+                        mobileMenu.classList.add('open');
+                        navContainer.classList.add('nav-hide-bg');
+                        updateMenuIcon(true);
+                        if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
+                        if (menuBtn) menuBtn.style.zIndex = '9999';
+                        document.body.style.overflow = 'hidden';
+                    }
+                    function closeMenu() {
+                        mobileMenu.classList.remove('open');
+                        navContainer.classList.remove('nav-hide-bg');
+                        updateMenuIcon(false);
+                        if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+                        if (menuBtn) menuBtn.style.zIndex = '';
+                        document.body.style.overflow = '';
+                    }
 
-            menuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (mobileMenu.classList.contains('open')) closeMenu(); else openMenu();
-            });
+                    menuBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (mobileMenu.classList.contains('open')) closeMenu(); else openMenu();
+                    });
 
-            // Close when clicking / touching outside the menu
-            document.addEventListener('pointerdown', (e) => {
-                if (!mobileMenu.classList.contains('open')) return;
-                if (mobileMenu.contains(e.target) || menuBtn.contains(e.target)) return;
-                closeMenu();
-            });
+                    // Close when clicking / touching outside the menu
+                    document.addEventListener('pointerdown', (e) => {
+                        if (!mobileMenu.classList.contains('open')) return;
+                        if (mobileMenu.contains(e.target) || menuBtn.contains(e.target)) return;
+                        closeMenu();
+                    });
 
-            // Close mobile menu on resize
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 768 && mobileMenu.classList.contains('open')) {
-                    closeMenu();
-                }
-            });
-
-            const handleScroll = () => {
-                if (mobileMenu && mobileMenu.classList.contains('open')) {
-                    navContainer.classList.add('nav-hide-bg');
-                } else if (window.scrollY > 10) {
-                    navContainer.classList.add('nav-scrolled');
-                    navContainer.classList.remove('bg-transparent', 'border-transparent');
-                    navContainer.classList.remove('nav-hide-bg');
-                } else {
-                    navContainer.classList.remove('nav-scrolled');
-                    navContainer.classList.add('bg-transparent', 'border-transparent');
-                    navContainer.classList.remove('nav-hide-bg');
-                }
-            }; 
-
-            window.addEventListener('scroll', handleScroll);
-            handleScroll();
-
-            // Active nav highlighting (desktop + mobile)
-            function setActiveNav() {
-                const anchors = document.querySelectorAll('a.nav-link');
-                const currentPath = window.location.pathname;
-                const redirectEl = document.getElementById('redirect-to');
-                const targetPath = (redirectEl && redirectEl.dataset.target) ? redirectEl.dataset.target : currentPath;
-                anchors.forEach(a => {
-                    try {
-                        const aPath = new URL(a.href, location.origin).pathname;
-                        if (aPath === targetPath || (aPath !== '/' && targetPath.startsWith(aPath))) {
-                            a.classList.add('active');
-                            a.setAttribute('aria-current', 'page');
-                        } else {
-                            a.classList.remove('active');
-                            a.removeAttribute('aria-current');
+                    // Close mobile menu on resize
+                    window.addEventListener('resize', () => {
+                        if (window.innerWidth >= 768 && mobileMenu.classList.contains('open')) {
+                            closeMenu();
                         }
-                    } catch (e) {}
+                    });
+
+                    const handleScroll = () => {
+                        if (mobileMenu && mobileMenu.classList.contains('open')) {
+                            navContainer.classList.add('nav-hide-bg');
+                        } else if (window.scrollY > 10) {
+                            navContainer.classList.add('nav-scrolled');
+                            navContainer.classList.remove('bg-transparent', 'border-transparent');
+                            navContainer.classList.remove('nav-hide-bg');
+                        } else {
+                            navContainer.classList.remove('nav-scrolled');
+                            navContainer.classList.add('bg-transparent', 'border-transparent');
+                            navContainer.classList.remove('nav-hide-bg');
+                        }
+                    };
+
+                    window.addEventListener('scroll', handleScroll);
+                    handleScroll();
+
+                    // Active nav highlighting (desktop + mobile)
+                    function setActiveNav() {
+                        const anchors = document.querySelectorAll('a.nav-link');
+                        const currentPath = window.location.pathname;
+                        const redirectEl = document.getElementById('redirect-to');
+                        const targetPath = (redirectEl && redirectEl.dataset.target) ? redirectEl.dataset.target : currentPath;
+                        anchors.forEach(a => {
+                            try {
+                                const aPath = new URL(a.href, location.origin).pathname;
+                                if (aPath === targetPath || (aPath !== '/' && targetPath.startsWith(aPath))) {
+                                    a.classList.add('active');
+                                    a.setAttribute('aria-current', 'page');
+                                } else {
+                                    a.classList.remove('active');
+                                    a.removeAttribute('aria-current');
+                                }
+                            } catch (e) { }
+                        });
+                    }
+                    setActiveNav();
                 });
-            }
-            setActiveNav();
-        });
-    </script>
-
-</body>
-
-</html>
+            </script>
+            <%- include('partials/footer') %>

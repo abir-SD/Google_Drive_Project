@@ -1,0 +1,63 @@
+<nav class="fixed top-0 w-full z-50 px-4">
+    <div id="main-nav-container"
+        class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent">
+        <a href="/welcome" class="flex items-center gap-2 relative z-[60]">
+            <i class="ph-fill ph-cloud-arrow-up text-cyan-300 text-2xl"></i>
+            <span class="font-bold tracking-tight text-xl">Your Drive</span>
+        </a>
+
+        <div class="hidden md:flex items-center gap-6 md:gap-8">
+            <a href="/home" class="nav-link">
+                <i class="ph ph-user text-cyan-300"></i>
+                <span>Personal</span>
+            </a>
+            <a href="/global" class="nav-link">
+                <i class="ph ph-globe text-cyan-300"></i>
+                <span>Global</span>
+            </a>
+            <a href="/space" class="nav-link">
+                <i class="ph ph-lock-key text-cyan-300"></i>
+                <span>Protected</span>
+            </a>
+            <a href="/about" class="nav-link">
+                <i class="ph ph-info text-cyan-300"></i>
+                <span>About</span>
+            </a>
+            <div class="w-px h-6 bg-white/10 mx-1"></div>
+            <a href="/members" class="nav-link">
+                <i class="ph-bold ph-users-three text-cyan-300"></i>
+                <span>Community</span>
+            </a>
+        </div>
+
+        <button id="menu-btn" class="md:hidden relative z-[60] p-2 text-cyan-300 focus:outline-none"
+            aria-label="Open menu" aria-expanded="false">
+            <i id="menu-icon" class="ph-bold ph-list text-3xl"></i>
+        </button>
+    </div>
+
+    <div id="mobile-menu"
+        class="fixed inset-y-0 right-0 w-[280px] glass-panel z-50 md:hidden flex flex-col p-8 pt-28 shadow-2xl space-y-8">
+        <a href="/home" class="nav-link text-lg">
+            <i class="ph ph-user text-cyan-300 text-xl"></i>
+            <span>Personal</span>
+        </a>
+        <a href="/global" class="nav-link text-lg">
+            <i class="ph ph-globe text-cyan-300 text-xl"></i>
+            <span>Global</span>
+        </a>
+        <a href="/space" class="nav-link text-lg">
+            <i class="ph ph-lock-key text-cyan-300 text-xl"></i>
+            <span>Protected</span>
+        </a>
+        <a href="/about" class="nav-link text-lg">
+            <i class="ph ph-info text-cyan-300 text-xl"></i>
+            <span>About</span>
+        </a>
+        <div class="w-full h-px bg-white/10"></div>
+        <a href="/members" class="nav-link text-lg">
+            <i class="ph-bold ph-users-three text-cyan-300 text-xl"></i>
+            <span>Community</span>
+        </a>
+    </div>
+</nav>

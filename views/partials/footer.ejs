@@ -1,0 +1,20 @@
+<footer class="text-center py-6 text-white/40 text-sm relative z-10">
+    &copy; 2025 Your Drive. All rights reserved.
+</footer>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+            <% if (locals.success_msg && success_msg.length > 0) { %>
+                <% success_msg.forEach(function (msg) { %>
+        showToast('<%= msg %>', 'success');
+                <% }); %>
+            <% } %>
+            <% if (locals.error_msg && error_msg.length > 0) { %>
+                <% error_msg.forEach(function (msg) { %>
+            showToast('<%= msg %>', 'error');
+                <% }); %>
+            <% } %>
+        });
+</script>
+</body>
+
+</html>

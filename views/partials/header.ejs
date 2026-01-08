@@ -61,6 +61,52 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        .btn-premium .btn-arrow {
+            position: absolute;
+            left: -20px;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+        }
+
+        .btn-premium .btn-text {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-premium:hover .btn-arrow {
+            left: 24px;
+            opacity: 1;
+        }
+
+        .btn-premium:hover .btn-text {
+            transform: translateX(10px);
+        }
+
+        /* Colors */
+        .btn-signin-style {
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            background: transparent;
+        }
+
+        .btn-signin-style:hover {
+            background-color: white;
+            color: #1e3a8a;
+            border-color: white;
+        }
+
+        .btn-getstarted-style {
+            background-color: white;
+            color: #1e3a8a;
+            border: 2px solid white;
+        }
+
+        .btn-getstarted-style:hover {
+            background-color: transparent;
+            color: white;
+            border-color: white;
+        }
+
         .btn-icon-anim {
             position: absolute;
             left: -20px;

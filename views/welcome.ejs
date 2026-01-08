@@ -3,52 +3,6 @@
         <%- include('partials/nav') %>
 
             <style>
-                .btn-premium .btn-arrow {
-                    position: absolute;
-                    left: -20px;
-                    opacity: 0;
-                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                    font-size: 1.1rem;
-                }
-
-                .btn-premium .btn-text {
-                    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                }
-
-                .btn-premium:hover .btn-arrow {
-                    left: 24px;
-                    opacity: 1;
-                }
-
-                .btn-premium:hover .btn-text {
-                    transform: translateX(10px);
-                }
-
-                /* Colors */
-                .btn-signin-style {
-                    border: 2px solid rgba(255, 255, 255, 0.4);
-                    color: white;
-                    background: transparent;
-                }
-
-                .btn-signin-style:hover {
-                    background-color: white;
-                    color: #1e3a8a;
-                    border-color: white;
-                }
-
-                .btn-getstarted-style {
-                    background-color: white;
-                    color: #1e3a8a;
-                    border: 2px solid white;
-                }
-
-                .btn-getstarted-style:hover {
-                    background-color: transparent;
-                    color: white;
-                    border-color: white;
-                }
-
                 /* Floating Animation */
                 .float-slow {
                     animation: float 6s ease-in-out infinite;
@@ -88,6 +42,34 @@
                     border-radius: 50%;
                     position: absolute;
                 }
+
+                .cloud:nth-child(1)::after {
+                    width: 40px;
+                    height: 40px;
+                    top: -20px;
+                    left: 10px;
+                }
+
+                .cloud:nth-child(1)::before {
+                    width: 50px;
+                    height: 50px;
+                    top: -30px;
+                    right: 10px;
+                }
+
+                .cloud:nth-child(2)::after {
+                    width: 60px;
+                    height: 60px;
+                    top: -30px;
+                    left: 15px;
+                }
+
+                .cloud:nth-child(2)::before {
+                    width: 70px;
+                    height: 70px;
+                    top: -45px;
+                    right: 15px;
+                }
             </style>
 
             <!-- Main Content -->
@@ -95,38 +77,8 @@
                 class="flex-grow flex flex-col justify-center px-4 pt-32 sm:pt-48 pb-10 relative z-10 w-full overflow-hidden">
 
                 <div class="cloud w-32 h-12 top-1/4 left-5 md:left-20 opacity-30 float-slow hidden sm:block">
-                    <style>
-                        .cloud:nth-child(1)::after {
-                            width: 40px;
-                            height: 40px;
-                            top: -20px;
-                            left: 10px;
-                        }
-
-                        .cloud:nth-child(1)::before {
-                            width: 50px;
-                            height: 50px;
-                            top: -30px;
-                            right: 10px;
-                        }
-                    </style>
                 </div>
                 <div class="cloud w-48 h-16 bottom-1/4 right-5 md:right-20 opacity-40 float-medium hidden sm:block">
-                    <style>
-                        .cloud:nth-child(2)::after {
-                            width: 60px;
-                            height: 60px;
-                            top: -30px;
-                            left: 15px;
-                        }
-
-                        .cloud:nth-child(2)::before {
-                            width: 70px;
-                            height: 70px;
-                            top: -45px;
-                            right: 15px;
-                        }
-                    </style>
                 </div>
 
                 <div class="text-center max-w-4xl w-full mx-auto relative z-20">

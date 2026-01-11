@@ -1,74 +1,12 @@
+<% /* Server-set toasts: prefer the global showToast (Toastify) if available */ %>
 <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
-    <div class="toast-container">
-        <div class="toast toast-success">
-            <%= success_msg[0] %>
-        </div>
-    </div>
+    <script>document.addEventListener('DOMContentLoaded', () => { if (typeof showToast === 'function') showToast('<%= success_msg[0].replace(/'/g,"\\'") %>', 'success'); else console.log('SUCCESS: <%= success_msg[0] %>'); });</script>
+<% } else if (typeof successMsg !== 'undefined' && successMsg) { %>
+    <script>document.addEventListener('DOMContentLoaded', () => { if (typeof showToast === 'function') showToast('<%= successMsg.replace(/'/g,"\\'") %>', 'success'); else console.log('SUCCESS: <%= successMsg %>'); });</script>
 <% } %>
 
 <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
-    <div class="toast-container">
-        <div class="toast toast-error">
-            <%= error_msg[0] %>
-        </div>
-    </div>
+    <script>document.addEventListener('DOMContentLoaded', () => { if (typeof showToast === 'function') showToast('<%= error_msg[0].replace(/'/g,"\\'") %>', 'error'); else console.error('ERROR: <%= error_msg[0] %>'); });</script>
+<% } else if (typeof errorMsg !== 'undefined' && errorMsg) { %>
+    <script>document.addEventListener('DOMContentLoaded', () => { if (typeof showToast === 'function') showToast('<%= errorMsg.replace(/'/g,"\\'") %>', 'error'); else console.error('ERROR: <%= errorMsg %>'); });</script>
 <% } %>
-
-<style>
-.toast-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-}
-
-.toast {
-    padding: 15px 20px;
-    border-radius: 5px;
-    color: #fff;
-    font-family: sans-serif;
-    font-size: 16px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    opacity: 0;
-    animation: slide-in 0.5s forwards, fade-out 0.5s forwards 3s;
-}
-
-.toast-success {
-    background-color: #28a745;
-}
-
-.toast-error {
-    background-color: #dc3545;
-}
-
-@keyframes slide-in {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes fade-out {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const toasts = document.querySelectorAll('.toast');
-    toasts.forEach(toast => {
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 3500);
-    });
-});
-</script>

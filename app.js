@@ -28,6 +28,9 @@ connectToDB().then(() => {
 
 const indexRouter = require('./routes/index.routes')
 const publicSpaceRouter = require('./routes/publicSpace.routes')
+const homeRouter = require('./routes/home.routes')
+const globalRouter = require('./routes/global.routes')
+const spaceRouter = require('./routes/space.routes')
 app.set('view engine', 'ejs')
 app.use(express.static('assets'))
 app.use(cookieParser())
@@ -46,6 +49,9 @@ app.use(express.urlencoded({ extended: true }))
 
 
 
+app.use('/', homeRouter)
+app.use('/', globalRouter)
+app.use('/', spaceRouter)
 app.use('/', indexRouter)
 app.use('/', publicSpaceRouter)
 

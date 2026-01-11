@@ -169,6 +169,8 @@ router.delete('/delete-public-file/:spaceId/:fileId', authMiddleware, async (req
     }
 });
 
+const { GetObjectCommand } = require('@aws-sdk/client-s3');
+
 router.get('/download-public-space-all/:spaceId', authMiddleware, async (req, res) => {
     try {
         const space = await PublicSpace.findById(req.params.spaceId);
@@ -205,31 +207,39 @@ router.get('/download-public-space-all/:spaceId', authMiddleware, async (req, re
         res.attachment(`${safeName}.zip`);
         archive.pipe(res);
 
-        space.files.forEach(file => {
-            if (file.s3Key) {
+        let appendedCount = 0;
+        for (const file of space.files) {
+            if (!file.s3Key) continue;
+            try {
+                // Check existence first to provide clearer info
+                let exists = true;
                 try {
-                    if (s3 && typeof s3.getObject === 'function') {
-                        const stream = s3.getObject({
-                            Bucket: process.env.AWS_S3_BUCKET,
-                            Key: file.s3Key
-                        }).createReadStream();
-
-                        stream.on('error', (err) => {
-                            console.error(`S3 Stream Error for ${file.originalName}:`, err);
-                            archive.append(Buffer.from(`Error downloading file: ${err.message}`), { name: `ERROR_${file.originalName}.txt` });
-                        });
-
-                        archive.append(stream, { name: file.originalName });
-                    } else {
-                        console.error('S3 client incompatible or missing getObject');
-                        archive.append(Buffer.from('Server configuration error: S3 client incompatibility.'), { name: 'ERROR_CONFIG.txt' });
-                    }
-                } catch (err) {
-                    console.error(`Error processing file ${file.originalName}:`, err);
-                    archive.append(Buffer.from(`Error processing file: ${err.message}`), { name: `ERROR_${file.originalName}.txt` });
+                    const head = new GetObjectCommand({ Bucket: process.env.AWS_S3_BUCKET, Key: file.s3Key });
+                    await s3.send(head);
+                } catch (hErr) {
+                    exists = false;
                 }
+
+                if (!exists) {
+                    archive.append(Buffer.from(`File not available on S3: ${file.originalName}`), { name: `ERROR_${file.originalName}.txt` });
+                    continue;
+                }
+
+                const cmd = new GetObjectCommand({ Bucket: process.env.AWS_S3_BUCKET, Key: file.s3Key });
+                const data = await s3.send(cmd);
+
+                // data.Body should be a stream in Node.js - append to archive
+                archive.append(data.Body, { name: file.originalName });
+                appendedCount++;
+            } catch (err) {
+                console.error(`Failed to append file ${file.originalName} (${file.s3Key}) to archive:`, err);
+                archive.append(Buffer.from(`Error downloading file: ${err.message}`), { name: `ERROR_${file.originalName}.txt` });
             }
-        });
+        }
+
+        if (appendedCount === 0) {
+            archive.append(Buffer.from('No files could be downloaded for this space. Either there are no files or the files are not available on S3.'), { name: 'INFO.txt' });
+        }
 
         await archive.finalize();
     } catch (error) {

@@ -1,4 +1,4 @@
-const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3')
+const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } = require('@aws-sdk/client-s3')
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const { s3 } = require('../config/s3-config.js')
 
@@ -76,6 +76,22 @@ const getSignedViewUrl = async (s3Key, filename) => {
     return signedUrl
 }
 
+// Check whether an object exists in S3 (returns true/false)
+const s3ObjectExists = async (s3Key) => {
+    const cmd = new HeadObjectCommand({ Bucket: process.env.AWS_S3_BUCKET, Key: s3Key });
+    try {
+        await s3.send(cmd);
+        return true;
+    } catch (err) {
+        if (err && (err.name === 'NotFound' || err.$metadata && err.$metadata.httpStatusCode === 404)) {
+            return false;
+        }
+        // For other errors, log and rethrow so callers can handle
+        console.error('S3 HeadObject error:', err);
+        throw err;
+    }
+}
+
 
 // For deleting data ...
 
@@ -99,4 +115,4 @@ const deleteFileFromS3 = async (s3Key) => {
 
 
 
-module.exports = { uploadFileToS3, getSignedDownloadUrl, deleteFileFromS3, getSignedViewUrl, uploadFileToS3ForUser };
+module.exports = { uploadFileToS3, getSignedDownloadUrl, deleteFileFromS3, getSignedViewUrl, uploadFileToS3ForUser, s3ObjectExists };

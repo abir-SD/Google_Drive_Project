@@ -259,6 +259,23 @@
                         <span>Upload Another File</span>
                     </a>
                     <div id="redirect-to" data-target="<%= redirectTo %>" style="display:none"></div>
+                    <script>
+                        // Auto-redirect back to the target page with a success query param so the destination can show a toast
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const redirectEl = document.getElementById('redirect-to');
+                            if (!redirectEl) return;
+                            const target = redirectEl.dataset.target;
+                            if (!target) return;
+
+                            // Compose message using uploaded file info
+                            const message = '<%= file.originalname.replace(/'/g,"\\'") %> uploaded successfully';
+                            const encoded = encodeURIComponent(message);
+                            const url = target + (target.includes('?') ? '&' : '?') + 'success=' + encoded;
+
+                            // Short delay so users briefly see the success state, then redirect
+                            setTimeout(() => { window.location.href = url; }, 900);
+                        });
+                    </script>
                 </div>
                 <% } %>
 

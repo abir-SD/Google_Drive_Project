@@ -41,7 +41,12 @@ router.post('/upload',
             await newFile.save();
             res.render('upload', { file: req.file, type: 'personal', redirectTo: '/home' });
         } catch (error) {
-            res.status(500).send('Personal upload failed');
+            console.error("Upload failed:", error);
+            res.render('upload', {
+                file: null,
+                error: 'An unexpected error occurred during the upload. Please try again.',
+                redirectTo: '/home'
+            });
         }
     }
 );

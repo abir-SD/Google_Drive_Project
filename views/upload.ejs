@@ -211,7 +211,7 @@
         <div class="glass-panel w-full max-w-md p-8 rounded-2xl shadow-2xl relative overflow-hidden text-center">
 
             <div id="ejs-mock-view">
-                <% if (file) { %>
+                <% if (typeof file !== 'undefined' && file) { %>
                 <!-- SUCCESS STATE -->
                 <div id="success-state">
                     <div class="mb-6 flex justify-center">
@@ -259,42 +259,31 @@
                         <span>Upload Another File</span>
                     </a>
                     <div id="redirect-to" data-target="<%= redirectTo %>" style="display:none"></div>
-                    <script>
-                        // Auto-redirect back to the target page with a success query param so the destination can show a toast
-                        document.addEventListener('DOMContentLoaded', () => {
-                            const redirectEl = document.getElementById('redirect-to');
-                            if (!redirectEl) return;
-                            const target = redirectEl.dataset.target;
-                            if (!target) return;
-
-                            // Compose message using uploaded file info
-                            const message = '<%= file.originalname.replace(/'/g,"\\'") %> uploaded successfully';
-                            const encoded = encodeURIComponent(message);
-                            const url = target + (target.includes('?') ? '&' : '?') + 'success=' + encoded;
-
-                            // Short delay so users briefly see the success state, then redirect
-                            setTimeout(() => { window.location.href = url; }, 900);
-                        });
-                    </script>
                 </div>
-                <% } %>
-
-                <!-- ERROR STATE (Hidden by default in this preview) -->
-                <div id="error-state" class="hidden">
+                <% } else { %>
+                <!-- ERROR STATE -->
+                <div id="error-state">
                     <div class="mb-6 flex justify-center">
                         <div
                             class="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)]">
                             <i class="ri-close-circle-fill text-red-400 text-4xl"></i>
                         </div>
                     </div>
-                    <h2 class="text-2xl font-bold text-white mb-2">Oops!</h2>
-                    <p class="text-blue-100 mb-8 font-light">You haven't selected a file yet or the upload failed.</p>
+                    <h2 class="text-2xl font-bold text-white mb-2">Oops! Upload Failed</h2>
+                    <p class="text-blue-100 mb-8 font-light">
+                        <% if (typeof error !== 'undefined' && error) { %>
+                            <%= error %>
+                        <% } else { %>
+                            You haven't selected a file or an unknown error occurred.
+                        <% } %>
+                    </p>
                     <a href="<%= redirectTo %>"
                         class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-white text-blue-900 px-5 py-4 font-bold shadow-lg shadow-blue-900/20 transition-all duration-300 hover:bg-transparent hover:border-white/70 hover:text-white hover:border-2 hover:shadow-none border-2 border-transparent">
                         <i class="ri-arrow-left-line"></i>
-                        <span>Go Back</span>
+                        <span>Go Back & Try Again</span>
                     </a>
                 </div>
+                <% } %>
             </div>
         </div>
     </main>

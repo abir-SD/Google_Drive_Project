@@ -4,6 +4,7 @@ const authMiddleware = require('../middlewares/authe');
 const { upload } = require('../config/multer.config');
 const fileModel = require('../models/File.model');
 const spaceModel = require('../models/Space.model');
+const counterModel = require('../models/Counter.model');
 const { getSignedDownloadUrl, getSignedViewUrl, deleteFileFromS3, s3ObjectExists } = require('../services/storageService');
 
 router.get('/home', authMiddleware, async (req, res) => {
@@ -39,6 +40,14 @@ router.post('/upload',
                 isPublic: false
             });
             await newFile.save();
+            
+            // Increment the file counter
+            await counterModel.findOneAndUpdate(
+                { name: 'totalFiles' },
+                { $inc: { count: 1 } },
+                { upsert: true, new: true }
+            );
+            
             res.render('upload', { file: req.file, type: 'personal', redirectTo: '/home' });
         } catch (error) {
             console.error("Upload failed:", error);

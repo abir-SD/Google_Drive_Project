@@ -3,6 +3,7 @@ const router = express.Router();
 const authMiddleware = require('../middlewares/authe');
 const spaceModel = require('../models/Space.model');
 const fileModel = require('../models/File.model');
+const counterModel = require('../models/Counter.model');
 const { uploadSpace } = require('../config/multer.config');
 const bcrypt = require('bcrypt');
 const { deleteFileFromS3, getSignedViewUrl, getSignedDownloadUrl } = require('../services/storageService');
@@ -113,9 +114,15 @@ router.post('/upload-space/:spaceId', authMiddleware, uploadSpace.single('file')
         
         await newFile.populate('owner', 'username');
 
-
         space.files.push(newFile._id);
         await space.save();
+
+        // Increment the file counter
+        await counterModel.findOneAndUpdate(
+            { name: 'totalFiles' },
+            { $inc: { count: 1 } },
+            { upsert: true, new: true }
+        );
 
         res.status(201).json({ success: true, message: 'File uploaded successfully', file: newFile });
     } catch (err) {

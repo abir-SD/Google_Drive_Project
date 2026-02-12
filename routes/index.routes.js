@@ -5,8 +5,7 @@ const archiver = require('archiver');
 const { GetObjectCommand } = require('@aws-sdk/client-s3');
 const { s3 } = require('../config/s3-config');
 const userModel = require('../models/user.model');
-const bcrypt = require('bcrypt');
-
+const bcrypt = require('bcrypt');const counterModel = require('../models/Counter.model');
 const router = express.Router()
 const { upload, uploadSpace } = require('../config/multer.config')
 const fileModel = require('../models/File.model')
@@ -34,12 +33,22 @@ router.get('/logout', (req, res) => {
 
 router.get('/members', async (req, res) => {
     try {
-        const allUsers = await userModel.find({}, 'username email');
-        const totalFiles = await fileModel.countDocuments();
+        // Get 3 most recent users
+        const recentUsers = await userModel.find({}, 'username email').sort({ createdAt: -1 }).limit(3);
+        
+        // Count total active members
+        const totalUsers = await userModel.countDocuments();
+        
+        // Get total files from counter
+        let totalFiles = 0;
+        const fileCounter = await counterModel.findOne({ name: 'totalFiles' });
+        if (fileCounter) {
+            totalFiles = fileCounter.count;
+        }
 
         res.render('members', {
-            users: allUsers,
-            count: allUsers.length,
+            users: recentUsers,
+            count: totalUsers,
             totalFiles: totalFiles
         });
 

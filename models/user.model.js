@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
     },
     googleid: {
         type: String
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 })
 

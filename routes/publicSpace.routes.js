@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const PublicSpace = require('../models/PublicSpace.model');
 const authMiddleware = require('../middlewares/authe');
+const counterModel = require('../models/Counter.model');
 const { uploadPublicSpace } = require('../config/multer.config');
 const { deleteFileFromS3 } = require('../services/storageService');
 const fileModel = require('../models/File.model');
@@ -75,6 +76,13 @@ router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.s
 
         space.files.push(newFile);
         await space.save();
+
+        // Increment the file counter
+        await counterModel.findOneAndUpdate(
+            { name: 'totalFiles' },
+            { $inc: { count: 1 } },
+            { upsert: true, new: true }
+        );
 
         // 3. Prepare response for frontend
         const addedFile = savedFile.toObject();

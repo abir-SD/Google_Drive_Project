@@ -163,6 +163,25 @@
 
                     window.addEventListener('scroll', handleScroll);
                     handleScroll();
+
+                    // Active nav highlighting (desktop + mobile)
+                    function setActiveNav() {
+                        const anchors = document.querySelectorAll('a.nav-link');
+                        const currentPath = window.location.pathname;
+                        anchors.forEach(a => {
+                            try {
+                                const aPath = new URL(a.href, location.origin).pathname;
+                                if (aPath === currentPath || (aPath !== '/' && currentPath.startsWith(aPath))) {
+                                    a.classList.add('active');
+                                    a.setAttribute('aria-current', 'page');
+                                } else {
+                                    a.classList.remove('active');
+                                    a.removeAttribute('aria-current');
+                                }
+                            } catch (e) {}
+                        });
+                    }
+                    setActiveNav();
                 });
             </script>
             <%- include('partials/footer') %>

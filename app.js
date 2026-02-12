@@ -50,6 +50,29 @@ app.use(express.urlencoded({ extended: true }))
 // Initialize passport AFTER express-session
 app.use(passport.initialize())
 app.use(passport.session())
+
+// Global middleware to make user data available to all views
+const jwt = require('jsonwebtoken')
+const userModel = require('./models/user.model')
+
+app.use(async (req, res, next) => {
+    const token = req.cookies.token;
+    res.locals.user = null;
+    
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const foundUser = await userModel.findById(decoded.userId).select('-password');
+            if (foundUser) {
+                res.locals.user = foundUser;
+            }
+        } catch (error) {
+            // Token is invalid or expired, user will be null
+        }
+    }
+    next();
+});
+
 const authRouter = require('./routes/auth.routes');
 app.use('/', authRouter);
 

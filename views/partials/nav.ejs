@@ -28,11 +28,24 @@
                 <span>Community</span>
             </a>
             <div class="w-px h-6 bg-white/10 mx-1"></div>
-            <a href="/user/login"
-                class="btn-premium btn-getstarted-style text-center w-full sm:w-32 px-2 py-1 rounded-md font-bold shadow-xl">
-                <i class="ph-bold ph-arrow-right btn-arrow"></i>
-                <span class="btn-text">Login</span>
-            </a>
+            <% if (!user) { %>
+                <a href="/user/login"
+                    class="btn-premium btn-getstarted-style text-center w-28 px-4 py-1 rounded-md font-bold shadow-xl">
+                    <i class="ph-bold ph-arrow-right btn-arrow"></i>
+                    <span class="btn-text">Login</span>
+                </a>
+                <a href="/user/login"
+                    class="btn-premium btn-signin-style text-center w-28 px-4 py-1 rounded-md font-bold shadow-xl">
+                    <i class="ph-bold ph-arrow-right btn-arrow"></i>
+                    <span class="btn-text">Sign In</span>
+                </a>
+            <% } else { %>
+                <a href="/logout"
+                    class="btn-premium btn-signin-style text-center w-28 px-4 py-1 rounded-md font-bold shadow-xl">
+                    <i class="ri-logout-box-r-line btn-arrow"></i>
+                    <span class="btn-text">Logout</span>
+                </a>
+            <% } %>
         </div>
 
         <button id="menu-btn" class="md:hidden relative z-[60] p-2 text-cyan-300 focus:outline-none"
@@ -64,10 +77,23 @@
             <span>Community</span>
         </a>
         <div class="w-full h-px bg-white/10"></div>
-        <a href="/user/login"
-            class="btn-premium btn-getstarted-style text-center w-full sm:w-32 px-2 py-1 rounded-md font-bold shadow-xl">
-            <i class="ph-bold ph-arrow-right btn-arrow"></i>
-            <span class="btn-text">Login</span>
-        </a>
+        <% if (!user) { %>
+            <a href="/user/login"
+                class="btn-premium btn-getstarted-style text-center w-full px-2 py-1 rounded-md font-bold shadow-xl">
+                <i class="ph-bold ph-arrow-right btn-arrow"></i>
+                <span class="btn-text">Login</span>
+            </a>
+            <a href="/user/login"
+                class="btn-premium btn-signin-style text-center w-full px-2 py-1 rounded-md font-bold shadow-xl">
+                <i class="ph-bold ph-arrow-right btn-arrow"></i>
+                <span class="btn-text">Sign In</span>
+            </a>
+        <% } else { %>
+            <a href="/logout"
+                class="btn-premium btn-signin-style text-center w-full px-2 py-1 rounded-md font-bold shadow-xl">
+                <i class="ri-logout-box-r-line btn-arrow"></i>
+                <span class="btn-text">Logout</span>
+            </a>
+        <% } %>
     </div>
 </nav>

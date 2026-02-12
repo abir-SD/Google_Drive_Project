@@ -5,6 +5,9 @@ const app = express()
 const dotenv = require('dotenv')
 dotenv.config()
 
+// Passport will be initialized after session middleware further below
+const passport = require('passport')
+require('./config/passport')
 
 const connectToDB = require('./config/db')
 
@@ -44,6 +47,12 @@ app.use(session({
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+// Initialize passport AFTER express-session
+app.use(passport.initialize())
+app.use(passport.session())
+const authRouter = require('./routes/auth.routes');
+app.use('/', authRouter);
+
 
 
 
@@ -61,9 +70,4 @@ app.use('/user', userRouter)
 
 process.on('uncaughtException', err => {
     console.log('Uncaught Exception ! Please try again ...')
-})
-
-app.listen(3000, () => {
-    console.log('listening on port 3000')
-
 })

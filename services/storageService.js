@@ -2,9 +2,7 @@ const { PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadObjectComma
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner')
 const { s3 } = require('../config/s3-config.js')
 
-
-
-
+// const fileUrl = `${process.env.SUPABASE_S3_ENDPOINT.replace('/s3', '')}/public/${process.env.AWS_S3_BUCKET}/${fileKey}`
 // For uploading data ...
 
 const uploadFileToS3 = async (fileBuffer, originalName, MimeType, folder) => {
@@ -18,7 +16,7 @@ const uploadFileToS3 = async (fileBuffer, originalName, MimeType, folder) => {
 
     try {
         await s3.send(command)
-        const fileUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`
+        const fileUrl = `${process.env.SUPABASE_S3_ENDPOINT.replace('/s3', '')}/public/${process.env.AWS_S3_BUCKET}/${fileKey}`
         return { s3Key: fileKey, url: fileUrl }
 
     }
@@ -40,7 +38,7 @@ const uploadFileToS3ForUser = async (fileBuffer, originalName, MimeType, folder)
 
     try {
         await s3.send(command)
-        const fileUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`
+        const fileUrl = `${process.env.SUPABASE_S3_ENDPOINT.replace('/s3', '')}/public/${process.env.AWS_S3_BUCKET}/${fileKey}`
         return { s3Key: fileKey, url: fileUrl }
 
     }

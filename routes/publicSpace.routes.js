@@ -41,8 +41,12 @@ router.post('/create-public-space', authMiddleware, async (req, res) => {
     }
 });
 
-router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.single('file'), async (req, res) => {
+router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.array('file'), async (req, res) => {
     try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ success: false, message: 'No files were uploaded' });
+        }
+        
         const space = await PublicSpace.findById(req.params.spaceId);
         if (!space) {
             return res.status(404).send('Space not found');
@@ -50,48 +54,56 @@ router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.s
 
         // Check if uploads are allowed (if restricted, only owner can upload)
         if ((space.allowUploads === false || space.allowUploads === 'false') && space.owner.toString() !== req.user._id.toString()) {
-            await deleteFileFromS3(req.file.key).catch(err => console.error('Cleanup error:', err));
+            for (const file of req.files) {
+                await deleteFileFromS3(file.key).catch(err => console.error('Cleanup error:', err));
+            }
             return res.status(403).json({ success: false, message: 'Uploads are disabled for this space by the owner.' });
         }
 
-        // 1. Create the file in the main files collection first
-        const savedFile = await fileModel.create({
-            originalName: req.file.originalname,
-            s3Key: req.file.key,
-            size: req.file.size,
-            owner: req.user._id,
-            isPublic: true,
-            space: space._id
-        });
+        const uploadedFiles = [];
+        for (const file of req.files) {
+            // 1. Create the file in the main files collection first
+            const savedFile = await fileModel.create({
+                originalName: file.originalname,
+                s3Key: file.key,
+                size: file.size,
+                owner: req.user._id,
+                isPublic: true,
+                space: space._id
+            });
 
-        // 2. Create the embedded file object, using the SAME _id
-        const newFile = {
-            _id: savedFile._id, // Sync IDs
-            originalName: req.file.originalname,
-            s3Key: req.file.key,
-            size: req.file.size,
-            mimetype: req.file.mimetype,
-            owner: req.user._id
-        };
+            // 2. Create the embedded file object, using the SAME _id
+            const newFile = {
+                _id: savedFile._id, // Sync IDs
+                originalName: file.originalname,
+                s3Key: file.key,
+                size: file.size,
+                mimetype: file.mimetype,
+                owner: req.user._id
+            };
 
-        space.files.push(newFile);
+            space.files.push(newFile);
+            
+            // 3. Prepare response for frontend
+            const addedFile = savedFile.toObject();
+            addedFile.owner = {
+                _id: req.user._id,
+                username: req.user.username
+            };
+            
+            uploadedFiles.push(addedFile);
+        }
+        
         await space.save();
 
-        // Increment the file counter
+        // Increment the file counter by number of files uploaded
         await counterModel.findOneAndUpdate(
             { name: 'totalFiles' },
-            { $inc: { count: 1 } },
+            { $inc: { count: req.files.length } },
             { upsert: true, new: true }
         );
 
-        // 3. Prepare response for frontend
-        const addedFile = savedFile.toObject();
-        addedFile.owner = {
-            _id: req.user._id,
-            username: req.user.username
-        };
-
-        res.json({ success: true, message: 'File uploaded successfully', file: addedFile });
+        res.json({ success: true, message: `${req.files.length} file(s) uploaded successfully`, files: uploadedFiles });
     } catch (error) {
         console.error('Error uploading to public space:', error);
         res.status(500).json({ success: false, message: 'Upload failed' });

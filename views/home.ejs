@@ -103,13 +103,13 @@
                                     <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to
                                             upload</span> or
                                         drag and drop</p>
-                                    <p class="text-xs text-white/50">Any file type (MAX. 10MB)</p>
+                                    <p class="text-xs text-white/50">Multiple files allowed (MAX. 10MB each)</p>
                                 </div>
                                 <div id="filename-display" class="hidden text-center text-white font-medium p-4">
                                     <i class="ri-file-check-line text-4xl text-green-400 mb-2 block"></i>
                                     <span id="file-name-text"></span>
                                 </div>
-                                <input id="dropzone-file" type="file" class="hidden" name="file" />
+                                <input id="dropzone-file" type="file" class="hidden" name="file" multiple />
                             </label>
                         </div>
 
@@ -220,12 +220,11 @@
                     document.getElementById('open-upload-btn').addEventListener('click', window.showPopUp);
 
                     dropzoneInput.addEventListener('change', () => {
-                        const file = dropzoneInput.files[0];
-                        if (file) {
+                        if (dropzoneInput.files.length > 0) {
                             dropzoneContent.classList.add('hidden');
                             filenameDisplay.classList.remove('hidden');
-                            fileNameText.textContent = file.name;
-                        }
+                            const fileNames = Array.from(dropzoneInput.files).map(f => f.name).join(', ');
+                            fileNameText.textContent = `${dropzoneInput.files.length} file(s) selected: ${fileNames}\n`;                        }
                     });
 
                     const uploadForm = document.getElementById('upload-form');

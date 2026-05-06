@@ -372,9 +372,9 @@
                                 <i
                                     class="ri-upload-cloud-line text-4xl text-cyan-300 mb-2 group-hover:scale-110 transition-transform"></i>
                                 <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to select
-                                        file</span>
+                                        files</span>
                                 </p>
-                                <p class="text-xs text-white/50">Any file type (MAX. 10MB)</p>
+                                <p class="text-xs text-white/50">Multiple files allowed (MAX. 10MB each)</p>
                             </div>
 
                             <div id="space-filename-display" class="hidden text-center text-white font-medium p-4">
@@ -382,7 +382,7 @@
                                 <span id="space-file-name-text"></span>
                             </div>
 
-                            <input id="space-dropzone-file" type="file" name="file" class="hidden" required />
+                            <input id="space-dropzone-file" type="file" name="file" class="hidden" required multiple />
                         </label>
                         <button type="submit"
                             class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 py-3.5 font-bold hover:bg-transparent hover:border-white hover:text-white border-2 border-transparent transition-all duration-400">
@@ -413,7 +413,7 @@
                                 <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to select
                                         file</span>
                                 </p>
-                                <p class="text-xs text-white/50">Any file type (MAX. 10MB)</p>
+                                <p class="text-xs text-white/50">Multiple files allowed (MAX. 10MB each)</p>
                             </div>
 
                             <div id="filename-display-global" class="hidden text-center text-white font-medium p-4">
@@ -421,7 +421,7 @@
                                 <span id="file-name-text-global"></span>
                             </div>
 
-                            <input id="dropzone-file-global" type="file" name="file" class="hidden" required />
+                            <input id="dropzone-file-global" type="file" name="file" class="hidden" required multiple />
                         </label>
                         <button type="submit"
                             class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 py-3.5 font-bold hover:bg-transparent hover:border-white hover:text-white border-2 border-transparent transition-all duration-400">
@@ -687,11 +687,11 @@
 
                     if (dropzoneInputGlobal) {
                         dropzoneInputGlobal.addEventListener('change', () => {
-                            const file = dropzoneInputGlobal.files[0];
-                            if (file) {
+                            if (dropzoneInputGlobal.files.length > 0) {
                                 if (dropzoneContentGlobal) dropzoneContentGlobal.classList.add('hidden');
                                 if (filenameDisplayGlobal) filenameDisplayGlobal.classList.remove('hidden');
-                                if (fileNameTextGlobal) fileNameTextGlobal.textContent = file.name;
+                                const fileNames = Array.from(dropzoneInputGlobal.files).map(f => f.name).join(', ');
+                                if (fileNameTextGlobal) fileNameTextGlobal.textContent = `${dropzoneInputGlobal.files.length} file(s) selected: ${fileNames}`;
                             }
                         });
                     }
@@ -704,11 +704,11 @@
 
                     if (spaceDropzoneInput) {
                         spaceDropzoneInput.addEventListener('change', () => {
-                            const file = spaceDropzoneInput.files[0];
-                            if (file) {
+                            if (spaceDropzoneInput.files.length > 0) {
                                 if (spaceDropzoneContent) spaceDropzoneContent.classList.add('hidden');
                                 if (spaceFilenameDisplay) spaceFilenameDisplay.classList.remove('hidden');
-                                if (spaceFileNameText) spaceFileNameText.textContent = file.name;
+                                const fileNames = Array.from(spaceDropzoneInput.files).map(f => f.name).join(', ');
+                                if (spaceFileNameText) spaceFileNameText.textContent = `${spaceDropzoneInput.files.length} file(s) selected: ${fileNames}`;
                             }
                         });
                     }

@@ -29,26 +29,38 @@ router.get('/home', authMiddleware, async (req, res) => {
 
 router.post('/upload',
     authMiddleware,
-    upload.single('file'),
+    upload.array('file'),
     async (req, res) => {
         try {
-            const newFile = new fileModel({
-                owner: req.user._id,
-                originalName: req.file.originalname,
-                size: req.file.size,
-                s3Key: req.file.key, // This will be "username/filename"
-                isPublic: false
-            });
-            await newFile.save();
+            if (!req.files || req.files.length === 0) {
+                return res.render('upload', {
+                    file: null,
+                    error: 'No files were uploaded.',
+                    redirectTo: '/home'
+                });
+            }
             
-            // Increment the file counter
+            const uploadedFiles = [];
+            for (const file of req.files) {
+                const newFile = new fileModel({
+                    owner: req.user._id,
+                    originalName: file.originalname,
+                    size: file.size,
+                    s3Key: file.key,
+                    isPublic: false
+                });
+                await newFile.save();
+                uploadedFiles.push(newFile);
+            }
+            
+            // Increment the file counter by number of files uploaded
             await counterModel.findOneAndUpdate(
                 { name: 'totalFiles' },
-                { $inc: { count: 1 } },
+                { $inc: { count: req.files.length } },
                 { upsert: true, new: true }
             );
             
-            res.render('upload', { file: req.file, type: 'personal', redirectTo: '/home' });
+            res.render('upload', { file: uploadedFiles, type: 'personal', redirectTo: '/home', isMultiple: true });
         } catch (error) {
             console.error("Upload failed:", error);
             res.render('upload', {

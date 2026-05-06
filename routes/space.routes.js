@@ -93,38 +93,46 @@ router.post('/unlock-space/:spaceId', authMiddleware, async (req, res) => {
     res.redirect('/space?error=Incorrect Password');
 });
 
-router.post('/upload-space/:spaceId', authMiddleware, uploadSpace.single('file'), async (req, res) => {
+router.post('/upload-space/:spaceId', authMiddleware, uploadSpace.array('file'), async (req, res) => {
     try {
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ success: false, message: 'No files were uploaded' });
+        }
+        
         const space = await spaceModel.findById(req.params.spaceId).populate('owner', 'username');
         if (!space) return res.status(404).json({ success: false, message: 'Space not found' });
         if (space.owner._id.toString() !== req.user._id.toString()) {
             return res.status(403).json({ success: false, message: 'Only owners can upload' });
         }
 
-        const newFile = await fileModel.create({
-            s3Key: req.file.key,
-            originalName: req.file.originalname,
-            size: req.file.size,
-            owner: req.user._id,
-            isPublic: false,
-            space: space._id,
-            spaceName: space.name,
-            spaceOwnerUsername: space.owner.username || req.user.username
-        });
+        const uploadedFiles = [];
+        for (const file of req.files) {
+            const newFile = await fileModel.create({
+                s3Key: file.key,
+                originalName: file.originalname,
+                size: file.size,
+                owner: req.user._id,
+                isPublic: false,
+                space: space._id,
+                spaceName: space.name,
+                spaceOwnerUsername: space.owner.username || req.user.username
+            });
+            
+            await newFile.populate('owner', 'username');
+            space.files.push(newFile._id);
+            uploadedFiles.push(newFile);
+        }
         
-        await newFile.populate('owner', 'username');
-
-        space.files.push(newFile._id);
         await space.save();
 
-        // Increment the file counter
+        // Increment the file counter by number of files uploaded
         await counterModel.findOneAndUpdate(
             { name: 'totalFiles' },
-            { $inc: { count: 1 } },
+            { $inc: { count: req.files.length } },
             { upsert: true, new: true }
         );
 
-        res.status(201).json({ success: true, message: 'File uploaded successfully', file: newFile });
+        res.status(201).json({ success: true, message: `${req.files.length} file(s) uploaded successfully`, files: uploadedFiles });
     } catch (err) {
         console.error('Upload to space error:', err);
         res.status(500).json({ success: false, message: 'Upload failed' });

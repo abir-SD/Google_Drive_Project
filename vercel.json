@@ -1,9 +1,6 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "engines": {
-    "node": "20.x"
-  },
   "builds": [
     {
       "src": "app.js",

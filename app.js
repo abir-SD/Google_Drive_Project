@@ -1,43 +1,37 @@
 const express = require('express')
+const path = require('path') // 1. ADDED THIS: Needed for folder paths
 const userRouter = require('./routes/user-routes')
 const app = express()
 
-const dotenv = require('dotenv')
-dotenv.config()
+app.set('trust proxy', 1);
 
-// Passport will be initialized after session middleware further below
+// Passport and DB Config
 const passport = require('passport')
 require('./config/passport')
-
 const connectToDB = require('./config/db')
-
 const cookieParser = require('cookie-parser')
 
-// Add this near the top where you require your DB config
+// Connect to Database
 connectToDB();
 
-// Note: removed previous immediate listen call to avoid duplicate logs
-
-
-
-const indexRouter = require('./routes/index.routes')
-const publicSpaceRouter = require('./routes/publicSpace.routes')
-const homeRouter = require('./routes/home.routes')
-const globalRouter = require('./routes/global.routes')
-const spaceRouter = require('./routes/space.routes')
+// 2. PATH CONFIGURATION: Tells Vercel exactly where your folders are
 app.set('view engine', 'ejs')
-app.use(express.static('assets'))
+app.set('views', path.join(__dirname, 'views')) // IMPORTANT for Vercel
+app.use(express.static(path.join(__dirname, 'assets'))) // Use path.join here too
+
 app.use(cookieParser())
+
 const session = require('express-session')
 app.use(session({
     secret: process.env.SESSION_SECRET || 'dev_secret',
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: process.env.NODE_ENV === 'production', // true when live, false on localhost
+        secure: true, // Vercel is always HTTPS, so we can set this to true
         httpOnly: true 
     }
 }))
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
@@ -61,31 +55,35 @@ app.use(async (req, res, next) => {
                 res.locals.user = foundUser;
             }
         } catch (error) {
-            // Token is invalid or expired, user will be null
+            // Token is invalid or expired
         }
     }
     next();
 });
 
+// Routes
 const authRouter = require('./routes/auth.routes');
+const indexRouter = require('./routes/index.routes')
+const publicSpaceRouter = require('./routes/publicSpace.routes')
+const homeRouter = require('./routes/home.routes')
+const globalRouter = require('./routes/global.routes')
+const spaceRouter = require('./routes/space.routes')
+
 app.use('/', authRouter);
-
-
-
-
-
-
 app.use('/', homeRouter)
 app.use('/', globalRouter)
 app.use('/', spaceRouter)
 app.use('/', indexRouter)
 app.use('/', publicSpaceRouter)
-
-// It will hit /user/test
 app.use('/user', userRouter)
 
+// Handle 404s (Optional but good)
+app.use((req, res) => {
+    res.status(404).render('404'); // Make sure you have a 404.ejs file
+});
 
 process.on('uncaughtException', err => {
-    console.log('Uncaught Exception ! Please try again ...')
+    console.error('Uncaught Exception:', err);
 })
+
 module.exports = app;

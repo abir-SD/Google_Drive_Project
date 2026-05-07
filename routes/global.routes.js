@@ -10,15 +10,26 @@ const { getSignedDownloadUrl, getSignedViewUrl, s3ObjectExists } = require('../s
 
 router.get('/global', authMiddleware, async (req, res) => {
     try {
+        console.log('📍 [/global] Starting request for user:', req.user._id);
+        
         // 1. Fetch existing public files (populate owner username so UI can show uploader)
+        console.log('📍 [/global] Fetching public files...');
         const publicFiles = await fileModel.find({ isPublic: true }).populate('owner', 'username');
+        console.log('✅ [/global] Public files fetched:', publicFiles.length);
 
         // 2. Fetch all Protected Spaces (populate files and each file's owner username)
-        const spaces = await spaceModel.find().sort({ _id: 1 }).sort({ _id: 1 }).populate({ path: 'files', populate: { path: 'owner', select: 'username' } }).populate('owner', 'username');
+        console.log('📍 [/global] Fetching spaces...');
+        const spaces = await spaceModel.find()
+            .sort({ _id: 1 })
+            .populate({ path: 'files', populate: { path: 'owner', select: 'username' } })
+            .populate('owner', 'username');
+        console.log('✅ [/global] Spaces fetched:', spaces.length);
 
         // 3. Get unlocked spaces from session
         const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
+        console.log('✅ [/global] Unlocked spaces:', unlockedSpaces.length);
 
+        console.log('📍 [/global] Rendering global page...');
         res.render('global', {
             user: req.user,
             files: publicFiles,
@@ -28,8 +39,13 @@ router.get('/global', authMiddleware, async (req, res) => {
             errorMsg: req.query.error
         });
     } catch (err) {
-        console.error(err);
-        res.redirect('/home?error=Failed to load Global Hub');
+        console.error('❌ [/global] ERROR:', err.message);
+        console.error('❌ [/global] Stack:', err.stack);
+        res.status(500).json({
+            success: false,
+            error: err.message,
+            message: 'Failed to load Global Hub. Check server logs for details.'
+        });
     }
 });
 

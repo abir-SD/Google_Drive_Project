@@ -41,19 +41,28 @@ router.get('/logout', (req, res) => {
 
 router.get('/members', async (req, res) => {
     try {
+        console.log('📍 [/members] Starting request...');
+        
         // Get 3 most recent users
+        console.log('📍 [/members] Fetching recent users...');
         const recentUsers = await userModel.find({}, 'username email').sort({ createdAt: -1 }).limit(3);
+        console.log('✅ [/members] Recent users fetched:', recentUsers.length);
         
         // Count total active members
+        console.log('📍 [/members] Counting total users...');
         const totalUsers = await userModel.countDocuments();
+        console.log('✅ [/members] Total users:', totalUsers);
         
         // Get total files from counter
+        console.log('📍 [/members] Fetching file counter...');
         let totalFiles = 0;
         const fileCounter = await counterModel.findOne({ name: 'totalFiles' });
         if (fileCounter) {
             totalFiles = fileCounter.count;
         }
+        console.log('✅ [/members] Total files:', totalFiles);
 
+        console.log('📍 [/members] Rendering members page...');
         res.render('members', {
             users: recentUsers,
             count: totalUsers,
@@ -61,8 +70,13 @@ router.get('/members', async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error fetching users:", error);
-        res.status(500).send("Server Error");
+        console.error("❌ [/members] ERROR:", error.message);
+        console.error("❌ [/members] Stack:", error.stack);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            message: 'Failed to load members page. Check server logs for details.'
+        });
     }
 });
 

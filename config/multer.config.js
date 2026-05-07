@@ -4,6 +4,15 @@ const { s3 } = require('../config/s3-config')
 const spaceModel = require('../models/Space.model');
 const PublicSpace = require('../models/PublicSpace.model');
 
+// Verify bucket at runtime
+const getBucket = () => {
+    const bucket = process.env.AWS_S3_BUCKET;
+    if (!bucket) {
+        throw new Error(`AWS_S3_BUCKET not found. Please set it in Vercel Environment Variables. Current: "${bucket}"`);
+    }
+    return bucket;
+};
+
 // Allowed file types with their MIME types
 const allowedFileTypes = {
     // Images
@@ -41,7 +50,7 @@ const fileFilter = (req, file, cb) => {
 // General-purpose storage for personal and global files
 const storage = awsStorage({
     s3,
-    bucket: process.env.AWS_S3_BUCKET,
+    bucket: getBucket(),
     contentType: awsStorage.AUTO_CONTENT_TYPE,
     key: (req, file, cb) => {
         const folder = req.s3Folder || `personal/${req.user.username}`;
@@ -54,7 +63,7 @@ const storage = awsStorage({
 // Specific storage for user-created spaces
 const spaceStorage = awsStorage({
     s3,
-    bucket: process.env.AWS_S3_BUCKET,
+    bucket: getBucket(),
     contentType: awsStorage.AUTO_CONTENT_TYPE,
     key: async (req, file, cb) => {
         try {
@@ -81,7 +90,7 @@ const spaceStorage = awsStorage({
 // Specific storage for public spaces (User Hub)
 const publicSpaceStorage = awsStorage({
     s3,
-    bucket: process.env.AWS_S3_BUCKET,
+    bucket: getBucket(),
     contentType: awsStorage.AUTO_CONTENT_TYPE,
     key: async (req, file, cb) => {
         try {

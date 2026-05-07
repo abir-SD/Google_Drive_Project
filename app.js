@@ -13,18 +13,8 @@ const connectToDB = require('./config/db')
 
 const cookieParser = require('cookie-parser')
 
-// Start server only after DB connects so we can display a clean console (only two lines)
-connectToDB().then(() => {
-    // Start listening after DB is connected. We print both lines here (DB connect already printed 'connected to db')
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`listening on port ${PORT}`)
-});
-}).catch(err => {
-    // If DB connection failed, exit to avoid starting server in bad state
-    console.error('Failed to start server due to DB connection failure');
-    process.exit(1);
-});
+// Add this near the top where you require your DB config
+connectToDB();
 
 // Note: removed previous immediate listen call to avoid duplicate logs
 

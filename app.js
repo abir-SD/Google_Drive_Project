@@ -15,8 +15,11 @@ require('./config/passport')
 const connectToDB = require('./config/db')
 const cookieParser = require('cookie-parser')
 
-// Connect to Database
-connectToDB();
+// Connect to Database (will connect asynchronously, app can still handle requests)
+connectToDB().catch(err => {
+    console.error('Failed to connect to database:', err.message);
+    // App will still run but may fail on routes that need DB
+});
 
 // 2. PATH CONFIGURATION: Tells Vercel exactly where your folders are
 app.set('view engine', 'ejs')

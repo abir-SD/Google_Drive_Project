@@ -271,7 +271,7 @@
                                         <span id="space-file-name-text"></span>
                                     </div>
 
-                                    <input id="space-dropzone-file" type="file" name="file" class="hidden" required multiple />
+                                    <input id="space-dropzone-file" type="file" name="file" class="hidden" required multiple accept="image/*,audio/*,video/*,.pdf,.docx,.pptx,.txt" />
                                 </label>
                                 <button type="submit"
                                     class="btn-premium mt-6 w-full rounded-full bg-white text-blue-900 py-3.5 font-bold hover:bg-transparent hover:border-white hover:text-white border-2 border-transparent transition-all duration-400">
@@ -807,11 +807,17 @@
                                     const spaceCard = document.querySelector(`[data-space-id="${spaceId}"]`);
                                     if (spaceCard) {
                                         const filesContainer = spaceCard.querySelector('.glass-panel-light');
-                                        const noFilesMessage = filesContainer.querySelector('.text-center.py-20') || filesContainer.querySelector('.flex.flex-col.items-center');
-                                        if (noFilesMessage) noFilesMessage.remove();
+                                        // Remove "No files" message if it exists
+                                        const noFilesMsg = filesContainer.querySelector('.flex.flex-col.items-center');
+                                        if (noFilesMsg) noFilesMsg.remove();
 
-                                        const newFileElement = createFileElement(result.file, spaceId);
-                                        filesContainer.insertAdjacentHTML('afterbegin', newFileElement);
+                                        // Handle multiple files in the response
+                                        if (result.files && result.files.length > 0) {
+                                            result.files.forEach(file => {
+                                                const newFileElement = createFileElement(file, spaceId);
+                                                filesContainer.insertAdjacentHTML('afterbegin', newFileElement);
+                                            });
+                                        }
                                     }
 
                                     showToast(result.message, 'success');

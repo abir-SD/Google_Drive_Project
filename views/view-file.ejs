@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View File - Your Drive</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .animated-bg {
+            background: linear-gradient(-45deg, #3b0764, #4c1d95, #2563eb, #0ea5e9);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-scrolled {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border-radius: 0 0 0.75rem 0.75rem;
+        }
+
+        .nav-link {
+            position: relative;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #dbeafe;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #67e8f9;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 50%;
+            background-color: #67e8f9;
+            transition: all 0.3s ease-in-out;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .file-viewer {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            overflow: hidden;
+        }
+
+        .text-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            color: #e0e7ff;
+        }
+
+        embed, iframe, audio, video {
+            width: 100%;
+            height: auto;
+            border-radius: 1rem;
+        }
+
+        audio, video {
+            min-height: 60px;
+        }
+    </style>
+</head>
+
+<body class="animated-bg text-white">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 px-4">
+        <div id="main-nav-container"
+            class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 rounded-b-xl border-b border-transparent bg-transparent">
+            <!-- Brand -->
+            <a href="/global" class="flex items-center gap-2">
+                <i class="ri-file-text-line text-cyan-300 text-2xl"></i>
+                <span class="font-bold tracking-tight text-xl">View File</span>
+            </a>
+
+            <!-- Desktop Links -->
+            <div class="hidden md:flex items-center gap-6">
+                <a href="/global" class="nav-link">
+                    <i class="ri-arrow-left-line text-cyan-300"></i>
+                    <span>Back to Global</span>
+                </a>
+            </div>
+
+            <!-- Mobile Back Button -->
+            <a href="/global" class="md:hidden text-cyan-300 hover:text-white transition-colors">
+                <i class="ri-arrow-left-line text-2xl"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="min-h-screen flex items-center justify-center pt-32 pb-20 px-4 relative z-10">
+        <div class="w-full max-w-4xl">
+            <!-- File Header -->
+            <div class="glass-panel rounded-2xl p-6 mb-6 shadow-2xl">
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <div class="flex items-center gap-4 flex-grow min-w-0">
+                        <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <% if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) { %>
+                                <i class="ri-image-line text-2xl text-cyan-300"></i>
+                            <% } else if (['pdf'].includes(fileType)) { %>
+                                <i class="ri-file-pdf-line text-2xl text-red-300"></i>
+                            <% } else if (['docx', 'doc'].includes(fileType)) { %>
+                                <i class="ri-file-word-line text-2xl text-blue-300"></i>
+                            <% } else if (['pptx', 'ppt'].includes(fileType)) { %>
+                                <i class="ri-file-ppt-line text-2xl text-orange-300"></i>
+                            <% } else if (['mp3', 'wav', 'ogg', 'webm'].includes(fileType)) { %>
+                                <i class="ri-music-line text-2xl text-purple-300"></i>
+                            <% } else if (['mp4', 'mov', 'avi'].includes(fileType)) { %>
+                                <i class="ri-film-line text-2xl text-green-300"></i>
+                            <% } else if (['txt'].includes(fileType)) { %>
+                                <i class="ri-file-text-line text-2xl text-yellow-300"></i>
+                            <% } else { %>
+                                <i class="ri-file-line text-2xl text-white/60"></i>
+                            <% } %>
+                        </div>
+                        <div class="min-w-0">
+                            <h1 class="text-xl font-bold text-white truncate"><%= file.originalName %></h1>
+                            <p class="text-sm text-blue-200/70">
+                                Size: <%= (file.size / 1024 / 1024).toFixed(2) %> MB
+                            </p>
+                        </div>
+                    </div>
+                    <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
+                        class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 px-4 py-2 rounded-full flex items-center justify-center gap-2 shadow-lg transition duration-200 whitespace-nowrap">
+                        <i class="ri-download-line text-lg"></i>
+                        <span class="hidden sm:inline">Download</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- File Viewer -->
+            <div class="file-viewer shadow-2xl">
+                <div class="p-8">
+                    <% if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileType)) { %>
+                        <!-- Image Viewer -->
+                        <div class="flex justify-center">
+                            <img src="<%= viewUrl %>" alt="<%= file.originalName %>"
+                                class="max-w-full h-auto rounded-xl shadow-lg" />
+                        </div>
+
+                    <% } else if (['pdf'].includes(fileType)) { %>
+                        <!-- PDF Viewer -->
+                        <embed src="<%= viewUrl %>" type="application/pdf" />
+
+                    <% } else if (['txt'].includes(fileType)) { %>
+                        <!-- Text File Viewer -->
+                        <div id="text-content" class="text-content bg-black/30 p-6 rounded-xl overflow-auto max-h-[600px]">
+                            <p class="text-gray-300 text-center py-8">Loading file content...</p>
+                        </div>
+
+                    <% } else if (['mp3', 'wav', 'ogg', 'webm'].includes(fileType)) { %>
+                        <!-- Audio Player -->
+                        <audio controls class="w-full">
+                            <source src="<%= viewUrl %>" type="audio/<%= fileType === 'mp3' ? 'mpeg' : fileType %>">
+                            Your browser does not support the audio element.
+                        </audio>
+
+                    <% } else if (['mp4', 'webm', 'mov', 'avi'].includes(fileType)) { %>
+                        <!-- Video Player -->
+                        <video controls class="w-full rounded-xl">
+                            <source src="<%= viewUrl %>" type="video/<%= fileType === 'mov' ? 'quicktime' : fileType %>">
+                            Your browser does not support the video element.
+                        </video>
+
+                    <% } else if (['docx', 'doc', 'pptx', 'ppt'].includes(fileType)) { %>
+                        <!-- Document Info -->
+                        <div class="text-center py-12">
+                            <div class="mb-6 flex justify-center">
+                                <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center">
+                                    <% if (['docx', 'doc'].includes(fileType)) { %>
+                                        <i class="ri-file-word-line text-4xl text-blue-300"></i>
+                                    <% } else { %>
+                                        <i class="ri-file-ppt-line text-4xl text-orange-300"></i>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <h2 class="text-2xl font-bold text-white mb-2">
+                                <% if (['docx', 'doc'].includes(fileType)) { %>
+                                    Word Document
+                                <% } else { %>
+                                    PowerPoint Presentation
+                                <% } %>
+                            </h2>
+                            <p class="text-blue-200/70 mb-6">
+                                This file type cannot be displayed in the browser. Please download to view.
+                            </p>
+                            <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
+                                class="inline-flex items-center justify-center gap-2 bg-white text-blue-900 px-6 py-3 rounded-full font-bold shadow-lg hover:bg-white/90 transition-all duration-200">
+                                <i class="ri-download-line text-lg"></i>
+                                <span>Download to View</span>
+                            </a>
+                        </div>
+
+                    <% } else { %>
+                        <!-- Unknown File Type -->
+                        <div class="text-center py-12">
+                            <div class="mb-6 flex justify-center">
+                                <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center">
+                                    <i class="ri-file-line text-4xl text-white/60"></i>
+                                </div>
+                            </div>
+                            <h2 class="text-2xl font-bold text-white mb-2">File Preview Unavailable</h2>
+                            <p class="text-blue-200/70 mb-6">This file type cannot be previewed in the browser.</p>
+                            <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
+                                class="inline-flex items-center justify-center gap-2 bg-white text-blue-900 px-6 py-3 rounded-full font-bold shadow-lg hover:bg-white/90 transition-all duration-200">
+                                <i class="ri-download-line text-lg"></i>
+                                <span>Download File</span>
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-6 text-white/40 text-sm relative z-10">
+        &copy; 2025 Your Drive. Secure Cloud Solutions.
+    </footer>
+
+    <!-- Script to load text file content -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            <% if (['txt'].includes(fileType)) { %>
+            const textContentDiv = document.getElementById('text-content');
+            const viewUrl = '<%= viewUrl %>';
+
+            fetch(viewUrl)
+                .then(response => response.text())
+                .then(data => {
+                    textContentDiv.textContent = data;
+                })
+                .catch(error => {
+                    console.error('Error loading text file:', error);
+                    textContentDiv.innerHTML = '<span class="text-red-300">Error loading file content</span>';
+                });
+            <% } %>
+
+            // Navbar scroll effect
+            const navContainer = document.getElementById('main-nav-container');
+            const handleScroll = () => {
+                if (window.scrollY > 10) {
+                    navContainer.classList.add('nav-scrolled');
+                } else {
+                    navContainer.classList.remove('nav-scrolled');
+                }
+            };
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll();
+        });
+    </script>
+
+</body>
+
+</html>

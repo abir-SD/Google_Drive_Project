@@ -4,6 +4,40 @@ const { s3 } = require('../config/s3-config')
 const spaceModel = require('../models/Space.model');
 const PublicSpace = require('../models/PublicSpace.model');
 
+// Allowed file types with their MIME types
+const allowedFileTypes = {
+    // Images
+    'image/jpeg': ['.jpg', '.jpeg'],
+    'image/png': ['.png'],
+    'image/gif': ['.gif'],
+    'image/webp': ['.webp'],
+    // Audio
+    'audio/mpeg': ['.mp3'],
+    'audio/wav': ['.wav'],
+    'audio/ogg': ['.ogg'],
+    'audio/webm': ['.webm'],
+    // Video
+    'video/mp4': ['.mp4'],
+    'video/webm': ['.webm'],
+    'video/quicktime': ['.mov'],
+    'video/x-msvideo': ['.avi'],
+    // Documents
+    'application/pdf': ['.pdf'],
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
+    // Text
+    'text/plain': ['.txt']
+};
+
+// File type filter function
+const fileFilter = (req, file, cb) => {
+    if (allowedFileTypes[file.mimetype]) {
+        cb(null, true);
+    } else {
+        cb(new Error(`File type not allowed: ${file.mimetype}`), false);
+    }
+};
+
 // General-purpose storage for personal and global files
 const storage = awsStorage({
     s3,
@@ -68,11 +102,12 @@ const publicSpaceStorage = awsStorage({
 });
 
 const upload = multer({
-    storage
+    storage,
+    fileFilter
 })
 
-const uploadSpace = multer({ storage: spaceStorage });
-const uploadPublicSpace = multer({ storage: publicSpaceStorage });
+const uploadSpace = multer({ storage: spaceStorage, fileFilter });
+const uploadPublicSpace = multer({ storage: publicSpaceStorage, fileFilter });
 
 
 module.exports = {

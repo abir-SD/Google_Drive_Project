@@ -95,6 +95,14 @@ router.post('/unlock-space/:spaceId', authMiddleware, async (req, res) => {
 
 router.post('/upload-space/:spaceId', authMiddleware, uploadSpace.array('file'), async (req, res) => {
     try {
+        // Check if multer had any errors
+        if (req.fileValidationError) {
+            return res.status(400).json({
+                success: false,
+                message: req.fileValidationError
+            });
+        }
+
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ success: false, message: 'No files were uploaded' });
         }
@@ -111,6 +119,7 @@ router.post('/upload-space/:spaceId', authMiddleware, uploadSpace.array('file'),
                 s3Key: file.key,
                 originalName: file.originalname,
                 size: file.size,
+                mimetype: file.mimetype,
                 owner: req.user._id,
                 isPublic: false,
                 space: space._id,
@@ -137,6 +146,17 @@ router.post('/upload-space/:spaceId', authMiddleware, uploadSpace.array('file'),
         console.error('Upload to space error:', err);
         res.status(500).json({ success: false, message: 'Upload failed' });
     }
+}, 
+// Error handler for multer
+(err, req, res, next) => {
+    if (err) {
+        console.error('Multer error:', err);
+        return res.status(400).json({
+            success: false,
+            message: err.message || 'File upload error'
+        });
+    }
+    next();
 });
 
 router.delete('/space/:spaceId', authMiddleware, async (req, res) => {
@@ -177,6 +197,45 @@ router.delete('/space/:spaceId', authMiddleware, async (req, res) => {
     } catch (err) {
         console.error('Error deleting space:', err);
         res.status(500).json({ success: false, message: 'Failed to delete space' });
+    }
+});
+
+// View file from protected space
+router.get('/view-space/:fileId', authMiddleware, async (req, res) => {
+    try {
+        const file = await fileModel.findById(req.params.fileId);
+        
+        if (!file) {
+            return res.status(404).send('File not found.');
+        }
+
+        // Check if user has access (owner or in unlocked space)
+        const isOwner = file.owner.toString() === req.user._id.toString();
+        const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
+        const canAccess = isOwner || (file.space && unlockedSpaces.includes(file.space.toString()));
+
+        if (!canAccess) {
+            return res.status(403).send('Access denied.');
+        }
+
+        // Get signed URL for viewing
+        const viewUrl = await getSignedViewUrl(file.s3Key, file.originalName);
+        
+        // Determine file type and render appropriate viewer
+        const fileExtension = file.originalName.toLowerCase().split('.').pop();
+        const mimeType = file.mimetype || '';
+        
+        res.render('view-file', {
+            user: req.user,
+            file: file,
+            viewUrl: viewUrl,
+            fileType: fileExtension,
+            mimeType: mimeType
+        });
+
+    } catch (error) {
+        console.error('View error:', error);
+        res.status(500).send('Error viewing file.');
     }
 });
 

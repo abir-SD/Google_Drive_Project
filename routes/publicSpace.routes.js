@@ -43,13 +43,21 @@ router.post('/create-public-space', authMiddleware, async (req, res) => {
 
 router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.array('file'), async (req, res) => {
     try {
+        // Check if multer had any errors
+        if (req.fileValidationError) {
+            return res.status(400).json({
+                success: false,
+                message: req.fileValidationError
+            });
+        }
+
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ success: false, message: 'No files were uploaded' });
         }
         
         const space = await PublicSpace.findById(req.params.spaceId);
         if (!space) {
-            return res.status(404).send('Space not found');
+            return res.status(404).json({ success: false, message: 'Space not found' });
         }
 
         // Check if uploads are allowed (if restricted, only owner can upload)
@@ -67,6 +75,7 @@ router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.a
                 originalName: file.originalname,
                 s3Key: file.key,
                 size: file.size,
+                mimetype: file.mimetype,
                 owner: req.user._id,
                 isPublic: true,
                 space: space._id
@@ -108,6 +117,17 @@ router.post('/upload-public-space/:spaceId', authMiddleware, uploadPublicSpace.a
         console.error('Error uploading to public space:', error);
         res.status(500).json({ success: false, message: 'Upload failed' });
     }
+},
+// Error handler for multer
+(err, req, res, next) => {
+    if (err) {
+        console.error('Multer error:', err);
+        return res.status(400).json({
+            success: false,
+            message: err.message || 'File upload error'
+        });
+    }
+    next();
 });
 
 router.delete('/delete-public-space/:spaceId', authMiddleware, async (req, res) => {

@@ -42,11 +42,18 @@ router.post('/upload-global',
     upload.array('file'),
     async (req, res) => {
         try {
+            // Check if multer had any errors
+            if (req.fileValidationError) {
+                return res.status(400).json({
+                    success: false,
+                    message: req.fileValidationError
+                });
+            }
+
             if (!req.files || req.files.length === 0) {
-                return res.render('upload', {
-                    file: null,
-                    error: 'No files were uploaded.',
-                    redirectTo: '/global'
+                return res.status(400).json({
+                    success: false,
+                    message: 'No files were uploaded.'
                 });
             }
             
@@ -56,6 +63,7 @@ router.post('/upload-global',
                     owner: req.user._id,
                     originalName: file.originalname,
                     size: file.size,
+                    mimetype: file.mimetype,
                     s3Key: file.key,
                     isPublic: true
                 });
@@ -70,15 +78,30 @@ router.post('/upload-global',
                 { upsert: true, new: true }
             );
             
-            res.render('upload', { file: uploadedFiles, type: 'global', redirectTo: '/global', isMultiple: true });
+            res.status(201).json({
+                success: true,
+                message: `${req.files.length} file(s) uploaded successfully`,
+                files: uploadedFiles,
+                isMultiple: req.files.length > 1
+            });
         } catch (error) {
             console.error("Upload failed:", error);
-            res.render('upload', {
-                file: null,
-                error: 'An unexpected error occurred during the upload. Please try again.',
-                redirectTo: '/global'
+            res.status(500).json({
+                success: false,
+                message: 'An unexpected error occurred during the upload. Please try again.'
             });
         }
+    },
+    // Error handler for multer
+    (err, req, res, next) => {
+        if (err) {
+            console.error('Multer error:', err);
+            return res.status(400).json({
+                success: false,
+                message: err.message || 'File upload error'
+            });
+        }
+        next();
     }
 );
 
@@ -143,7 +166,19 @@ router.get(/^\/view-public\/(.+)$/, authMiddleware, async (req, res) => {
         }
 
         const viewUrl = await getSignedViewUrl(s3Key, file.originalName);
-        return res.redirect(viewUrl);
+        
+        // Determine file type
+        const fileExtension = file.originalName.toLowerCase().split('.').pop();
+        const mimeType = file.mimetype || '';
+        
+        res.render('view-file', {
+            user: req.user,
+            file: file,
+            viewUrl: viewUrl,
+            fileType: fileExtension,
+            mimeType: mimeType,
+            isPublic: true
+        });
 
     } catch (error) {
         console.error('View error:', error);

@@ -46,6 +46,7 @@ router.post('/upload',
                     owner: req.user._id,
                     originalName: file.originalname,
                     size: file.size,
+                    mimetype: file.mimetype,
                     s3Key: file.key,
                     isPublic: false
                 });
@@ -137,7 +138,18 @@ router.get(/^\/view\/(.+)$/, authMiddleware, async (req, res) => {
         }
 
         const viewUrl = await getSignedViewUrl(file.s3Key, file.originalName);
-        return res.redirect(viewUrl);
+
+        const fileExtension = file.originalName.toLowerCase().split('.').pop();
+        const mimeType = file.mimetype || '';
+
+        return res.render('view-file', {
+            user: req.user,
+            file: file,
+            viewUrl: viewUrl,
+            fileType: fileExtension,
+            mimeType: mimeType,
+            isPublic: false
+        });
 
     } catch (error) {
         console.error('View error:', error);

@@ -7,6 +7,7 @@ const fileSchema = new mongoose.Schema({
     },
     originalName: String,
     size: Number,
+    mimetype: String,
     s3Key: {
         type: String,
         unique: true,

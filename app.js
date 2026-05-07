@@ -3,6 +3,10 @@ const path = require('path') // 1. ADDED THIS: Needed for folder paths
 const userRouter = require('./routes/user-routes')
 const app = express()
 
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 app.set('trust proxy', 1);
 
 // Passport and DB Config

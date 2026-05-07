@@ -94,3 +94,4 @@ app.use('/user', userRouter)
 process.on('uncaughtException', err => {
     console.log('Uncaught Exception ! Please try again ...')
 })
+module.exports = app;

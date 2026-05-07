@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
   "builds": [
     {
       "src": "app.js",
-      "use": "@vercel/node@3.0.0"
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -12,8 +11,5 @@
       "src": "/(.*)",
       "dest": "app.js"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }

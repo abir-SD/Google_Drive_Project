@@ -16,9 +16,10 @@ const cookieParser = require('cookie-parser')
 // Start server only after DB connects so we can display a clean console (only two lines)
 connectToDB().then(() => {
     // Start listening after DB is connected. We print both lines here (DB connect already printed 'connected to db')
-    app.listen(3000, () => {
-        console.log('listening on port 3000')
-    });
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`listening on port ${PORT}`)
+});
 }).catch(err => {
     // If DB connection failed, exit to avoid starting server in bad state
     console.error('Failed to start server due to DB connection failure');
@@ -42,7 +43,10 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'dev_secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', // true when live, false on localhost
+        httpOnly: true 
+    }
 }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

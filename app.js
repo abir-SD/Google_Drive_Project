@@ -84,6 +84,11 @@ app.use('/', indexRouter)
 app.use('/', publicSpaceRouter)
 app.use('/user', userRouter)
 
+// Health check endpoint (Vercel needs this)
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Handle 404s (Optional but good)
 app.use((req, res) => {
     res.status(404).render('404'); // Make sure you have a 404.ejs file

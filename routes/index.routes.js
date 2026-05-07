@@ -13,6 +13,14 @@ const spaceModel = require('../models/Space.model');
 
 
 
+// Root path - redirect to appropriate page
+router.get('/', (req, res) => {
+    if (req.user) {
+        return res.redirect('/home');
+    }
+    res.redirect('/welcome');
+});
+
 router.get('/welcome', (req, res) => {
 
     res.render('welcome')

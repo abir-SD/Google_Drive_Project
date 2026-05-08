@@ -9,7 +9,16 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.set('trust proxy', 1);
 
-// Security Headers - Protect against common attacks
+// Cache-busting headers to force browser to fetch fresh content
+app.use((req, res, next) => {
+    // Force no caching of HTML to get latest headers
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+});
+
+// Security Headers - Protect against common attacks (WITHOUT CSP)
 app.use((req, res, next) => {
     // Prevent clickjacking attacks
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -25,6 +34,10 @@ app.use((req, res, next) => {
     
     // Feature Policy / Permissions Policy
     res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+    
+    // Explicitly remove CSP if it exists
+    res.removeHeader('Content-Security-Policy');
+    res.removeHeader('Content-Security-Policy-Report-Only');
     
     next();
 });

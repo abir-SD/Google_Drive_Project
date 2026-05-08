@@ -20,8 +20,16 @@ app.use((req, res, next) => {
     // Enable XSS protection
     res.setHeader('X-XSS-Protection', '1; mode=block');
     
-    // Content Security Policy - prevents XSS and injection attacks
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;");
+    // Content Security Policy - allows your CDN resources while protecting against XSS
+    res.setHeader('Content-Security-Policy', 
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://cdn.tailwindcss.com https://unpkg.com; " +
+        "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
+        "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; " +
+        "img-src 'self' data: https: blob:; " +
+        "connect-src 'self' https:; " +
+        "frame-src 'self' https://accounts.google.com;"
+    );
     
     // Referrer Policy
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -31,6 +39,8 @@ app.use((req, res, next) => {
     
     next();
 });
+
+// Passport and DB Config
 
 // Passport and DB Config
 const passport = require('passport')

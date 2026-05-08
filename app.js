@@ -20,10 +20,6 @@ app.use((req, res, next) => {
     // Enable XSS protection
     res.setHeader('X-XSS-Protection', '1; mode=block');
     
-    // Content Security Policy - simplified to allow all your CDN resources
-    const csp = "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://apis.google.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https:;";
-    res.setHeader('Content-Security-Policy', csp);
-    
     // Referrer Policy
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     

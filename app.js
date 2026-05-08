@@ -9,17 +9,48 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.set('trust proxy', 1);
 
+// Security Headers - Protect against common attacks
+app.use((req, res, next) => {
+    // Prevent clickjacking attacks
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    
+    // Prevent MIME type sniffing
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    
+    // Enable XSS protection
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    
+    // Content Security Policy - prevents XSS and injection attacks
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;");
+    
+    // Referrer Policy
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    
+    // Feature Policy / Permissions Policy
+    res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+    
+    next();
+});
+
 // Passport and DB Config
 const passport = require('passport')
 require('./config/passport')
 const connectToDB = require('./config/db')
 const cookieParser = require('cookie-parser')
 
-// Connect to Database (will connect asynchronously, app can still handle requests)
-connectToDB().catch(err => {
-    console.error('Failed to connect to database:', err.message);
-    // App will still run but may fail on routes that need DB
-});
+// Track database connection status
+let dbConnected = false;
+
+// Try to connect to database immediately
+connectToDB()
+    .then(() => {
+        dbConnected = true;
+        console.log('✅ Database connected successfully on app startup');
+    })
+    .catch(err => {
+        console.error('❌ Failed to connect to database on startup:', err.message);
+        console.error('⚠️ App will still run, but database queries may fail');
+    });
 
 // 2. PATH CONFIGURATION: Tells Vercel exactly where your folders are
 app.set('view engine', 'ejs')
@@ -35,7 +66,9 @@ app.use(session({
     saveUninitialized: false,
     cookie: { 
         secure: true, // Vercel is always HTTPS, so we can set this to true
-        httpOnly: true 
+        httpOnly: true,
+        sameSite: 'Strict', // CSRF protection
+        maxAge: 1000 * 60 * 60 * 24 // 24 hours
     }
 }))
 
@@ -66,6 +99,32 @@ app.use(async (req, res, next) => {
         }
     }
     next();
+});
+
+// Middleware to ensure database is ready before handling requests
+app.use((req, res, next) => {
+    // Skip this check for health endpoint and static files
+    if (req.path === '/api/health' || req.path.startsWith('/assets')) {
+        return next();
+    }
+    
+    // If DB not connected yet, try to connect again
+    if (!dbConnected) {
+        console.warn('⚠️ Database not connected yet, attempting to reconnect...');
+        connectToDB()
+            .then(() => {
+                dbConnected = true;
+                console.log('✅ Database reconnected');
+                next();
+            })
+            .catch(err => {
+                console.error('❌ Database still not connected:', err.message);
+                // Let request proceed but it may fail
+                next();
+            });
+    } else {
+        next();
+    }
 });
 
 // Routes

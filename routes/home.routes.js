@@ -113,8 +113,6 @@ router.get(/^\/download\/(.+)$/, authMiddleware, async (req, res) => {
 router.get(/^\/view\/(.+)$/, authMiddleware, async (req, res) => {
     try {
         const s3Key = decodeURIComponent(req.params[0]);
-
-        // Find the file by exact s3Key
         const file = await fileModel.findOne({ s3Key: s3Key });
 
         if (!file) {
@@ -125,7 +123,6 @@ router.get(/^\/view\/(.+)$/, authMiddleware, async (req, res) => {
             return res.status(403).send('You do not have permission to access this file.');
         }
 
-        // Check object exists on S3 before redirecting
         let exists;
         try {
             exists = await s3ObjectExists(file.s3Key);
@@ -137,27 +134,13 @@ router.get(/^\/view\/(.+)$/, authMiddleware, async (req, res) => {
             return res.redirect('/home?error=File+not+available+on+site');
         }
 
-        const viewUrl = await getSignedViewUrl(file.s3Key, file.originalName);
-
-        const fileExtension = file.originalName.toLowerCase().split('.').pop();
-        const mimeType = file.mimetype || '';
-
-        return res.render('view-file', {
-            user: req.user,
-            file: file,
-            viewUrl: viewUrl,
-            fileType: fileExtension,
-            mimeType: mimeType,
-            isPublic: false
-        });
-
+        return res.redirect(`/download/${encodeURIComponent(file.s3Key)}`);
     } catch (error) {
         console.error('View error:', error);
-        res.status(500).send('Error viewing file.');
+        res.status(500).send('Error downloading file.');
     }
 });
 
-// Delete a single file (used by Home and inside Spaces). Works for personal and space files.
 router.delete('/delete/:fileId', authMiddleware, async (req, res) => {
     try {
         const file = await fileModel.findById(req.params.fileId);

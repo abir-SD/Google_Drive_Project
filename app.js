@@ -72,20 +72,21 @@ app.use(express.static(path.join(__dirname, 'assets'))) // Use path.join here to
 app.use(cookieParser())
 
 const session = require('express-session')
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'dev_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        secure: true, // Vercel is always HTTPS, so we can set this to true
-        httpOnly: true,
-        sameSite: 'Strict', // CSRF protection
-        maxAge: 1000 * 60 * 60 * 24 // 24 hours
-    }
-}))
+ app.use(session({
+     secret: process.env.SESSION_SECRET || 'dev_secret',
+     resave: false,
+     saveUninitialized: false,
+     cookie: { 
+         secure: process.env.NODE_ENV === 'production', // Only require HTTPS in production
+         httpOnly: true,
+         sameSite: 'Strict', // CSRF protection
+         maxAge: 1000 * 60 * 60 * 24 // 24 hours
+     }
+ }))
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+// Increase payload size limit to 50MB to support large file uploads
+app.use(express.json({ limit: '50mb' }))
+app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 
 // Initialize passport AFTER express-session
 app.use(passport.initialize())
@@ -168,6 +169,14 @@ app.use((req, res) => {
 process.on('uncaughtException', err => {
     console.error('Uncaught Exception:', err);
 })
+
+// Only start listening for requests if we're not in production (for local development)
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+}
 
 module.exports = app;
 // final vercel build test

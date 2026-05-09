@@ -157,7 +157,8 @@
                                                                     <i class="ri-file-line text-xl"></i>
                                                                 </div>
                                                                 <div class="truncate">
-                                                                    <a href="/view-space/<%= file._id %>"
+                                                                    <a href="/download-space/<%= file._id %>"
+                                                                        download="<%= file.originalName %>"
                                                                         class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
                                                                         <%= file.originalName %>
                                                                     </a>
@@ -262,7 +263,7 @@
                                                 select
                                                 files</span>
                                         </p>
-                                        <p class="text-xs text-white/50">Multiple files allowed (MAX. 10MB each)</p>
+                                        <p class="text-xs text-white/50">Multiple files allowed (MAX. 50MB each)</p>
                                     </div>
 
                                     <div id="space-filename-display"
@@ -494,7 +495,8 @@
                             <i class="ri-file-line text-xl"></i>
                         </div>
                         <div class="truncate">
-                            <a href="/view-space/${file._id}"
+                            <a href="/download-space/${file._id}"
+                                download="${file.originalName}"
                                 class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
                                 ${file.originalName}
                             </a>

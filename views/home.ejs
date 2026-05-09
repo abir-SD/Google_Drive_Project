@@ -37,7 +37,8 @@
                                                         </div>
                                                         <div
                                                             class="text-base font-medium text-white truncate leading-snug sm:text-lg max-w-full">
-                                                            <a href="/view/<%= encodeURIComponent(file.s3Key) %>"
+                                                            <a href="/download/<%= encodeURIComponent(file.s3Key) %>"
+                                                                download="<%= file.originalName %>"
                                                                 class="underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300 hover:text-cyan-300 transition-colors">
                                                                 <%= file.originalName %>
                                                             </a>
@@ -103,7 +104,7 @@
                                     <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to
                                             upload</span> or
                                         drag and drop</p>
-                                    <p class="text-xs text-white/50">Multiple files allowed (MAX. 10MB each)</p>
+                                    <p class="text-xs text-white/50">Multiple files allowed (MAX. 50MB each)</p>
                                 </div>
                                 <div id="filename-display" class="hidden text-center text-white font-medium p-4">
                                     <i class="ri-file-check-line text-4xl text-green-400 mb-2 block"></i>

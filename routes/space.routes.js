@@ -200,6 +200,41 @@ router.delete('/space/:spaceId', authMiddleware, async (req, res) => {
     }
 });
 
+// Download file from protected space
+router.get('/download-space/:fileId', authMiddleware, async (req, res) => {
+    try {
+        const file = await fileModel.findById(req.params.fileId);
+        if (!file) {
+            return res.status(404).send('File not found.');
+        }
+
+        const isOwner = file.owner.toString() === req.user._id.toString();
+        const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
+        const canAccess = isOwner || (file.space && unlockedSpaces.includes(file.space.toString()));
+
+        if (!canAccess) {
+            return res.status(403).send('Access denied.');
+        }
+
+        let exists;
+        try {
+            exists = await s3ObjectExists(file.s3Key);
+        } catch (err) {
+            console.error('S3 check error:', err);
+            return res.status(500).send('Error checking file availability.');
+        }
+        if (!exists) {
+            return res.redirect('/space?error=File+not+available+on+site');
+        }
+
+        const downloadUrl = await getSignedDownloadUrl(file.s3Key, file.originalName);
+        return res.redirect(downloadUrl);
+    } catch (error) {
+        console.error('Download error:', error);
+        res.status(500).send('Error downloading file.');
+    }
+});
+
 // View file from protected space
 router.get('/view-space/:fileId', authMiddleware, async (req, res) => {
     try {
@@ -218,24 +253,10 @@ router.get('/view-space/:fileId', authMiddleware, async (req, res) => {
             return res.status(403).send('Access denied.');
         }
 
-        // Get signed URL for viewing
-        const viewUrl = await getSignedViewUrl(file.s3Key, file.originalName);
-        
-        // Determine file type and render appropriate viewer
-        const fileExtension = file.originalName.toLowerCase().split('.').pop();
-        const mimeType = file.mimetype || '';
-        
-        res.render('view-file', {
-            user: req.user,
-            file: file,
-            viewUrl: viewUrl,
-            fileType: fileExtension,
-            mimeType: mimeType
-        });
-
+        return res.redirect(`/download-space/${file._id}`);
     } catch (error) {
         console.error('View error:', error);
-        res.status(500).send('Error viewing file.');
+        res.status(500).send('Error downloading file.');
     }
 });
 

@@ -112,11 +112,27 @@ const publicSpaceStorage = awsStorage({
 
 const upload = multer({
     storage,
-    fileFilter
+    fileFilter,
+    limits: {
+        fileSize: 50 * 1024 * 1024 // 50 MB
+    }
 })
 
-const uploadSpace = multer({ storage: spaceStorage, fileFilter });
-const uploadPublicSpace = multer({ storage: publicSpaceStorage, fileFilter });
+const uploadSpace = multer({ 
+    storage: spaceStorage, 
+    fileFilter,
+    limits: {
+        fileSize: 50 * 1024 * 1024 // 50 MB
+    }
+});
+
+const uploadPublicSpace = multer({ 
+    storage: publicSpaceStorage, 
+    fileFilter,
+    limits: {
+        fileSize: 50 * 1024 * 1024 // 50 MB
+    }
+});
 
 
 module.exports = {

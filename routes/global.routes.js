@@ -160,7 +160,6 @@ router.get(/^\/view-public\/(.+)$/, authMiddleware, async (req, res) => {
         const s3Key = decodeURIComponent(req.params[0]);
         let file = await fileModel.findOne({ s3Key: s3Key, isPublic: true });
 
-        // Fallback to embedded public space file if main file record not found
         if (!file) {
             const ps = await PublicSpace.findOne({ 'files.s3Key': s3Key }, { 'files.$': 1 });
             if (ps && ps.files && ps.files.length > 0) {
@@ -172,7 +171,6 @@ router.get(/^\/view-public\/(.+)$/, authMiddleware, async (req, res) => {
             return res.status(404).send('File not found.');
         }
 
-        // Check S3 availability
         try {
             const exists = await s3ObjectExists(s3Key);
             if (!exists) return res.redirect('/global?error=File+not+available+on+site');
@@ -181,24 +179,10 @@ router.get(/^\/view-public\/(.+)$/, authMiddleware, async (req, res) => {
             return res.status(500).send('Error checking file availability.');
         }
 
-        const viewUrl = await getSignedViewUrl(s3Key, file.originalName);
-        
-        // Determine file type
-        const fileExtension = file.originalName.toLowerCase().split('.').pop();
-        const mimeType = file.mimetype || '';
-        
-        res.render('view-file', {
-            user: req.user,
-            file: file,
-            viewUrl: viewUrl,
-            fileType: fileExtension,
-            mimeType: mimeType,
-            isPublic: true
-        });
-
+        return res.redirect(`/download-public/${encodeURIComponent(s3Key)}`);
     } catch (error) {
         console.error('View error:', error);
-        res.status(500).send('Error viewing file.');
+        res.status(500).send('Error downloading file.');
     }
 });
 

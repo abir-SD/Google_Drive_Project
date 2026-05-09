@@ -35,7 +35,8 @@
                                                                     <i class="ri-file-line text-xl"></i>
                                                                 </div>
                                                                 <div class="truncate">
-                                                                    <a href="/view-public/<%= encodeURIComponent(file.s3Key) %>"
+                                                                    <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
+                                                                        download="<%= file.originalName %>"
                                                                         class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
                                                                         <%= file.originalName %>
                                                                     </a>
@@ -210,7 +211,8 @@
                                                                                     <i class="ri-file-line text-xl"></i>
                                                                                 </div>
                                                                                 <div class="truncate">
-                                                                                    <a href="/view-public/<%= encodeURIComponent(file.s3Key) %>"
+                                                                                    <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
+                                                                                        download="<%= file.originalName %>"
                                                                                         class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
                                                                                         <%= file.originalName %>
                                                                                     </a>
@@ -374,7 +376,7 @@
                                 <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to select
                                         files</span>
                                 </p>
-                                <p class="text-xs text-white/50">Multiple files allowed (MAX. 10MB each)</p>
+                                <p class="text-xs text-white/50">Multiple files allowed (MAX. 50MB each)</p>
                             </div>
 
                             <div id="space-filename-display" class="hidden text-center text-white font-medium p-4">
@@ -413,7 +415,7 @@
                                 <p class="mb-2 text-sm"><span class="font-semibold text-cyan-200">Click to select
                                         file</span>
                                 </p>
-                                <p class="text-xs text-white/50">Multiple files allowed (MAX. 10MB each)</p>
+                                <p class="text-xs text-white/50">Multiple files allowed (MAX. 50MB each)</p>
                             </div>
 
                             <div id="filename-display-global" class="hidden text-center text-white font-medium p-4">
@@ -1085,7 +1087,7 @@
                                 <i class="ri-file-line text-xl"></i>
                             </div>
                             <div class="truncate">
-                                <a href="/view-public/${file.s3Key}" class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
+                                <a href="/download-public/${file.s3Key}" download="${file.originalName}" class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
                                     ${file.originalName}
                                 </a>
                                 <div class="flex items-center gap-2 mt-0.5">

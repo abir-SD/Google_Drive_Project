@@ -735,24 +735,19 @@
                                     body: formData,
                                 });
                                 
-                                // Handle both regular form response and JSON response
-                                const contentType = response.headers.get('content-type');
-                                let result;
-                                
-                                if (contentType && contentType.includes('application/json')) {
-                                    result = await response.json();
-                                } else {
-                                    // If it's HTML, the upload was successful with isMultiple=true, so refresh
-                                    location.reload();
-                                    return;
-                                }
+                                                                const result = await response.json();
 
                                 if (result.success) {
-                                    showToast(result.message || 'File(s) uploaded successfully', 'success');
+                                                                        showToast(result.message || 'File(s) uploaded successfully', 'success');
                                     window.hidePopUp();
                                     globalUploadForm.reset();
+                                    // Reset dropzone UI
+                                    const dropzoneContentGlobal = document.getElementById('dropzone-content-global');
+                                    const filenameDisplayGlobal = document.getElementById('filename-display-global');
+                                    if (dropzoneContentGlobal) dropzoneContentGlobal.classList.remove('hidden');
+                                    if (filenameDisplayGlobal) filenameDisplayGlobal.classList.add('hidden');
                                     // Refresh page to show new files
-                                    setTimeout(() => location.reload(), 1000);
+                                    setTimeout(() => location.reload(), 1500);
                                 } else {
                                     showToast(result.message || 'Upload failed.', 'error');
                                 }

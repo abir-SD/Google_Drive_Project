@@ -32,7 +32,13 @@ router.post('/upload',
     upload.array('file'),
     async (req, res) => {
         try {
-            if (!req.files || req.files.length === 0) {
+                        if (!req.files || req.files.length === 0) {
+                if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'No files were uploaded.'
+                    });
+                }
                 return res.render('upload', {
                     file: null,
                     error: 'No files were uploaded.',
@@ -61,9 +67,25 @@ router.post('/upload',
                 { upsert: true, new: true }
             );
             
+            // Check if this is an AJAX request
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                return res.status(201).json({
+                    success: true,
+                    message: `${req.files.length} file(s) uploaded successfully`,
+                    files: uploadedFiles,
+                    isMultiple: req.files.length > 1
+                });
+            }
+
             res.render('upload', { file: uploadedFiles, type: 'personal', redirectTo: '/home', isMultiple: true });
-        } catch (error) {
+                } catch (error) {
             console.error("Upload failed:", error);
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'An unexpected error occurred during the upload. Please try again.'
+                });
+            }
             res.render('upload', {
                 file: null,
                 error: 'An unexpected error occurred during the upload. Please try again.',

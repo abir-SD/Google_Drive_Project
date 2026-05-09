@@ -229,17 +229,55 @@
                     });
 
                     const uploadForm = document.getElementById('upload-form');
-                    if (uploadForm) {
-                        uploadForm.addEventListener('submit', () => {
-                            const submitBtn = uploadForm.querySelector('button[type="submit"]');
-                            if (submitBtn) {
-                                setTimeout(() => {
-                                    submitBtn.disabled = true;
-                                    submitBtn.innerHTML = '<i class="ri-loader-4-line animate-spin text-xl btn-icon-anim"></i><span class="btn-text">Uploading...</span>';
-                                }, 0);
-                            }
-                        });
-                    }
+                                        if (uploadForm) {
+                                            uploadForm.addEventListener('submit', async (e) => {
+                                                e.preventDefault();
+                                                const submitBtn = uploadForm.querySelector('button[type="submit"]');
+                                                const originalBtnContent = submitBtn ? submitBtn.innerHTML : '';
+                            
+                                                if (submitBtn) {
+                                                    submitBtn.disabled = true;
+                                                    submitBtn.innerHTML = '<i class="ri-loader-4-line animate-spin text-xl btn-icon-anim"></i><span class="btn-text">Uploading...</span>';
+                                                }
+
+                                                try {
+                                                    const formData = new FormData(uploadForm);
+                                                    const response = await fetch('/upload', {
+                                                        method: 'POST',
+                                                        body: formData,
+                                                        headers: {
+                                                            'Accept': 'application/json'
+                                                        }
+                                                    });
+                                
+                                                    const result = await response.json();
+                                
+                                                    if (result.success) {
+                                                        showToast(result.message || 'File(s) uploaded successfully', 'success');
+                                                        window.hidePopUp();
+                                                        uploadForm.reset();
+                                    
+                                                        // Reset dropzone UI
+                                                        if (dropzoneContent) dropzoneContent.classList.remove('hidden');
+                                                        if (filenameDisplay) filenameDisplay.classList.add('hidden');
+                                                        if (fileNameText) fileNameText.textContent = '';
+                                    
+                                                        // Refresh page to show new files after short delay
+                                                        setTimeout(() => location.reload(), 1500);
+                                                    } else {
+                                                        showToast(result.message || 'Upload failed.', 'error');
+                                                    }
+                                                } catch (error) {
+                                                    console.error('Upload error:', error);
+                                                    showToast('An error occurred during upload.', 'error');
+                                                } finally {
+                                                    if (submitBtn) {
+                                                        submitBtn.disabled = false;
+                                                        submitBtn.innerHTML = originalBtnContent;
+                                                    }
+                                                }
+                                            });
+                                        }
                 });
 
                 setTimeout(() => {

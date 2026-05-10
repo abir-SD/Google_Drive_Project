@@ -1,15 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "app.js",
-      "use": "@vercel/node"
-    }
-  ],
   "functions": {
     "app.js": {
       "maxDuration": 120,
-      "memory": 3008
+      "memory": 3008,
+      "runtime": "nodejs20.x"
     }
   },
   "routes": [

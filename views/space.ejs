@@ -157,11 +157,12 @@
                                                                     <i class="ri-file-line text-xl"></i>
                                                                 </div>
                                                                 <div class="truncate">
-                                                                    <a href="/download-space/<%= file._id %>"
-                                                                        download="<%= file.originalName %>"
-                                                                        class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
-                                                                        <%= file.originalName %>
-                                                                    </a>
+                                                                    <a href="/view-space/<%= file._id %>"
+                                                                                                                                            target="_blank"
+                                                                                                                                            rel="noopener noreferrer"
+                                                                                                                                            class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
+                                                                                                                                            <%= file.originalName %>
+                                                                                                                                        </a>
 
                                                                     <div class="flex items-center gap-2 mt-0.5">
                                                                         <span
@@ -495,11 +496,12 @@
                             <i class="ri-file-line text-xl"></i>
                         </div>
                         <div class="truncate">
-                            <a href="/download-space/${file._id}"
-                                download="${file.originalName}"
-                                class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
-                                ${file.originalName}
-                            </a>
+                            <a href="/view-space/${file._id}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
+                                                ${file.originalName}
+                                            </a>
 
                             <div class="flex items-center gap-2 mt-0.5">
                                 <span class="text-sm font-medium text-blue-200/70">

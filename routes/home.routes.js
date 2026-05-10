@@ -156,10 +156,11 @@ router.get(/^\/view\/(.+)$/, authMiddleware, async (req, res) => {
             return res.redirect('/home?error=File+not+available+on+site');
         }
 
-        return res.redirect(`/download/${encodeURIComponent(file.s3Key)}`);
+        const viewUrl = await getSignedViewUrl(file.s3Key, file.originalName);
+        return res.redirect(viewUrl);
     } catch (error) {
         console.error('View error:', error);
-        res.status(500).send('Error downloading file.');
+        res.status(500).send('Error opening file.');
     }
 });
 

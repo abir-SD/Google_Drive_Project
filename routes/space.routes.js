@@ -6,7 +6,7 @@ const fileModel = require('../models/File.model');
 const counterModel = require('../models/Counter.model');
 const { uploadSpace } = require('../config/multer.config');
 const bcrypt = require('bcrypt');
-const { deleteFileFromS3, getSignedViewUrl, getSignedDownloadUrl } = require('../services/storageService');
+const { deleteFileFromS3, getSignedViewUrl, getSignedDownloadUrl, s3ObjectExists } = require('../services/storageService');
 const archiver = require('archiver');
 const { GetObjectCommand } = require('@aws-sdk/client-s3');
 const { s3 } = require('../config/s3-config');
@@ -253,10 +253,84 @@ router.get('/view-space/:fileId', authMiddleware, async (req, res) => {
             return res.status(403).send('Access denied.');
         }
 
-        return res.redirect(`/download-space/${file._id}`);
-    } catch (error) {
-        console.error('View error:', error);
-        res.status(500).send('Error downloading file.');
+        const viewUrl = await getSignedViewUrl(file.s3Key, file.originalName);
+                return res.redirect(viewUrl);
+            } catch (error) {
+                console.error('View error:', error);
+                res.status(500).send('Error viewing file.');
+    }
+});
+
+// Download all files from a space as a zip archive
+router.get('/download-space-all/:spaceId', authMiddleware, async (req, res) => {
+    try {
+        const space = await spaceModel.findById(req.params.spaceId).populate({
+            path: 'files',
+            populate: { path: 'owner', select: 'username' }
+        });
+
+        if (!space) {
+            return res.status(404).send('Space not found.');
+        }
+
+        // Check access: must be owner OR (unlocked AND allowDownloads !== false)
+        const isOwner = space.owner.toString() === req.user._id.toString();
+        const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
+        const isUnlocked = unlockedSpaces.includes(space._id.toString());
+
+        if (!isOwner && (!isUnlocked || space.allowDownloads === false)) {
+            return res.status(403).send('Access denied.');
+        }
+
+        if (!space.files || space.files.length === 0) {
+            return res.status(404).send('No files in this space to download.');
+        }
+
+        // Set response headers for zip download
+        const zipFilename = encodeURIComponent(`${space.name.replace(/\s+/g, '_')}_files.zip`);
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="${zipFilename}"`);
+
+        // Create archiver instance
+        const archive = archiver('zip', { zlib: { level: 5 } });
+
+        // Handle archive errors
+        archive.on('error', (err) => {
+            console.error('Archiver error:', err);
+            res.status(500).send('Error creating zip archive.');
+        });
+
+        // When archive is finalized, end the response
+        archive.pipe(res);
+
+        // Add each file to the archive by streaming directly from S3
+        const addPromises = space.files.map(async (file) => {
+            try {
+                const command = new GetObjectCommand({
+                    Bucket: process.env.AWS_S3_BUCKET,
+                    Key: file.s3Key
+                });
+                const response = await s3.send(command);
+                // Use originalName as filename in the zip; if a collision might happen, prefix with something
+                archive.append(response.Body, { name: file.originalName });
+            } catch (err) {
+                console.error(`Failed to add file ${file.originalName} (s3Key: ${file.s3Key}) to archive:`, err.message);
+                // Optionally skip missing files
+                archive.append(`File "${file.originalName}" could not be added.`, { name: `_FAILED_${file.originalName}.txt` });
+            }
+        });
+
+        // Wait for all file additions to complete
+        await Promise.all(addPromises);
+
+        // Finalize the archive (this will end the response stream)
+        await archive.finalize();
+
+    } catch (err) {
+        console.error('Error in download-space-all:', err);
+        if (!res.headersSent) {
+            res.status(500).send('Error downloading all files.');
+        }
     }
 });
 

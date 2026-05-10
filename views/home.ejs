@@ -37,8 +37,9 @@
                                                         </div>
                                                         <div
                                                             class="text-base font-medium text-white truncate leading-snug sm:text-lg max-w-full">
-                                                            <a href="/download/<%= encodeURIComponent(file.s3Key) %>"
-                                                                download="<%= file.originalName %>"
+                                                            <a href="/view/<%= encodeURIComponent(file.s3Key) %>"
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
                                                                 class="underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300 hover:text-cyan-300 transition-colors">
                                                                 <%= file.originalName %>
                                                             </a>

@@ -17,27 +17,22 @@ router.get('/global', authMiddleware, async (req, res) => {
         const publicFiles = await fileModel.find({ isPublic: true }).populate('owner', 'username');
         console.log('✅ [/global] Public files fetched:', publicFiles.length);
 
-        // 2. Fetch all Protected Spaces (populate files and each file's owner username)
-        console.log('📍 [/global] Fetching spaces...');
-        const spaces = await spaceModel.find()
-            .sort({ _id: 1 })
-            .populate({ path: 'files', populate: { path: 'owner', select: 'username' } })
-            .populate('owner', 'username');
-        console.log('✅ [/global] Spaces fetched:', spaces.length);
+        // 2. Fetch all Public Spaces (populate files and each file's owner username)
+                console.log('📍 [/global] Fetching public spaces...');
+                const publicSpaces = await PublicSpace.find()
+                    .sort({ _id: 1 })
+                    .populate({ path: 'files', populate: { path: 'owner', select: 'username' } })
+                    .populate('owner', 'username');
+                console.log('✅ [/global] Public spaces fetched:', publicSpaces.length);
 
-        // 3. Get unlocked spaces from session
-        const unlockedSpaces = (req.session && req.session.unlockedSpaces) ? req.session.unlockedSpaces : [];
-        console.log('✅ [/global] Unlocked spaces:', unlockedSpaces.length);
-
-        console.log('📍 [/global] Rendering global page...');
-        res.render('global', {
-            user: req.user,
-            files: publicFiles,
-            spaces: spaces,
-            unlockedSpaces: unlockedSpaces,
-            successMsg: req.query.success,
-            errorMsg: req.query.error
-        });
+                console.log('📍 [/global] Rendering global page...');
+                res.render('global', {
+                    user: req.user,
+                    files: publicFiles,
+                    publicSpaces: publicSpaces,
+                    successMsg: req.query.success,
+                    errorMsg: req.query.error
+                });
     } catch (err) {
         console.error('❌ [/global] ERROR:', err.message);
         console.error('❌ [/global] Stack:', err.stack);
@@ -179,11 +174,12 @@ router.get(/^\/view-public\/(.+)$/, authMiddleware, async (req, res) => {
             return res.status(500).send('Error checking file availability.');
         }
 
-        return res.redirect(`/download-public/${encodeURIComponent(s3Key)}`);
-    } catch (error) {
-        console.error('View error:', error);
-        res.status(500).send('Error downloading file.');
-    }
-});
+        const viewUrl = await getSignedViewUrl(s3Key, file.originalName);
+                return res.redirect(viewUrl);
+            } catch (error) {
+                console.error('View error:', error);
+                res.status(500).send('Error viewing file.');
+            }
+        });
 
-module.exports = router
+        module.exports = router

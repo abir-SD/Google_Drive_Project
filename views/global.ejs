@@ -35,35 +35,36 @@
                                                                     <i class="ri-file-line text-xl"></i>
                                                                 </div>
                                                                 <div class="truncate">
-                                                                    <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
-                                                                        download="<%= file.originalName %>"
-                                                                        class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
-                                                                        <%= file.originalName %>
-                                                                    </a>
+                                                                    <a href="/view-public/<%= encodeURIComponent(file.s3Key) %>"
+                                                                                                                                            target="_blank"
+                                                                                                                                            rel="noopener noreferrer"
+                                                                                                                                            class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
+                                                                                                                                            <%= file.originalName %>
+                                                                                                                                        </a>
 
-                                                                    <div class="flex items-center gap-2 mt-0.5">
-                                                                        <span
-                                                                            class="text-sm font-medium text-blue-200/70">
-                                                                            @<%= file.owner ? file.owner.username
-                                                                                : 'Unknown' %>
-                                                                        </span>
-                                                                        <% if (file.size) { %>
-                                                                            <span class="text-xs text-blue-200/70">
-                                                                                • <%= (file.size / 1024 /
-                                                                                    1024).toFixed(2) %> MB
-                                                                            </span>
-                                                                            <% } %>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <!-- Action Buttons Container -->
-                                                            <div class="flex items-center gap-3">
-                                                                <% const isFileOwner=user && file.owner &&
-                                                                    (file.owner._id ? file.owner._id.toString() :
-                                                                    file.owner.toString())===user._id.toString(); if
-                                                                    (!isFileOwner) { %>
-                                                                    <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
-                                                                        download="<%= file.originalName %>"
+                                                                                                                                        <div class="flex items-center gap-2 mt-0.5">
+                                                                                                                                            <span
+                                                                                                                                                class="text-sm font-medium text-blue-200/70">
+                                                                                                                                                @<%= file.owner ? file.owner.username
+                                                                                                                                                    : 'Unknown' %>
+                                                                                                                                            </span>
+                                                                                                                                            <% if (file.size) { %>
+                                                                                                                                                <span class="text-xs text-blue-200/70">
+                                                                                                                                                    • <%= (file.size / 1024 /
+                                                                                                                                                        1024).toFixed(2) %> MB
+                                                                                                                                                </span>
+                                                                                                                                                <% } %>
+                                                                                                                                        </div>
+                                                                                                                                    </div>
+                                                                                                                                </div>
+                                                                                                                                <!-- Action Buttons Container -->
+                                                                                                                                <div class="flex items-center gap-3">
+                                                                                                                                    <% const isFileOwner=user && file.owner &&
+                                                                                                                                        (file.owner._id ? file.owner._id.toString() :
+                                                                                                                                        file.owner.toString())===user._id.toString(); if
+                                                                                                                                        (!isFileOwner) { %>
+                                                                                                                                        <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
+                                                                                                                                            download="<%= file.originalName %>"
                                                                         title="Download"
                                                                         class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110"><i
                                                                             class="ri-download-line text-xl"></i></a>
@@ -211,39 +212,40 @@
                                                                                     <i class="ri-file-line text-xl"></i>
                                                                                 </div>
                                                                                 <div class="truncate">
-                                                                                    <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
-                                                                                        download="<%= file.originalName %>"
-                                                                                        class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
-                                                                                        <%= file.originalName %>
-                                                                                    </a>
-                                                                                    <div
-                                                                                        class="flex items-center gap-2 mt-0.5">
-                                                                                        <span
-                                                                                            class="text-sm font-medium text-blue-200/70">
-                                                                                            @<%= file.owner &&
-                                                                                                file.owner.username ?
-                                                                                                file.owner.username
-                                                                                                : 'Unknown' %>
-                                                                                        </span>
-                                                                                        <% if (file.size) { %>
-                                                                                            <span
-                                                                                                class="text-xs text-blue-200/70">
-                                                                                                • <%= (file.size / 1024
-                                                                                                    / 1024).toFixed(2)
-                                                                                                    %> MB
-                                                                                            </span>
-                                                                                            <% } %>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="flex items-center gap-3">
-                                                                                <% const isFileOwner=user && file.owner
-                                                                                    && (file.owner._id ||
-                                                                                    file.owner).toString()===user._id.toString();
-                                                                                    if (canDownload && !isFileOwner) {
-                                                                                    %>
-                                                                                    <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
-                                                                                        download="<%= file.originalName %>"
+                                                                                    <a href="/view-public/<%= encodeURIComponent(file.s3Key) %>"
+                                                                                                                                                                            target="_blank"
+                                                                                                                                                                            rel="noopener noreferrer"
+                                                                                                                                                                            class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
+                                                                                                                                                                            <%= file.originalName %>
+                                                                                                                                                                        </a>
+                                                                                                                                                                        <div
+                                                                                                                                                                            class="flex items-center gap-2 mt-0.5">
+                                                                                                                                                                            <span
+                                                                                                                                                                                class="text-sm font-medium text-blue-200/70">
+                                                                                                                                                                                @<%= file.owner &&
+                                                                                                                                                                                    file.owner.username ?
+                                                                                                                                                                                    file.owner.username
+                                                                                                                                                                                    : 'Unknown' %>
+                                                                                                                                                                            </span>
+                                                                                                                                                                            <% if (file.size) { %>
+                                                                                                                                                                                <span
+                                                                                                                                                                                    class="text-xs text-blue-200/70">
+                                                                                                                                                                                    • <%= (file.size / 1024
+                                                                                                                                                                                        / 1024).toFixed(2)
+                                                                                                                                                                                        %> MB
+                                                                                                                                                                                </span>
+                                                                                                                                                                                <% } %>
+                                                                                                                                                                        </div>
+                                                                                                                                                                    </div>
+                                                                                                                                                                </div>
+                                                                                                                                                                <div class="flex items-center gap-3">
+                                                                                                                                                                    <% const isFileOwner=user && file.owner
+                                                                                                                                                                        && (file.owner._id ||
+                                                                                                                                                                        file.owner).toString()===user._id.toString();
+                                                                                                                                                                        if (canDownload && !isFileOwner) {
+                                                                                                                                                                        %>
+                                                                                                                                                                        <a href="/download-public/<%= encodeURIComponent(file.s3Key) %>"
+                                                                                                                                                                            download="<%= file.originalName %>"
                                                                                         class="flex-shrink-0 bg-white/10 hover:bg-cyan-500 hover:text-white text-cyan-200 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition duration-200 group-hover:scale-110">
                                                                                         <i
                                                                                             class="ri-download-line text-xl"></i>
@@ -1082,9 +1084,9 @@
                                 <i class="ri-file-line text-xl"></i>
                             </div>
                             <div class="truncate">
-                                <a href="/download-public/${file.s3Key}" download="${file.originalName}" class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
-                                    ${file.originalName}
-                                </a>
+                                <a href="/view-public/${file.s3Key}" target="_blank" rel="noopener noreferrer" class="text-base font-medium sm:text-lg hover:text-cyan-300 transition-colors underline underline-offset-4 decoration-white/20 hover:decoration-cyan-300">
+                                                                    ${file.originalName}
+                                                                </a>
                                 <div class="flex items-center gap-2 mt-0.5">
                                     <span class="text-sm font-medium text-blue-200/70">
                                         @${file.owner && file.owner.username ? file.owner.username : 'Unknown'}

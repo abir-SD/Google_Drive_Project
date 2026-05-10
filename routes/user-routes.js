@@ -14,14 +14,14 @@ router.get('/register', (req, res) => {
 
 router.post('/register',
     body('username').trim().isLength({ min: 3 }),
-    body('email').trim().isEmail().isLength({ min: 13 }),
-    body('password').trim().isLength({ min: 5 }),
+    body('email').trim().isEmail().isLength({ min: 8 }),
+    body('password').trim().isLength({ min: 3 }),
 
     async (req, res) => {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            return res.render('register', { error: "Please provide valid information (Check your email/password length)." });
+            return res.render('register', { error: "Check your email/password length" });
         }
 
         const { username, email, password } = req.body;
@@ -72,8 +72,8 @@ router.get('/login', (req, res) => {
 });
 
 router.post('/login',
-    body('email').trim().isEmail().isLength({ min: 13 }),
-    body('password').trim().isLength({ min: 5 }),
+    body('email').trim().isEmail().isLength({ min: 8 }),
+    body('password').trim().isLength({ min: 3 }),
     async (req, res) => {
         const errors = validationResult(req);
 

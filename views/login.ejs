@@ -164,9 +164,13 @@
                         <i class="ri-lock-line text-blue-300"></i>
                     </div>
                     <input type="password" id="password" name="password" required
-                        class="glass-input bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-11 p-3.5 placeholder-white/30 transition-all backdrop-blur-sm shadow-sm"
-                        placeholder="•••••••••" />
-                </div>
+                                            class="glass-input bg-white/5 border border-white/20 text-white text-sm rounded-xl block w-full pl-11 pr-12 p-3.5 placeholder-white/30 transition-all backdrop-blur-sm shadow-sm"
+                                            placeholder="•••••••••" />
+                                        <button type="button" id="togglePassword" 
+                                            class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-blue-300 hover:text-cyan-300 transition-colors focus:outline-none">
+                                            <i class="ri-eye-line text-lg" id="passwordIcon"></i>
+                                        </button>
+                                    </div>
             </div>
 
             <!-- Remember Me & Terms -->
@@ -212,18 +216,34 @@
         </form>
     </div>
 
-    <!-- Error auto-hide script -->
-    <script>
-        const errorBox = document.getElementById('error-message');
-        if (errorBox) {
-            setTimeout(() => {
-                errorBox.style.transition = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
-                errorBox.style.opacity = "0";
-                errorBox.style.transform = "translateY(-10px)";
-                setTimeout(() => errorBox.remove(), 600);
-            }, 6000);
-        }
-    </script>
+    <!-- Error auto-hide & Password Toggle script -->
+                <script>
+                    // Error auto-hide
+                    const errorBox = document.getElementById('error-message');
+                    if (errorBox) {
+                        setTimeout(() => {
+                            errorBox.style.transition = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+                            errorBox.style.opacity = "0";
+                            errorBox.style.transform = "translateY(-10px)";
+                            setTimeout(() => errorBox.remove(), 600);
+                        }, 6000);
+                    }
+
+                    // Password visibility toggle
+                    const togglePassword = document.getElementById('togglePassword');
+                    const passwordInput = document.getElementById('password');
+                    const passwordIcon = document.getElementById('passwordIcon');
+
+                    if (togglePassword && passwordInput && passwordIcon) {
+                        togglePassword.addEventListener('click', function () {
+                            const isPassword = passwordInput.type === 'password';
+                            passwordInput.type = isPassword ? 'text' : 'password';
+                            passwordIcon.className = isPassword
+                                ? 'ri-eye-off-line text-lg'
+                                : 'ri-eye-line text-lg';
+                        });
+                    }
+                </script>
 </body>
 
 </html>

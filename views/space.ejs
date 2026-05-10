@@ -58,7 +58,7 @@
                             <i
                                 class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-xl pointer-events-none"></i>
                             <input id="space-search-input" name="space" type="search" placeholder="Search space by name"
-                                class="w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-white/40" />
+                                class="glass-input w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-white/40" />
                         </div>
                         <button type="submit" class="hidden"></button>
                         <button type="button" id="space-search-reset"
@@ -221,11 +221,16 @@
                                                     </p>
                                                 </div>
 
-                                                <form action="/unlock-space/<%= space._id %>" method="POST"
+                                                                                                <form action="/unlock-space/<%= space._id %>" method="POST"
                                                     class="w-full space-y-4">
-                                                    <input type="password" name="password"
-                                                        placeholder="Enter Access Password" required
-                                                        class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 focus:outline-none focus:border-cyan-400 transition text-center" />
+                                                    <div class="relative">
+                                                        <input type="password" name="password"
+                                                            placeholder="Enter Access Password" required
+                                                            class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 pr-12 focus:outline-none focus:border-cyan-400 transition text-center" />
+                                                        <button type="button" class="unlock-toggle-pwd absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-blue-300 hover:text-cyan-300 transition-colors focus:outline-none">
+                                                            <i class="ri-eye-line text-lg unlock-pwd-icon"></i>
+                                                        </button>
+                                                    </div>
                                                     <button type="submit"
                                                         class="btn-premium w-full rounded-full bg-white text-blue-900 px-4 py-2.5 font-bold shadow-lg border-2 border-transparent hover:bg-transparent hover:border-white/70 hover:text-white focus:outline-none text-center">
                                                         <i class="ri-key-2-line text-xl btn-icon-anim"></i>
@@ -311,11 +316,15 @@
                                 class="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all" />
                         </div>
 
-                        <div class="relative">
+                                                <div class="relative">
                             <i
                                 class="ri-lock-password-line absolute left-4 top-1/2 -translate-y-1/2 text-white/50 text-xl pointer-events-none"></i>
-                            <input type="password" name="password" required placeholder="Access Password"
-                                class="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all" />
+                            <input type="password" name="password" id="create-space-password" required placeholder="Access Password"
+                                class="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-12 py-3.5 text-white placeholder:text-white/40 focus:outline-none focus:border-cyan-400/50 focus:bg-white/10 transition-all" />
+                            <button type="button" id="create-space-toggle-pwd" 
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-blue-300 hover:text-cyan-300 transition-colors focus:outline-none">
+                                <i class="ri-eye-line text-lg" id="create-space-pwd-icon"></i>
+                            </button>
                         </div>
 
                         <div class="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10">
@@ -878,5 +887,30 @@
                 `;
                     }
                 });
-            </script>
+
+                                // Password visibility toggles
+                                document.querySelectorAll('.unlock-toggle-pwd').forEach(btn => {
+                                    btn.addEventListener('click', function() {
+                                        const wrapper = this.closest('.relative');
+                                        const input = wrapper ? wrapper.querySelector('input[type="password"], input[type="text"]') : null;
+                                        const icon = this.querySelector('.unlock-pwd-icon');
+                                        if (input && icon) {
+                                            const isPassword = input.type === 'password';
+                                            input.type = isPassword ? 'text' : 'password';
+                                            icon.className = isPassword ? 'ri-eye-off-line text-lg unlock-pwd-icon' : 'ri-eye-line text-lg unlock-pwd-icon';
+                                        }
+                                    });
+                                });
+
+                                const createSpaceTogglePwd = document.getElementById('create-space-toggle-pwd');
+                                const createSpacePwdInput = document.getElementById('create-space-password');
+                                const createSpacePwdIcon = document.getElementById('create-space-pwd-icon');
+                                if (createSpaceTogglePwd && createSpacePwdInput && createSpacePwdIcon) {
+                                    createSpaceTogglePwd.addEventListener('click', function() {
+                                        const isPassword = createSpacePwdInput.type === 'password';
+                                        createSpacePwdInput.type = isPassword ? 'text' : 'password';
+                                        createSpacePwdIcon.className = isPassword ? 'ri-eye-off-line text-lg' : 'ri-eye-line text-lg';
+                                    });
+                                }
+                            </script>
             <%- include('partials/footer') %>

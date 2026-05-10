@@ -182,9 +182,13 @@
                         <i class="ph ph-lock"></i>
                     </div>
                     <input type="password" id="password" name="password" required
-                        class="glass-input bg-white/5 border border-white/10 text-white text-sm rounded-xl block w-full pl-11 p-3.5 placeholder-white/20 transition-all backdrop-blur-sm"
-                        placeholder="•••••••••" />
-                </div>
+                                            class="glass-input bg-white/5 border border-white/10 text-white text-sm rounded-xl block w-full pl-11 pr-12 p-3.5 placeholder-white/20 transition-all backdrop-blur-sm"
+                                            placeholder="•••••••••" />
+                                        <button type="button" id="togglePassword" 
+                                            class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-blue-300 hover:text-cyan-300 transition-colors focus:outline-none">
+                                            <i class="ri-eye-line text-lg" id="passwordIcon"></i>
+                                        </button>
+                                    </div>
             </div>
 
             <!-- Terms -->
@@ -231,7 +235,8 @@
         </form>
     </div>
 
-    <script>
+        <script>
+        // Error auto-hide
         const errorBox = document.getElementById('error-message');
         if (errorBox) {
             setTimeout(() => {
@@ -240,6 +245,21 @@
                 errorBox.style.transform = "translateY(-10px)";
                 setTimeout(() => errorBox.remove(), 600);
             }, 6000);
+        }
+
+        // Password visibility toggle
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = document.getElementById('passwordIcon');
+
+        if (togglePassword && passwordInput && passwordIcon) {
+            togglePassword.addEventListener('click', function () {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                passwordIcon.className = isPassword
+                    ? 'ri-eye-off-line text-lg'
+                    : 'ri-eye-line text-lg';
+            });
         }
     </script>
 

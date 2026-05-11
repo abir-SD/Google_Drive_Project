@@ -9,11 +9,13 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.set('trust proxy', 1);
 
-// Force HTTPS in production
+// Force HTTPS in production (Vercel)
 if (process.env.NODE_ENV === 'production') {
     app.use((req, res, next) => {
-        if (req.header('x-forwarded-proto') !== 'https') {
-            return res.redirect(301, `https://${req.header('host')}${req.url}`);
+        const protocol = req.get('x-forwarded-proto');
+        // Only redirect if we're sure it's HTTP
+        if (protocol && protocol !== 'https') {
+            return res.redirect(301, `https://${req.get('host')}${req.url}`);
         }
         next();
     });
@@ -125,24 +127,29 @@ app.use(async (req, res, next) => {
 });
 
 // Middleware to ensure database is ready before handling requests
+let dbConnectionAttempts = 0;
+const MAX_DB_ATTEMPTS = 2;
+
 app.use((req, res, next) => {
     // Skip this check for health endpoint and static files
     if (req.path === '/api/health' || req.path.startsWith('/assets')) {
         return next();
     }
     
-    // If DB not connected yet, try to connect again
-    if (!dbConnected) {
-        console.warn('⚠️ Database not connected yet, attempting to reconnect...');
+    // If DB not connected, only try a couple times then proceed
+    if (!dbConnected && dbConnectionAttempts < MAX_DB_ATTEMPTS) {
+        dbConnectionAttempts++;
+        console.warn(`⚠️ Database not connected yet (attempt ${dbConnectionAttempts}/${MAX_DB_ATTEMPTS})...`);
         connectToDB()
             .then(() => {
                 dbConnected = true;
+                dbConnectionAttempts = 0;
                 console.log('✅ Database reconnected');
                 next();
             })
             .catch(err => {
-                console.error('❌ Database still not connected:', err.message);
-                // Let request proceed but it may fail
+                console.error('❌ Database connection failed:', err.message);
+                // Still proceed so page doesn't hang
                 next();
             });
     } else {

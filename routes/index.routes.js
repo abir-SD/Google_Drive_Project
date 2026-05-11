@@ -63,20 +63,21 @@ router.get('/members', async (req, res) => {
         console.log('✅ [/members] Total files:', totalFiles);
 
         console.log('📍 [/members] Rendering members page...');
-        res.render('members', {
+        return res.render('members', {
             users: recentUsers,
             count: totalUsers,
-            totalFiles: totalFiles
+            totalFiles: totalFiles,
+            error: null
         });
 
     } catch (error) {
         console.error("❌ [/members] ERROR:", error.message);
         console.error("❌ [/members] Stack:", error.stack);
-        res.status(500).render('members', {
+        return res.status(500).render('members', {
             users: [],
             count: 0,
             totalFiles: 0,
-            error: 'Failed to load members data. Please try again later.'
+            error: error.message
         });
     }
 });

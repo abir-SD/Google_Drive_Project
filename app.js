@@ -9,6 +9,16 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.set('trust proxy', 1);
 
+// Force HTTPS in production
+if (process.env.NODE_ENV === 'production') {
+    app.use((req, res, next) => {
+        if (req.header('x-forwarded-proto') !== 'https') {
+            return res.redirect(301, `https://${req.header('host')}${req.url}`);
+        }
+        next();
+    });
+}
+
 // Cache-busting headers to force browser to fetch fresh content
 app.use((req, res, next) => {
     // Force no caching of HTML to get latest headers
@@ -161,9 +171,20 @@ app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Handle 404s (Optional but good)
-app.use((req, res) => {
-    res.status(404).render('404'); // Make sure you have a 404.ejs file
+// Handle 404s with error handling
+app.use((req, res, next) => {
+    try {
+        res.status(404).render('404');
+    } catch (err) {
+        console.error('Error rendering 404 page:', err);
+        res.status(404).send('<h1>404 - Page Not Found</h1><p><a href="/welcome">Go to Home</a></p>');
+    }
+});
+
+// Global error handler (must be last middleware)
+app.use((err, req, res, next) => {
+    console.error('Global error:', err);
+    res.status(err.status || 500).send('<h1>500 - Server Error</h1><p><a href="/welcome">Go to Home</a></p>');
 });
 
 process.on('uncaughtException', err => {

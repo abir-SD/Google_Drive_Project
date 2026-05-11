@@ -100,7 +100,7 @@ const session = require('express-session')
      cookie: { 
          secure: process.env.NODE_ENV === 'production', // Only require HTTPS in production
          httpOnly: true,
-         sameSite: 'Strict', // CSRF protection
+         sameSite: 'Lax', // Changed from Strict to Lax to allow OAuth redirects
          maxAge: 1000 * 60 * 60 * 24 // 24 hours
      }
  }))

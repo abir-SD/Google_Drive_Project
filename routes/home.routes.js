@@ -8,23 +8,32 @@ const counterModel = require('../models/Counter.model');
 const { getSignedDownloadUrl, getSignedViewUrl, deleteFileFromS3, s3ObjectExists } = require('../services/storageService');
 
 router.get('/home', authMiddleware, async (req, res) => {
+    try {
+        // Only show personal (non-public) files on the Home page. Exclude files that belong to a space.
+        const userFiles = await fileModel.find({
+            owner: req.user._id,
+            isPublic: false,
+            space: null
+        })
 
-    // Only show personal (non-public) files on the Home page. Exclude files that belong to a space.
-    const userFiles = await fileModel.find({
-        owner: req.user._id,
-        isPublic: false,
-        space: null
-    })
+        // Capture messages from query parameters
+        const successMsg = req.query.success;
+        const errorMsg = req.query.error;
 
-    // Capture messages from query parameters
-    const successMsg = req.query.success;
-    const errorMsg = req.query.error;
-
-    res.render('home', {
-        files: userFiles,
-        successMsg: successMsg,
-        errorMsg: errorMsg
-    });
+        res.render('home', {
+            files: userFiles,
+            successMsg: successMsg,
+            errorMsg: errorMsg
+        });
+    } catch (error) {
+        console.error('❌ [/home] Error:', error.message);
+        res.status(500).render('home', {
+            files: [],
+            successMsg: null,
+            errorMsg: 'Failed to load your files. Please try again.',
+            error: error.message
+        });
+    }
 })
 
 router.post('/upload',

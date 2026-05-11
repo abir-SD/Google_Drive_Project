@@ -7,6 +7,15 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 
+// ✅ CRITICAL: Check for required environment variables
+const requiredEnvVars = ['JWT_SECRET', 'DB_CONNECTION_STRING'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+    console.error('❌ CRITICAL: Missing environment variables:', missingEnvVars.join(', '));
+    console.error('⚠️ Application may fail. Please set these environment variables.');
+}
+
 app.set('trust proxy', 1);
 
 // Force HTTPS in production (Vercel)
@@ -190,8 +199,18 @@ app.use((req, res, next) => {
 
 // Global error handler (must be last middleware)
 app.use((err, req, res, next) => {
-    console.error('Global error:', err);
-    res.status(err.status || 500).send('<h1>500 - Server Error</h1><p><a href="/welcome">Go to Home</a></p>');
+    console.error('❌ Global error handler triggered');
+    console.error('Path:', req.path);
+    console.error('Method:', req.method);
+    console.error('Error message:', err.message);
+    console.error('Error stack:', err.stack);
+    
+    // Only show detailed errors in development
+    const errorMessage = process.env.NODE_ENV === 'production' 
+        ? 'An error occurred' 
+        : err.message;
+    
+    res.status(err.status || 500).send(`<h1>500 - Server Error</h1><p>${errorMessage}</p><p><a href="/welcome">Go to Home</a></p>`);
 });
 
 process.on('uncaughtException', err => {

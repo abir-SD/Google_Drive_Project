@@ -59,10 +59,8 @@ router.post('/register',
             res.redirect('/home');
 
         } catch (error) {
-            res.status(500).json({
-                message: "Something went wrong man...",
-                error: error.message
-            });
+            console.error('❌ [/register] Error:', error.message);
+            return res.render('register', { error: "Something went wrong. Please try again later." });
         }
     }
 );
@@ -110,7 +108,8 @@ router.post('/login',
 
         } catch (err) {
             // 4. Handle Server Errors
-            res.render('login', { error: "Something went wrong. Please try again later." });
+            console.error('❌ [/login] Error:', err.message);
+            return res.render('login', { error: "Something went wrong. Please try again later." });
         }
     }
 );

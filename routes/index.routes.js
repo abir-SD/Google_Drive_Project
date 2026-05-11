@@ -72,10 +72,11 @@ router.get('/members', async (req, res) => {
     } catch (error) {
         console.error("❌ [/members] ERROR:", error.message);
         console.error("❌ [/members] Stack:", error.stack);
-        res.status(500).json({
-            success: false,
-            error: error.message,
-            message: 'Failed to load members page. Check server logs for details.'
+        res.status(500).render('members', {
+            users: [],
+            count: 0,
+            totalFiles: 0,
+            error: 'Failed to load members data. Please try again later.'
         });
     }
 });

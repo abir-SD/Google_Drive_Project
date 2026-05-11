@@ -38,6 +38,12 @@
             </style>
 
             <main class="pt-32 pb-20 px-4 max-w-6xl mx-auto relative z-10">
+                <% if (error) { %>
+                    <div class="mb-8 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200">
+                        <p><strong>Error:</strong> <%= error %></p>
+                    </div>
+                <% } %>
+
                 <div class="text-center mb-12">
                     <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Our Trusted <span
                             class="text-cyan-300">Community</span></h1>

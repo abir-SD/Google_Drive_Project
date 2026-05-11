@@ -118,9 +118,11 @@
     </style>
 </head>
 
-<body class="animated-bg flex items-center justify-center p-4">
+<body class="animated-bg flex flex-col min-h-screen p-4">
 
-    <!-- Glass Container -->
+    <!-- Main Content Container -->
+    <div class="flex items-center justify-center flex-1">
+        <!-- Glass Container -->
     <div class="glass-panel w-full max-w-md p-8 rounded-3xl shadow-2xl relative overflow-hidden">
         
         <!-- Header -->
@@ -244,6 +246,10 @@
                         });
                     }
                 </script>
+                
+    </div>
+    </div>
+    
                 <%- include('./partials/footer') %>
 </body>
 
